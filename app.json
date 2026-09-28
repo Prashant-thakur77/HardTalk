@@ -30,6 +30,12 @@
         "android.permission.INTERNET",
         "android.permission.WAKE_LOCK",
         "android.permission.BLUETOOTH"
+      ],
+      "blockedPermissions": [
+        "android.permission.CAMERA",
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE",
+        "android.permission.SYSTEM_ALERT_WINDOW"
       ]
     },
     "web": {
