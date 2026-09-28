@@ -3,20 +3,22 @@
 Live plan for HardTalk. Rewritten from SCORECARD.md at the end of every round, not from the
 previous plan. Every item names the criterion it moves (CLAUDE.md §3).
 
-**Round 7 score: 12/20** (C1 2 · C2 4 · C3 3 · C4 3), flat for the third round: 13, 12, 12, 12. By the
-exit rule's convergence test the loop has converged. The other two exit conditions (every
-criterion ≥ 4, zero P0) cannot be met from this machine: C1 and C3 need a phone and keys.
+**Round 8 score: 12/20** (C1 2 · C2 4 · C3 3 · C4 3), flat for the fourth round: 13, 12, 12, 12, 12.
+Converged. The round-7 fix narrowed tier 1 to cut false alarms and lost 28 disclosures (D-066):
+the fifth safety regression, each from hand-picked tests that never covered a harmful subject
+swapped into an idiom.
 
-## Now (round 8, the last)
+## Now (round 9, hand-over)
 
-1. **Close the demo-killer and the safety P1 before handing over** [C1] [C4] — D-064 ("Can I stop
-   you there?" must stay roleplay; it is the natural move in the uncut take), D-061 (closed
-   idioms with no gaps, so "That man touched me" and "The call ended and he hit me" always
-   count), D-062 (exact-continuation exceptions for "shoot myself in the foot", "beat me to it",
-   "kicked me off the call"), D-063 (stops checked clause by clause; persona names anywhere),
-   D-065 (a failed model check is reported, never read as "no distress"; a late flag deletes the
-   saved attempt). Every probe line is a test.
-2. **Hand over** — final review to confirm nothing regressed, then the final packet.
+1. **Make the safety list regression-proof, not just fixed** [C4] — D-066: tier 1 restored and
+   declared grow-only (false alarms become tests marked accepted, never narrower patterns);
+   idioms limited to clause-initial requests or harmless subjects/objects; 420 generated tests
+   put a person in front of every idiom and require distress. D-067: a stop needs only lead-ins
+   and short trailers around it, so "Can we pause, and look at…" is pushback. D-068: SAFETY.md
+   says plainly that most idioms pause. D-069: a late flag also refunds the free session.
+2. **Final review, then the final packet** — no further polishing rounds: C1 and C3 are blocked
+   on the owner's phone session, and C4's remaining risk is what a word list cannot do, which the
+   server-side model check exists for.
 
 ## Next
 
