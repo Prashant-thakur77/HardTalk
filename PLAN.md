@@ -3,22 +3,22 @@
 Live plan for HardTalk. Rewritten from SCORECARD.md at the end of every round, not from the
 previous plan. Every item names the criterion it moves (CLAUDE.md §3).
 
-**Round 8 score: 12/20** (C1 2 · C2 4 · C3 3 · C4 3), flat for the fourth round: 13, 12, 12, 12, 12.
-Converged. The round-7 fix narrowed tier 1 to cut false alarms and lost 28 disclosures (D-066):
-the fifth safety regression, each from hand-picked tests that never covered a harmful subject
-swapped into an idiom.
+**Round 9 score: 12/20** (C1 2 · C2 4 · C3 3 · C4 3), flat for the fifth round: 13, 12, 12, 12, 12, 12.
+Converged. Every safety regression since round 4 came from a partial-line check: a next-word
+carve-out (D-041, D-050, D-070), an idiom checked inside one clause (D-055, D-061, D-071), or a
+narrowed pattern (D-066). The builder also found that the round-7 and round-8 disclosure probes
+had never reached the test file (an edit that silently matched nothing), so two commit messages
+overstated the tests.
 
-## Now (round 9, hand-over)
+## Now (round 10, hand-over)
 
-1. **Make the safety list regression-proof, not just fixed** [C4] — D-066: tier 1 restored and
-   declared grow-only (false alarms become tests marked accepted, never narrower patterns);
-   idioms limited to clause-initial requests or harmless subjects/objects; 420 generated tests
-   put a person in front of every idiom and require distress. D-067: a stop needs only lead-ins
-   and short trailers around it, so "Can we pause, and look at…" is pushback. D-068: SAFETY.md
-   says plainly that most idioms pause. D-069: a late flag also refunds the free session.
-2. **Final review, then the final packet** — no further polishing rounds: C1 and C3 are blocked
-   on the owner's phone session, and C4's remaining risk is what a word list cannot do, which the
-   server-side model check exists for.
+1. **Remove partial-line matching from the design** [C4] — tier 1 grow-only with complete-phrase
+   exceptions only (D-070); tier 2 exempt only when the whole line equals a closed idiom template,
+   so no clause or sentence can hide behind one (D-071); any bare "stop" clause stops, and only
+   "pause" keeps the pushback rule (D-072); stop word lists moved to data; the 13 D-056 phrasings;
+   D-073's status lines as whole-line templates. Every probe line from rounds 3-9 is now actually
+   in the tests (121 were missing), plus generated cross-sentence and cross-clause lines.
+2. **Final review, then the final packet.**
 
 ## Next
 
