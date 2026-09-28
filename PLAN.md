@@ -3,25 +3,24 @@
 Live plan for HardTalk. Rewritten from SCORECARD.md at the end of every round, not from the
 previous plan. Every item names the criterion it moves (CLAUDE.md §3).
 
-**Round 5 score: 12/20** (C1 2 · C2 4 · C3 3 · C4 3), down from 13. The round-5 safety rewrite let
-explicit disclosures through ("I'm going to kill myself on Friday.") because each carve-out looked
-only at the next word (D-050), and broke "Stop it." (D-051). C4 lost its point for it.
+**Round 6 score: 12/20** (C1 2 · C2 4 · C3 3 · C4 3), flat. Totals: 6, 9, 12, 13, 12, 12. C4 keeps
+losing its point to the distress filter: three rounds of keyword fixes, three regressions
+(D-041, D-050, D-055). A list alone is a treadmill.
 
 **Hard ceiling, stated honestly:** C1 and C3 are capped here at "code complete, tested, bundled";
-the four P0s close only with one recorded session on a phone with keys. Totals: 6, 9, 12, 13, 12.
-The loop has converged on what this machine can verify.
+the four P0s close only with one recorded session on a phone with keys.
 
-## Now (round 6)
+## Now (round 7)
 
-1. **Distress detection that cannot regress by construction** [C4] — D-050, D-052. Patterns are
-   unconditional; idioms are whole phrases removed before matching, so an idiom can only cancel
-   its own words. Every probe line from rounds 3 to 5, plus the builder's own, is a test in both
-   directions. Expected: C4 back to 4. Effort: low.
-2. **"Stop it." stops again** [C4] — D-051: "it"/"this" count only straight after "stop", so
-   "Can we pause it?" and "I need this to stop." stay roleplay. Effort: low.
-3. **No false sentences** [C1] [C2] — D-053 (timestamped eval files; excluded gradings named in
-   EVALS.md), D-054 (the ask line never claims "no request" when the grader just had no quote;
-   mock typed mode says plainly that changed lines score lower there). Effort: low.
+1. **Stop the safety treadmill structurally** [C4] — D-055, D-056, D-057. Tier 1 explicit
+   disclosures that nothing can cancel; tier 2 ambiguous words cancelled only when a sentence-
+   anchored idiom covers that exact occurrence; normalisation for "wanna", "my self", spacing.
+   And the part the Phase 6 spec asked for and was never built: a server-side model check on every
+   live user line, for paraphrases no list covers. Every probe line from every round is a test.
+2. **Stops that stop** [C4] — D-058: the persona's name, "stop that", "pls", longer polite
+   requests, and a stop sentence followed by more ("Stop. I can't do this.").
+3. **No comments about words never said** [C1] [C2] — D-059 (a score-1 comment that rested on
+   stripped quotes is replaced), D-060 (deterministic, committed baseline; paid runs git-ignored).
 
 ## Next
 
