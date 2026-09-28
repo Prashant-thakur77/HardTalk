@@ -20,20 +20,28 @@ interface GradedAttempt {
   grade: Grade;
 }
 
-/** Paywall copy is about the conversation the user just practised, not a generic upsell. */
+/**
+ * What the paywall talks about. At the session limit: the scenario the user is trying to
+ * start, and how their score has moved on it. At "Create your own": their latest scenario.
+ */
 export function paywallContext(
   reason: PaywallReason,
   attempts: GradedAttempt[],
   titleOf: (scenarioId: string) => string,
+  startingScenarioId?: string,
 ): PaywallContext {
-  const latest = attempts.at(-1);
-  if (!latest) return { reason, scenarioTitle: 'your next conversation', scoreLine: null };
+  const scenarioId = startingScenarioId ?? attempts.at(-1)?.scenarioId;
+  if (!scenarioId) return { reason, scenarioTitle: null, scoreLine: null };
 
-  const sameScenario = attempts.filter((attempt) => attempt.scenarioId === latest.scenarioId);
-  const first = sameScenario[0]!;
-  const scoreLine =
-    first === latest
-      ? `${total(latest.grade)} out of ${MAX_TOTAL}`
-      : `${total(first.grade)} → ${total(latest.grade)} out of ${MAX_TOTAL}`;
-  return { reason, scenarioTitle: titleOf(latest.scenarioId), scoreLine };
+  const tries = attempts.filter((attempt) => attempt.scenarioId === scenarioId);
+  const first = tries[0];
+  const latest = tries.at(-1);
+  let scoreLine: string | null = null;
+  if (first && latest) {
+    scoreLine =
+      first === latest
+        ? `${total(latest.grade)} out of ${MAX_TOTAL}`
+        : `${total(first.grade)} → ${total(latest.grade)} out of ${MAX_TOTAL}`;
+  }
+  return { reason, scenarioTitle: titleOf(scenarioId), scoreLine };
 }

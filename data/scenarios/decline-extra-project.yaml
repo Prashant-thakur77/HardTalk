@@ -21,15 +21,18 @@ persona:
 difficulty_levels:
   L1:
     name: Cooperative
+    summary: Warm, and open to a clear no.
     behaviour: >-
       Accepts a clear no once you name the trade-off. Thanks you for being direct.
   L2:
     name: Defensive
+    summary: Plays down the cost and appeals to your ambition.
     behaviour: >-
       Plays down the cost ("only a few hours a week") and appeals to your career once.
       Accepts the no only after you restate it with a reason.
   L3:
     name: Deflecting
+    summary: Questions your commitment and brings in their boss.
     behaviour: >-
       Frames the no as a lack of ambition, invokes their director, and asks whether you
       are committed to the team. Accepts only a no that comes with an alternative owner.

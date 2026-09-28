@@ -34,6 +34,7 @@ export class ElevenLabsVoiceProvider implements VoiceProvider {
   private userTurns = 0;
   private maxUserTurns = Infinity;
   private textOnly = false;
+  private ending = false;
   private finished = false;
 
   async startSession(session: SessionConfig): Promise<void> {
@@ -78,10 +79,14 @@ export class ElevenLabsVoiceProvider implements VoiceProvider {
         const speaker = role === 'user' ? 'user' : 'persona';
         // Typed lines are captioned the moment they are sent, in sendText.
         if (speaker === 'user' && this.textOnly) return;
-        // The persona dropped the roleplay (stop word or distress): its hang-up is not a result.
-        if (speaker === 'persona' && isPersonaStopLine(personaConfig, message)) this.endReason ??= 'user_stopped';
         this.emitTranscript({ id: `${speaker}-${event_id ?? Date.now()}`, speaker, text: message, final: true });
         if (speaker === 'user') this.userTurns += 1;
+        // The persona dropped the roleplay (stop word or distress): hang up now, unscored,
+        // rather than trust the agent to end the call.
+        if (speaker === 'persona' && isPersonaStopLine(personaConfig, message)) {
+          void this.end('user_stopped');
+          return;
+        }
         if (speaker === 'persona' && this.textOnly) this.afterPersonaTurn();
       },
       onAgentResponseCorrection: ({ corrected_agent_response, event_id }) => {
@@ -139,11 +144,16 @@ export class ElevenLabsVoiceProvider implements VoiceProvider {
     return () => this.stateListeners.delete(listener);
   }
 
+  /** Ends the session once. The first reason given is the one reported. */
   private async end(reason: EndReason) {
-    if (this.endReason) return;
-    this.endReason = reason;
-    if (this.conversation) await this.conversation.endSession();
-    else this.emitEnded(reason);
+    this.endReason ??= reason;
+    if (this.finished || this.ending) return;
+    if (!this.conversation) {
+      this.emitEnded(this.endReason);
+      return;
+    }
+    this.ending = true;
+    await this.conversation.endSession();
   }
 
   private emitEnded(reason: EndReason) {

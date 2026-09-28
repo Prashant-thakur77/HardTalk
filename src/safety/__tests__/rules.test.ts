@@ -10,13 +10,14 @@ const config = safetyConfigSchema.parse(
 );
 
 describe('isStopRequest', () => {
-  it.each(['stop', 'Stop.', 'pause', 'Please stop.', 'Can we stop?', "Let's pause here.", 'I want to stop the roleplay', 'ok stop now'])(
+  it.each(['stop', 'Stop.', 'pause', 'Please stop.', 'Can we stop?', "Let's pause here.", 'I want to stop the roleplay', 'ok stop now', 'No, stop.', 'Wait, stop.'])(
     'stops on %j',
     (line) => expect(isStopRequest(line, config)).toBe(true),
   );
 
   it.each([
     'Stop blocking the release.',
+    'No, stop adding scope.',
     'We need to stop adding scope mid-sprint.',
     "Don't stop now, we're close.",
     'Can we pause the migration until billing ships?',
@@ -33,6 +34,8 @@ describe('detectDistress', () => {
     "I think I'm having a panic attack.",
     'My manager grabbed me last week.',
     'I’d be better off dead.',
+    "I've been cutting myself again.",
+    'Sometimes I think about hurting myself.',
   ])('flags %j', (line) => expect(detectDistress(line, config)).toBe(true));
 
   it.each([
@@ -42,6 +45,12 @@ describe('detectDistress', () => {
     "I'm not okay with adding scope on day six.",
     'That PR is dead in the water until security signs off.',
     'We need to hit Friday.',
+    'Hit me up on Slack when it merges.',
+    "I'd be hurting myself and the team's delivery if I took it on.",
+    'I need to cut myself some slack this sprint.',
+    "I'm killing myself to hit this deadline.",
+    'They hit me with a new requirement on day six.',
+    'I wanted to die of embarrassment in that demo.',
   ])('does not flag the workplace idiom %j', (line) => expect(detectDistress(line, config)).toBe(false));
 });
 

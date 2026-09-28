@@ -106,7 +106,8 @@ export default function Session() {
     onStateChange: (next, lastTurn) => {
       if (next.status !== 'listening') return;
       turnHaptic('your_turn');
-      setDraft(suggestedReply() ?? '');
+      // Offer the recorded line only into an empty box: never overwrite what the user typed.
+      setDraft((current) => (current.trim() ? current : (suggestedReply() ?? '')));
       // In text mode nothing is heard, so the persona's line is read out; in voice mode the
       // persona has just finished speaking, so only the turn change is announced.
       const line = textOnly && lastTurn?.speaker === 'persona' ? `${personaName}: ${lastTurn.text}. ` : '';
@@ -184,6 +185,7 @@ export default function Session() {
             </Text>
             <Button label="Try again" onPress={() => void startSession(scenario.id, difficulty, mode, 'replace')} />
             <Button label="Back to conversations" variant="secondary" onPress={() => router.dismissTo('/')} />
+            <Button label="Talk to someone" variant="secondary" onPress={() => router.replace('/support')} hint="Free, confidential support lines" />
           </>
         ) : (
           <>

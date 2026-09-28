@@ -8,6 +8,7 @@ import { getScenario } from '@/scenarios';
 import { startSession } from '@/session/start';
 import { Button } from '@/ui/Button';
 import { MockBanner } from '@/ui/MockBanner';
+import { PurchaseNotice } from '@/ui/PurchaseNotice';
 import { Screen } from '@/ui/Screen';
 import { colors, radius, scoreColors, space, type } from '@/ui/theme';
 
@@ -44,6 +45,7 @@ export default function Scorecard() {
         </>
       }>
       <MockBanner message="Mock mode: this is the recorded example grade for this replay, checked against the transcript below. Live mode grades what you actually say." />
+      <PurchaseNotice />
       <View style={styles.summary} accessible accessibilityLabel={summaryLabel(score, previous && total(previous.grade))}>
         <Text style={type.caption}>
           {scenario.title} · attempt {attempt.number} · {attempt.difficulty}
@@ -55,11 +57,7 @@ export default function Scorecard() {
           </Text>
           {previous ? <Delta before={total(previous.grade)} after={score} large /> : null}
         </View>
-        <Text style={type.body}>
-          {grade.ask_made && grade.ask_text
-            ? `Your ask: “${grade.ask_text}”`
-            : 'No clear ask was made in this conversation.'}
-        </Text>
+        <Text style={type.body}>{askLine(grade)}</Text>
       </View>
 
       {DIMENSIONS.map((dimension) => (
@@ -84,6 +82,14 @@ export default function Scorecard() {
       </View>
     </Screen>
   );
+}
+
+/** Agrees with the Ask made score: the ask itself, the nearest thing to one, or none. */
+function askLine(grade: Grade): string {
+  if (grade.ask_made && grade.ask_text) return `Your ask: “${grade.ask_text}”`;
+  const closest = grade.dimensions.ask_made.evidence_quotes[0];
+  if (closest) return `Closest you came to an ask: “${closest}”`;
+  return 'You didn’t make a request in this conversation.';
 }
 
 function summaryLabel(score: number, previousScore: number | undefined): string {

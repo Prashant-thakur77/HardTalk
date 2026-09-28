@@ -37,6 +37,21 @@ describe('data/scenarios', () => {
     });
   }
 
+  it('level summaries shown to the user never give away the hidden objection', () => {
+    const pairs = (text: string) => {
+      const words = text.toLowerCase().match(/[a-z']+/g) ?? [];
+      return new Set(words.slice(1).map((word, i) => `${words[i]} ${word}`));
+    };
+    for (const file of files) {
+      const scenario = scenarioSchema.parse(file.data);
+      const secret = pairs(scenario.persona.hidden_objection);
+      for (const level of Object.values(scenario.difficulty_levels)) {
+        const shared = [...pairs(level.summary)].filter((pair) => secret.has(pair));
+        expect(shared, `${file.id}: ${level.summary}`).toEqual([]);
+      }
+    }
+  });
+
   it('every file on disk is registered with the app loader', () => {
     expect(scenarios.map((scenario) => scenario.id).sort()).toEqual(files.map((file) => file.id).sort());
   });

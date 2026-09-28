@@ -18,7 +18,7 @@ export default function MockPaywall() {
   const params = useLocalSearchParams<{ reason: PaywallReason; scenarioTitle: string; scoreLine: string }>();
   const copy = paywallCopy({
     reason: params.reason === 'custom_scenario' ? 'custom_scenario' : 'session_limit',
-    scenarioTitle: params.scenarioTitle ?? 'your next conversation',
+    scenarioTitle: params.scenarioTitle || null,
     scoreLine: params.scoreLine || null,
   });
   const [plan, setPlan] = useState(copy.plans[0]?.id);

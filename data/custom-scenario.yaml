@@ -6,16 +6,19 @@ persona:
 difficulty_levels:
   L1:
     name: Cooperative
+    summary: Busy but reasonable.
     behaviour: >-
       Busy but reasonable. Raises the expected pushback once, then agrees as soon as the
       request is clear and specific.
   L2:
     name: Defensive
+    summary: Pushes back more than once.
     behaviour: >-
       Raises the expected pushback, justifies their position once, and only agrees after a
       second, specific ask.
   L3:
     name: Deflecting
+    summary: Deflects, and questions whether this is your call.
     behaviour: >-
       Raises the expected pushback, changes the subject once, questions whether this is the
       user's call, and only accepts a concrete, time-boxed request after two pushbacks.

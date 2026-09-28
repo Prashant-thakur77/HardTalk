@@ -5,6 +5,7 @@ vi.mock('@react-native-async-storage/async-storage', () => ({
   default: {
     getItem: async (key: string) => storage.get(key) ?? null,
     setItem: async (key: string, value: string) => void storage.set(key, value),
+    multiSet: async (pairs: [string, string][]) => pairs.forEach(([key, value]) => storage.set(key, value)),
     removeItem: async (key: string) => void storage.delete(key),
   },
 }));
@@ -52,11 +53,13 @@ describe('attempt store', () => {
     expect(store.getAttempts()).toEqual([]);
   });
 
-  it('deletes every transcript on request', async () => {
+  it('deletes every transcript on request, without resetting the free-session count', async () => {
     await store.addAttempt(attempt('a1', 'pr', 'L2', 1));
+    await store.addAttempt(attempt('a2', 'pr', 'L2', 2));
     await store.deleteAllAttempts();
     await store.loadAttempts();
     expect(store.getAttempts()).toEqual([]);
+    expect(store.getGradedSessionsUsed()).toBe(2);
   });
 
   it('compares a retry only with the latest earlier attempt at the same difficulty', () => {

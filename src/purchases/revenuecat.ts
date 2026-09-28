@@ -1,6 +1,7 @@
 import Purchases, { type CustomerInfo } from 'react-native-purchases';
 import RevenueCatUI, { CustomVariableValue, PAYWALL_RESULT } from 'react-native-purchases-ui';
 
+import { paywallCopy } from './copy';
 import type { PaywallContext, PaywallOutcome, PurchasesProvider } from './types';
 
 export const ENTITLEMENT = 'pro';
@@ -17,9 +18,10 @@ const OUTCOMES: Record<PAYWALL_RESULT, PaywallOutcome> = {
 };
 
 /**
- * RevenueCat with the Test Store. The entitlement is `pro`; the paywall is the remote one
- * configured in the dashboard, fed the scenario the user just practised through custom
- * variables (see docs/REVENUECAT.md).
+ * RevenueCat with the Test Store. The entitlement is `pro`. The paywall is the remote one built
+ * in the dashboard; its headline, body and score line are custom variables filled from
+ * data/paywall.yaml for this moment, so each entry point says the right thing about the scenario
+ * in question (see docs/REVENUECAT.md).
  */
 export function createRevenueCat(apiKey: string): PurchasesProvider {
   // The SDK deliberately crashes release builds that contain a Test Store key.
@@ -40,11 +42,14 @@ export function createRevenueCat(apiKey: string): PurchasesProvider {
     },
 
     presentPaywall: async (context: PaywallContext) => {
+      const copy = paywallCopy(context);
       const result = await RevenueCatUI.presentPaywallIfNeeded({
         requiredEntitlementIdentifier: ENTITLEMENT,
         customVariables: {
-          scenario_title: CustomVariableValue.string(context.scenarioTitle),
-          score_line: CustomVariableValue.string(context.scoreLine ?? ''),
+          headline: CustomVariableValue.string(copy.headline),
+          body: CustomVariableValue.string(copy.body),
+          score_line: CustomVariableValue.string(copy.score ?? ''),
+          scenario_title: CustomVariableValue.string(context.scenarioTitle ?? ''),
           reason: CustomVariableValue.string(context.reason),
         },
       });

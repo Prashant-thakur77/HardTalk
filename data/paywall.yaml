@@ -1,14 +1,14 @@
-# Paywall copy. The live paywall is built in the RevenueCat dashboard with this same text
-# (docs/REVENUECAT.md); the app passes scenario_title and score_line as custom variables, so
-# the paywall always talks about the conversation the user just practised.
+# Paywall copy, used by both paywalls. The app fills it in and passes headline, body and
+# score_line to RevenueCat's remote paywall as custom variables (docs/REVENUECAT.md), so the two
+# entry points get their own words and the mock paywall shows exactly the same text.
 session_limit:
   headline: Keep practising "{{scenario_title}}"
   body: You've used your three free graded sessions. The next retry is usually where the new line sticks.
   score: "Your score on it so far: {{score_line}}."
 custom_scenario:
   headline: Rehearse the conversation you're actually dreading
-  body: Write your own scenario with the real stakes, and get the same pushback and scorecard as "{{scenario_title}}".
-  score: "Your latest score: {{score_line}}."
+  body: Write your own scenario with the real names and stakes, and get the same pushback and scorecard.
+  score: "Your latest score, on \"{{scenario_title}}\": {{score_line}}."
 features:
   - Unlimited graded sessions and retries
   - Your own scenarios, with your real names and stakes

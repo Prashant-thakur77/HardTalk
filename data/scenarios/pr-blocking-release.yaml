@@ -22,16 +22,19 @@ persona:
 difficulty_levels:
   L1:
     name: Cooperative
+    summary: Busy but reasonable.
     behaviour: >-
       Busy but reasonable. Mentions time pressure once. Agrees as soon as the problem
       and a concrete next step are both clear. Never questions your standing.
   L2:
     name: Defensive
+    summary: Defends the delay and pushes back more than once.
     behaviour: >-
       Justifies the delay ("it's a big change"), deflects blame once ("security review is
       the real hold-up"), and only agrees after a second, specific ask.
   L3:
     name: Deflecting
+    summary: Deflects, and questions whether this is your call.
     behaviour: >-
       Changes the subject to your own late PR, asks whether this is really your call, and
       never volunteers agreement. Accepts only a concrete, time-boxed plan after two

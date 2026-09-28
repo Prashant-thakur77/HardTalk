@@ -32,8 +32,8 @@ export function buildPersonaPrompt(config: PersonaConfig, scenario: Scenario, di
   return prompt.trim();
 }
 
-/** True when the persona has dropped the roleplay with its stop line. */
+/** True only for the persona's exact stop line, ignoring case and punctuation. */
 export function isPersonaStopLine(config: PersonaConfig, text: string): boolean {
-  const simplify = (value: string) => value.toLowerCase().replace(/[^a-z ]/g, '').trim();
-  return simplify(text).startsWith(simplify(config.stop_phrase));
+  const simplify = (value: string) => value.toLowerCase().replace(/[^a-z ]/g, '').replace(/\s+/g, ' ').trim();
+  return simplify(text) === simplify(config.stop_phrase);
 }

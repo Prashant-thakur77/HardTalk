@@ -23,7 +23,7 @@ That is mock mode, and it needs no API keys, no microphone and no network. It re
 4. Read the scorecard. Clarity, Empathy, Ask made and Boundary held are each scored 1 to 4, and every score above 1 quotes something you actually said, with one line to try next time.
 5. Retry. The scorecard shows each score before and after, side by side.
 
-Three graded sessions are free. Pro (the RevenueCat `pro` entitlement) adds unlimited grading, your own scenarios and progress history. The paywall opens in exactly two places: starting a fourth graded session, and tapping "Create your own scenario". Its copy names the conversation you just practised and how your score moved on it ("Keep practising 'Your teammate's PR is blocking the release'. Your score on it so far: 6 → 14 out of 16."), passed to RevenueCat's paywall as custom variables. Restore purchases is on the home screen.
+Three graded sessions are free. Pro (the RevenueCat `pro` entitlement) adds unlimited grading, your own scenarios and progress history. The paywall opens in exactly two places: starting a fourth graded session, and tapping "Create your own scenario". At the session limit its copy names the conversation you are starting and how your score has moved on it ("Keep practising 'Your teammate's PR is blocking the release'. Your score on it so far: 7 → 14 out of 16."); at "Create your own scenario" it says why you would write one. The words come from `data/paywall.yaml` and reach RevenueCat's paywall as custom variables. The free sessions are counted on the device, so deleting your history does not reset them; reinstalling does, because there are no accounts. Restore purchases is on the home screen.
 
 ## How it works
 
@@ -60,7 +60,7 @@ Rubrics, scenarios and prompts are YAML so they can be read and reviewed without
 
 ## Safety and accessibility
 
-The persona pushes back professionally and never more than the level allows. A distress signal ends the roleplay, skips scoring and shows crisis lines; the server refuses to score such a transcript too. Transcripts live only on the device and can be deleted. Details and limits: [SAFETY.md](SAFETY.md).
+The persona pushes back professionally and never more than the level allows. When the app recognises a distress signal it ends the roleplay, skips scoring and shows crisis lines, and the server refuses to score such a transcript too. The persona is also told to stop on distress; that stop is never scored either, and its screen links to the same crisis lines. Saved transcripts are kept only on the device and can be deleted; in live mode the conversation is sent to ElevenLabs to run it and to Anthropic to grade it. Details and limits: [SAFETY.md](SAFETY.md).
 
 Everything can be done by typing with a screen reader on and no audio. Turn changes are announced with the persona muted while the screen reader talks, there are haptics on each turn, a pace setting for the persona's voice, and contrast is checked by tests. The WCAG 2.2 mapping, including what is not covered yet, is in [ACCESSIBILITY.md](ACCESSIBILITY.md).
 

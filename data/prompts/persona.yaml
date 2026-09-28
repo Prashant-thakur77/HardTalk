@@ -1,6 +1,6 @@
-# The exact line the persona says when it drops the roleplay. The app listens for it and
-# treats that hang-up as the user stopping: never scored.
-stop_phrase: Okay, let's stop here.
+# The exact line the persona says when it drops the roleplay. It is out-of-character on purpose,
+# so no in-character closing line can match it. The app hangs up when it hears it, unscored.
+stop_phrase: Let's pause the practice here.
 
 # System prompt for the roleplay persona. Filled from data/scenarios/<id>.yaml and the chosen
 # difficulty level, then sent to the voice agent as a per-session prompt override.

@@ -1,6 +1,6 @@
 import { router } from 'expo-router';
 
-import { getAttempts, type SessionMode } from '@/attempts/store';
+import { getAttempts, getGradedSessionsUsed, type SessionMode } from '@/attempts/store';
 import { presentPaywall } from '@/purchases';
 import { isPro } from '@/purchases/entitlement';
 import { paywallContext, shouldGateNewSession } from '@/purchases/gates';
@@ -19,9 +19,8 @@ export async function startSession(
   mode: SessionMode,
   navigation: 'push' | 'replace',
 ): Promise<void> {
-  const attempts = getAttempts();
-  if (shouldGateNewSession(attempts.length, isPro())) {
-    await presentPaywall(paywallContext('session_limit', attempts, titleOf));
+  if (shouldGateNewSession(getGradedSessionsUsed(), isPro())) {
+    await presentPaywall(paywallContext('session_limit', getAttempts(), titleOf, scenarioId));
     if (!isPro()) return;
   }
   router[navigation]({ pathname: '/session/[id]', params: { id: scenarioId, difficulty, mode } });

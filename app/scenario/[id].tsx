@@ -12,6 +12,7 @@ import { startSession } from '@/session/start';
 import { Button } from '@/ui/Button';
 import { ChoiceGroup } from '@/ui/ChoiceGroup';
 import { MockBanner } from '@/ui/MockBanner';
+import { PurchaseNotice } from '@/ui/PurchaseNotice';
 import { Screen } from '@/ui/Screen';
 import { colors, type } from '@/ui/theme';
 
@@ -53,6 +54,7 @@ export default function ScenarioBrief() {
         <Text style={type.body}>{scenario.user_goal}</Text>
       </View>
       <MockBanner message="Mock mode replays one recorded conversation at every level. Live mode uses your microphone, and the persona behaves as the level you pick." />
+      <PurchaseNotice />
       {liveOnly ? (
         <Text style={type.body}>
           Your own scenarios run live, with your microphone and the persona. Mock mode only replays the three
@@ -65,7 +67,7 @@ export default function ScenarioBrief() {
         choices={difficultySchema.options.map((level) => ({
           value: level,
           label: `${level} · ${scenario.difficulty_levels[level].name}`,
-          description: scenario.difficulty_levels[level].behaviour,
+          description: scenario.difficulty_levels[level].summary,
         }))}
         selected={difficulty}
         onSelect={setDifficulty}

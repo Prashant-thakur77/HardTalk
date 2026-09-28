@@ -39,27 +39,32 @@ describe('shouldGateNewSession', () => {
 });
 
 describe('paywallContext', () => {
-  it('names the scenario just practised and how its score moved', () => {
-    const attempts = [attempt('a', 1, 2), attempt('b', 1, 1), attempt('a', 2, 4)];
-    expect(paywallContext('session_limit', attempts, titles)).toEqual({
+  const attempts = [attempt('a', 1, 2), attempt('b', 1, 1), attempt('a', 2, 4)];
+
+  it('at the session limit, names the scenario being started and how its score moved', () => {
+    expect(paywallContext('session_limit', attempts, titles, 'a')).toEqual({
       reason: 'session_limit',
       scenarioTitle: 'Blocked PR',
       scoreLine: '5 → 7 out of 16',
     });
   });
 
-  it('gives the latest score when a scenario was tried once', () => {
-    expect(paywallContext('custom_scenario', [attempt('b', 1, 2)], titles)).toEqual({
-      reason: 'custom_scenario',
+  it('names the scenario being started even if another one was practised last', () => {
+    expect(paywallContext('session_limit', attempts, titles, 'b')).toEqual({
+      reason: 'session_limit',
       scenarioTitle: 'Extra project',
-      scoreLine: '5 out of 16',
+      scoreLine: '4 out of 16',
     });
   });
 
-  it('falls back to neutral copy before any graded session', () => {
+  it('for "Create your own", uses the latest scenario practised', () => {
+    expect(paywallContext('custom_scenario', attempts, titles).scenarioTitle).toBe('Blocked PR');
+  });
+
+  it('has no scenario to name on a fresh install', () => {
     expect(paywallContext('custom_scenario', [], titles)).toEqual({
       reason: 'custom_scenario',
-      scenarioTitle: 'your next conversation',
+      scenarioTitle: null,
       scoreLine: null,
     });
   });

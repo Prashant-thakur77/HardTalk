@@ -36,9 +36,9 @@ const custom = {
   user_goal: 'A clear answer on a raise',
   persona: { name: 'Dana', role: 'Lead', goal: 'Hold budget', hidden_objection: 'Frozen', tone: 'Guarded', context: ['x'] },
   difficulty_levels: {
-    L1: { name: 'Cooperative', behaviour: 'Agrees once the request is specific enough.' },
-    L2: { name: 'Defensive', behaviour: 'Justifies once and needs a second, specific ask.' },
-    L3: { name: 'Deflecting', behaviour: 'Changes the subject and questions standing twice.' },
+    L1: { name: 'Cooperative', summary: 'Busy.', behaviour: 'Agrees once the request is specific enough.' },
+    L2: { name: 'Defensive', summary: 'Pushes back.', behaviour: 'Justifies once and needs a second, specific ask.' },
+    L3: { name: 'Deflecting', summary: 'Deflects.', behaviour: 'Changes the subject and questions standing twice.' },
   },
   opening_line: 'You wanted to talk?',
   stop_condition: 'End when the ask is answered.',

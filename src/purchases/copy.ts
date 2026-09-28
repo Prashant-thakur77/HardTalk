@@ -15,15 +15,18 @@ export const paywallCopySchema = z.strictObject({
 const copy = paywallCopySchema.parse(paywallData);
 
 function fill(text: string, context: PaywallContext): string {
-  return text.replace('{{scenario_title}}', context.scenarioTitle).replace('{{score_line}}', context.scoreLine ?? '');
+  return text
+    .replace('{{scenario_title}}', context.scenarioTitle ?? 'this conversation')
+    .replace('{{score_line}}', context.scoreLine ?? '');
 }
 
+/** The paywall's words for this moment. The same result feeds the mock and RevenueCat. */
 export function paywallCopy(context: PaywallContext) {
   const forReason = copy[context.reason];
   return {
     headline: fill(forReason.headline, context),
     body: fill(forReason.body, context),
-    score: context.scoreLine ? fill(forReason.score, context) : null,
+    score: context.scoreLine && context.scenarioTitle ? fill(forReason.score, context) : null,
     features: copy.features,
     plans: copy.plans,
   };

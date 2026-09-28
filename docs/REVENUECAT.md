@@ -4,7 +4,7 @@ HardTalk sells one thing: the `pro` entitlement, which unlocks unlimited graded 
 
 The paywall opens in exactly two places, both in `src/session/start.ts`:
 
-1. Starting a fourth graded session as a free user (three are free). Both "Start conversation" and "Retry" go through this check.
+1. Starting a fourth graded session as a free user (three are free). Both "Start conversation" and "Retry" go through this check. Sessions are counted on the device by a counter that "Delete my practice history" does not reset; a reinstall does, since there are no accounts.
 2. Tapping "Create your own scenario".
 
 Restore purchases is on the home screen, and the entitlement listener in `src/purchases/revenuecat.ts` unlocks Pro the moment a purchase or restore lands, without a restart.
@@ -15,20 +15,15 @@ Restore purchases is on the home screen, and the entitlement listener in `src/pu
 2. Products: create `hardtalk_pro_monthly` ($4.99 a month) and `hardtalk_pro_annual` ($29.99 a year) in the Test Store.
 3. Entitlements: create `pro` and attach both products.
 4. Offerings: make `default` the current offering, with a Monthly package (`$rc_monthly`) and an Annual package (`$rc_annual`).
-5. Paywalls: create a V2 paywall on `default`. Under custom variables add these three, with the defaults shown:
+5. Paywalls: create one V2 paywall on `default`. The app writes the words for each moment from `data/paywall.yaml` and passes them as custom variables, so this one paywall says the right thing at both entry points. Add these custom variables, with the defaults shown:
 
-   | Variable | Default |
-   | --- | --- |
-   | `scenario_title` | `your next conversation` |
-   | `score_line` | leave empty |
-   | `reason` | `session_limit` |
+   | Variable | Default | Filled with |
+   | --- | --- | --- |
+   | `headline` | `HardTalk Pro` | "Keep practising "…"" or "Rehearse the conversation you're actually dreading" |
+   | `body` | `Unlimited practice, your own scenarios, and your progress over time.` | The reason-specific line |
+   | `score_line` | leave empty | "Your score on it so far: 7 → 14 out of 16." or empty on a fresh install |
 
-   Use this copy (the same text the mock paywall renders from `data/paywall.yaml`):
-
-   - Headline: `Keep practising "{{ custom.scenario_title }}"`
-   - Body: `You've used your three free graded sessions. The next retry is usually where the new line sticks.`
-   - Score line: `Your score on it so far: {{ custom.score_line }}`
-   - Features: Unlimited graded sessions and retries. Your own scenarios, with your real names and stakes. Progress history across every attempt.
+   Lay the paywall out as: headline `{{ custom.headline }}`, body `{{ custom.body }}`, a highlighted line `{{ custom.score_line }}`, then the three features (Unlimited graded sessions and retries; Your own scenarios, with your real names and stakes; Progress history across every attempt) and the two packages. `scenario_title` and `reason` are also sent, if you want them in the layout.
 
 6. Put the key in `.env.local` in the repo root:
 
@@ -46,6 +41,6 @@ Restore purchases is on the home screen, and the entitlement listener in `src/pu
 ## Checking it on a phone
 
 1. Fresh install, live mode. Complete three graded sessions.
-2. Start a fourth: the paywall names the scenario you just practised and your score on it.
+2. Start a fourth: the paywall names the scenario you are starting and your score on it so far.
 3. Buy the annual plan in the Test Store sheet. The session starts, and "Your progress" and "Create your own scenario" unlock with no restart.
 4. Delete and reinstall the app, then tap "Restore purchases". Pro comes back.

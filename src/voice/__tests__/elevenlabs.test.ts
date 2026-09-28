@@ -142,12 +142,18 @@ describe('ElevenLabsVoiceProvider', () => {
     expect(sdk.setVolume).toHaveBeenCalledWith({ volume: 0 });
   });
 
-  it('never grades a call the persona ended with its stop line', async () => {
+  it('hangs up itself, unscored, when the persona says its stop line', async () => {
     const { states } = await start();
-    fire('onMessage', { role: 'user', message: 'stop', event_id: 1 });
-    fire('onMessage', { role: 'agent', message: "Okay, let's stop here.", event_id: 2 });
-    fire('onDisconnect', { reason: 'agent' });
+    fire('onMessage', { role: 'agent', message: "Let's pause the practice here.", event_id: 2 });
+    await vi.waitFor(() => expect(sdk.endSession).toHaveBeenCalledTimes(1));
     expect(states.at(-1)).toEqual({ status: 'ended', reason: 'user_stopped' });
+  });
+
+  it('grades a normal in-character wrap-up that happens to start with similar words', async () => {
+    const { states } = await start();
+    fire('onMessage', { role: 'agent', message: "Okay, let's stop here, 4pm it is.", event_id: 2 });
+    fire('onDisconnect', { reason: 'agent' });
+    expect(states.at(-1)).toEqual({ status: 'ended', reason: 'stop_condition' });
   });
 
   it('stopping while connecting ends the session and never opens the call', async () => {

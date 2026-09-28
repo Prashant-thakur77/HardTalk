@@ -9,17 +9,19 @@ stop_words: [stop, pause]
 # Deliberately narrow: strong signals of real distress, not workplace idioms. "The deadline is
 # killing me" must not trip it; "I want to kill myself" must.
 distress_patterns:
-  - \b(kill|hurt|harm|cut)(ting|ing)? myself\b
+  - \bkill myself\b
+  - \b(hurt|harm|cut)(ting|ing)? myself(?=\s*(?:[.!?,]|$|again\b|on purpose\b|tonight\b|when\b))
+  - \bself[- ]harm
   - \bsuicid(e|al)\b
   - \bend(ing)? (my|it all|my own) life\b
   - \bend it all\b
-  - \bwant to die\b
+  - \bwant to die\b(?! (of|laughing))
   - \bdon'?t want to (be alive|live|exist)( anymore)?\b
   - \b(no reason|nothing) to live\b
   - \bbetter off dead\b
   - \bhaving a panic attack\b
   - \bi can'?t breathe\b
-  - \b(hit|hits|hitting|assaulted|grabbed) me\b
+  - \b(he|she|they|someone|my (manager|boss|lead|colleague|coworker|partner)) (hit|hits|grabbed|grabs|assaulted|touched) me\b(?! (up|with|on|back))
   - \bsexually harass(ed|ing|es)? me\b
 
 resources:

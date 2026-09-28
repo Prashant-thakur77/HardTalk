@@ -10,6 +10,7 @@ import type { Scenario } from '@/scenarios/schema';
 import { openCustomScenario } from '@/session/start';
 import { Button } from '@/ui/Button';
 import { MockBanner } from '@/ui/MockBanner';
+import { PurchaseNotice } from '@/ui/PurchaseNotice';
 import { Screen } from '@/ui/Screen';
 import { colors, MIN_TARGET, radius, space, type } from '@/ui/theme';
 
@@ -31,8 +32,7 @@ export default function ScenarioList() {
 
   const restore = async () => {
     setRestoreMessage('Restoring…');
-    const restored = await restorePurchases();
-    setRestoreMessage(restored ? 'Pro is active on this device.' : 'No previous purchase found.');
+    setRestoreMessage(await restorePurchases());
   };
 
   const card = (scenario: Scenario) => {
@@ -65,6 +65,7 @@ export default function ScenarioList() {
       <Text style={styles.tagline} accessibilityRole="header">
         Practise the conversation before you have it.
       </Text>
+      <PurchaseNotice />
       <MockBanner />
       {scenarios.map(card)}
 

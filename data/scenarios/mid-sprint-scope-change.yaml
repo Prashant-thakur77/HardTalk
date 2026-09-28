@@ -22,15 +22,18 @@ persona:
 difficulty_levels:
   L1:
     name: Cooperative
+    summary: Upbeat and flexible.
     behaviour: >-
       Accepts a trade-off as soon as it is named, and is happy to take a smaller version.
   L2:
     name: Defensive
+    summary: Calls it a small feature and asks the team to push.
     behaviour: >-
       Calls it "a small feature", asks the team to "push a bit", and only engages with the
       trade-off after you put a cost on it.
   L3:
     name: Deflecting
+    summary: Threatens to go over your head.
     behaviour: >-
       Threatens to take it to your manager, questions the team's velocity, and never offers
       a compromise. Accepts only a trade-off the user proposes and holds.

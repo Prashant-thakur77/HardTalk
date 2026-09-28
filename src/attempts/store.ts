@@ -22,8 +22,11 @@ export type Attempt = z.infer<typeof attemptSchema>;
 export type SessionMode = Attempt['mode'];
 
 const STORAGE_KEY = 'hardtalk.attempts.v1';
+/** Graded sessions ever completed on this device. Deleting history does not reset it. */
+const USED_KEY = 'hardtalk.graded-sessions.v1';
 
 let attempts: Attempt[] = [];
+let gradedSessionsUsed = 0;
 const listeners = new Set<() => void>();
 
 function publish(next: Attempt[]) {
@@ -40,15 +43,27 @@ function subscribe(listener: () => void) {
 export async function loadAttempts(): Promise<void> {
   const raw = await AsyncStorage.getItem(STORAGE_KEY);
   const parsed = z.array(attemptSchema).safeParse(raw ? JSON.parse(raw) : []);
-  publish(parsed.success ? parsed.data : []);
+  const loaded = parsed.success ? parsed.data : [];
+  const used = Number(await AsyncStorage.getItem(USED_KEY));
+  gradedSessionsUsed = Math.max(Number.isFinite(used) ? used : 0, loaded.length);
+  publish(loaded);
 }
 
 export async function addAttempt(attempt: Attempt): Promise<void> {
+  gradedSessionsUsed += 1;
   publish([...attempts, attempt]);
-  await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(attempts));
+  await AsyncStorage.multiSet([
+    [STORAGE_KEY, JSON.stringify(attempts)],
+    [USED_KEY, String(gradedSessionsUsed)],
+  ]);
 }
 
-/** Transcripts live only on this device; this removes all of them. */
+/** What the free tier counts. History can be deleted; this cannot, short of reinstalling. */
+export function getGradedSessionsUsed(): number {
+  return gradedSessionsUsed;
+}
+
+/** Removes every saved transcript and score. The free-session count is kept. */
 export async function deleteAllAttempts(): Promise<void> {
   publish([]);
   await AsyncStorage.removeItem(STORAGE_KEY);

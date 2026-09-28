@@ -69,11 +69,21 @@ describe('RevenueCat provider', () => {
     expect(rc.paywallParams).toEqual({
       requiredEntitlementIdentifier: 'pro',
       customVariables: {
+        headline: { type: 'string', value: `Keep practising "Your teammate's PR is blocking the release"` },
+        body: { type: 'string', value: expect.stringContaining('three free graded sessions') },
+        score_line: { type: 'string', value: 'Your score on it so far: 6 → 14 out of 16.' },
         scenario_title: { type: 'string', value: "Your teammate's PR is blocking the release" },
-        score_line: { type: 'string', value: '6 → 14 out of 16' },
         reason: { type: 'string', value: 'session_limit' },
       },
     });
+  });
+
+  it('gives the "Create your own" entry point its own copy, never the session-limit text', async () => {
+    await createRevenueCat('test_abc').presentPaywall({ reason: 'custom_scenario', scenarioTitle: null, scoreLine: null });
+    const variables = (rc.paywallParams as { customVariables: Record<string, { value: string }> }).customVariables;
+    expect(variables.headline!.value).toBe("Rehearse the conversation you're actually dreading");
+    expect(variables.body!.value).not.toMatch(/free graded sessions/);
+    expect(variables.score_line!.value).toBe('');
   });
 
   it('maps a cancelled paywall to cancelled', async () => {

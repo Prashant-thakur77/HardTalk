@@ -4,7 +4,8 @@ export type PaywallReason = 'session_limit' | 'custom_scenario';
 /** What the paywall copy refers to: the conversation the user just practised. */
 export interface PaywallContext {
   reason: PaywallReason;
-  scenarioTitle: string;
+  /** The scenario being started (session limit) or last practised; null on a fresh install. */
+  scenarioTitle: string | null;
   /** e.g. "6 → 14 out of 16", or null before any graded attempt. */
   scoreLine: string | null;
 }

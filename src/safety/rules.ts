@@ -9,7 +9,11 @@ export const safetyConfigSchema = z.strictObject({
 });
 export type SafetyConfig = z.infer<typeof safetyConfigSchema>;
 
-const FILLER = new Set(['please', 'now', 'here', 'ok', 'okay', 'can', 'could', 'we', 'lets', "let's", 'i', 'want', 'need', 'to', 'the', 'this', 'it', 'roleplay', 'role', 'play', 'conversation', 'session', 'd', 'like']);
+const FILLER = new Set([
+  'please', 'now', 'here', 'ok', 'okay', 'no', 'just', 'wait', 'sorry', 'actually', 'hey',
+  'can', 'could', 'we', 'lets', 'i', 'want', 'need', 'to', 'the', 'this', 'it', 'id', 'like',
+  'roleplay', 'role', 'play', 'practice', 'conversation', 'session',
+]);
 
 function words(text: string): string[] {
   return text

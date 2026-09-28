@@ -3,8 +3,11 @@ import { z } from 'zod';
 export const difficultySchema = z.enum(['L1', 'L2', 'L3']);
 export type Difficulty = z.infer<typeof difficultySchema>;
 
-const levelSchema = z.object({
+const levelSchema = z.strictObject({
   name: z.string().min(1),
+  /** What the user sees on the brief. Says how hard, never how to win. */
+  summary: z.string().min(1),
+  /** What the persona is told. Stays out of the UI: it can name the way through. */
   behaviour: z.string().min(20),
 });
 
