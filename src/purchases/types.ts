@@ -6,7 +6,7 @@ export interface PaywallContext {
   reason: PaywallReason;
   /** The scenario being started (session limit) or last practised; null on a fresh install. */
   scenarioTitle: string | null;
-  /** e.g. "6 → 14 out of 16", or null before any graded attempt. */
+  /** e.g. "7 → 14 out of 16" (same difficulty only), or null before any graded attempt on it. */
   scoreLine: string | null;
 }
 

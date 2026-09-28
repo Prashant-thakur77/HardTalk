@@ -16,6 +16,7 @@ function total(grade: Grade): number {
 
 interface GradedAttempt {
   scenarioId: string;
+  difficulty: string;
   number: number;
   grade: Grade;
 }
@@ -33,9 +34,11 @@ export function paywallContext(
   const scenarioId = startingScenarioId ?? attempts.at(-1)?.scenarioId;
   if (!scenarioId) return { reason, scenarioTitle: null, scoreLine: null };
 
-  const tries = attempts.filter((attempt) => attempt.scenarioId === scenarioId);
-  const first = tries[0];
-  const latest = tries.at(-1);
+  // Like the scorecard, only compare attempts made at the same difficulty.
+  const latest = attempts.filter((attempt) => attempt.scenarioId === scenarioId).at(-1);
+  const first = attempts.find(
+    (attempt) => attempt.scenarioId === scenarioId && attempt.difficulty === latest?.difficulty,
+  );
   let scoreLine: string | null = null;
   if (first && latest) {
     scoreLine =

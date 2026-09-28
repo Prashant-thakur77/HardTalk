@@ -11,7 +11,8 @@ export type SafetyConfig = z.infer<typeof safetyConfigSchema>;
 
 const FILLER = new Set([
   'please', 'now', 'here', 'ok', 'okay', 'no', 'just', 'wait', 'sorry', 'actually', 'hey',
-  'can', 'could', 'we', 'lets', 'i', 'want', 'need', 'to', 'the', 'this', 'it', 'id', 'like',
+  // No "it" or "this": "Can we pause it?" is a line about the export, not about the practice.
+  'can', 'could', 'we', 'lets', 'i', 'want', 'need', 'to', 'the', 'id', 'like',
   'roleplay', 'role', 'play', 'practice', 'conversation', 'session',
 ]);
 

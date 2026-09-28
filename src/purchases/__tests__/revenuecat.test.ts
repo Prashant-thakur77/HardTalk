@@ -86,6 +86,17 @@ describe('RevenueCat provider', () => {
     expect(variables.score_line!.value).toBe('');
   });
 
+  it('at the limit, a first try gets first-try copy, not "keep practising"', async () => {
+    await createRevenueCat('test_abc').presentPaywall({
+      reason: 'session_limit',
+      scenarioTitle: 'Push back on a mid-sprint scope change',
+      scoreLine: null,
+    });
+    const variables = (rc.paywallParams as { customVariables: Record<string, { value: string }> }).customVariables;
+    expect(variables.headline!.value).toBe('Practise "Push back on a mid-sprint scope change" with Pro');
+    expect(variables.body!.value).not.toMatch(/retry is usually/);
+  });
+
   it('maps a cancelled paywall to cancelled', async () => {
     rc.paywallResult = 'CANCELLED';
     const outcome = await createRevenueCat('test_abc').presentPaywall({

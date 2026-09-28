@@ -70,8 +70,9 @@ Live mode needs a development build on a phone (Expo Go cannot load the WebRTC m
 
 ```sh
 cp server/.env.example server/.env   # add ANTHROPIC_API_KEY, ELEVENLABS_API_KEY, ELEVENLABS_AGENT_ID
+cp .env.example .env.local           # set EXPO_PUBLIC_MOCK=0, your computer's LAN IP, the RevenueCat test_ key
 pnpm start:server                    # grading + token minting on :8787
-pnpm android                         # builds and installs the dev build
+pnpm android                         # builds and installs the dev build in live mode
 ```
 
 ## Checks

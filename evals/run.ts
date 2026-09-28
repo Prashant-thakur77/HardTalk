@@ -27,6 +27,13 @@ interface RunResult {
   downgraded: Dimension[];
   ms: number;
 }
+/** A grading that failed (network, refusal, bad key). Recorded, not fatal. */
+interface RunFailure {
+  id: string;
+  error: string;
+}
+type Outcome = RunResult | RunFailure;
+const failed = (outcome: Outcome): outcome is RunFailure => 'error' in outcome;
 
 const args = process.argv.slice(2);
 const baseline = args.includes('--baseline');
@@ -49,7 +56,15 @@ async function pool<T, R>(items: T[], work: (item: T) => Promise<R>): Promise<R[
   return results;
 }
 
-async function gradeOnce(item: GoldItem, client: Anthropic): Promise<RunResult> {
+async function gradeOnce(item: GoldItem, client: Anthropic): Promise<Outcome> {
+  try {
+    return await gradeOrThrow(item, client);
+  } catch (error) {
+    return { id: item.id, error: error instanceof Error ? error.message : String(error) };
+  }
+}
+
+async function gradeOrThrow(item: GoldItem, client: Anthropic): Promise<RunResult> {
   const started = Date.now();
   const scenario = getScenario(item.scenarioId)!;
   const result = await gradeTranscript({
@@ -63,30 +78,67 @@ async function gradeOnce(item: GoldItem, client: Anthropic): Promise<RunResult> 
   return { id: item.id, scores, modelCalls: result.modelCalls, downgraded: result.downgraded, ms: Date.now() - started };
 }
 
+const RESULTS_DIR = join(dirname(fileURLToPath(import.meta.url)), 'results');
+const resultsFile = join(
+  RESULTS_DIR,
+  `${baseline ? 'baseline' : model}-${new Date().toISOString().slice(0, 10)}.json`,
+);
+
+/** Written after every run, so a paid run is never lost to a later failure. */
+function save(label: string, gold: GoldItem[], runs: Outcome[][]) {
+  mkdirSync(RESULTS_DIR, { recursive: true });
+  writeFileSync(
+    resultsFile,
+    JSON.stringify({ label, gold: gold.map((item) => ({ id: item.id, labels: item.labels })), runs }, null, 2),
+  );
+}
+
 async function main() {
-  const gold = loadGold();
-  let allRuns: RunResult[][];
+  const allGold = loadGold();
+  let outcomes: Outcome[][];
+  const label = baseline ? 'baseline: always 2' : `${model}, effort ${effort}, ${runs} run${runs > 1 ? 's' : ''}`;
 
   if (baseline) {
-    allRuns = [gold.map((item) => ({ id: item.id, scores: { clarity: 2, empathy: 2, ask_made: 2, boundary_held: 2 }, modelCalls: 0, downgraded: [], ms: 0 }))];
+    outcomes = [
+      allGold.map((item) => ({
+        id: item.id,
+        scores: { clarity: 2, empathy: 2, ask_made: 2, boundary_held: 2 },
+        modelCalls: 0,
+        downgraded: [],
+        ms: 0,
+      })),
+    ];
   } else {
     if (!process.env.ANTHROPIC_API_KEY) {
       console.error('pnpm eval needs ANTHROPIC_API_KEY (in server/.env or the environment). Try --baseline without one.');
       process.exit(1);
     }
     const client = new Anthropic();
-    allRuns = [];
+    outcomes = [];
     for (let run = 1; run <= runs; run += 1) {
-      console.error(`run ${run}/${runs}: grading ${gold.length} transcripts with ${model} (${effort})…`);
-      allRuns.push(await pool(gold, (item) => gradeOnce(item, client)));
+      console.error(`run ${run}/${runs}: grading ${allGold.length} transcripts with ${model} (${effort})…`);
+      const results = await pool(allGold, (item) => gradeOnce(item, client));
+      results.filter(failed).forEach((failure) => console.error(`  ${failure.id} failed: ${failure.error}`));
+      outcomes.push(results);
+      save(label, allGold, outcomes);
     }
   }
 
-  const label = baseline ? 'baseline: always 2' : `${model}, effort ${effort}, ${runs} run${runs > 1 ? 's' : ''}`;
+  // Score only transcripts that graded successfully in every run, and say how many were dropped.
+  const okIds = new Set(
+    allGold.map((item) => item.id).filter((id) => outcomes.every((run) => run.some((o) => o.id === id && !failed(o)))),
+  );
+  const gold = allGold.filter((item) => okIds.has(item.id));
+  const allRuns = outcomes.map((run) => run.filter((o): o is RunResult => !failed(o) && okIds.has(o.id)));
+  if (gold.length === 0) {
+    console.error(`Every grading failed; nothing to score. Raw results: ${resultsFile}`);
+    process.exit(1);
+  }
+
   const lines = [
     `### ${label}`,
     '',
-    `${gold.length} gold transcripts. Kappa is quadratic-weighted Cohen's kappa against the gold labels (run 1${runs > 1 ? '; the range across runs in brackets' : ''}).`,
+    `${gold.length} gold transcripts${gold.length < allGold.length ? ` (${allGold.length - gold.length} excluded after a failed grading)` : ''}. Kappa is quadratic-weighted Cohen's kappa against the gold labels (run 1${runs > 1 ? '; the range across runs in brackets' : ''}).`,
     '',
     '| Dimension | Kappa | Exact | Within 1 |' + (runs > 1 ? ' Identical across runs | Mean SD |' : ''),
     '| --- | --- | --- | --- |' + (runs > 1 ? ' --- | --- |' : ''),
@@ -115,12 +167,9 @@ async function main() {
     );
   }
 
-  const out = join(dirname(fileURLToPath(import.meta.url)), 'results');
-  mkdirSync(out, { recursive: true });
-  const file = join(out, `${baseline ? 'baseline' : model}-${new Date().toISOString().slice(0, 10)}.json`);
-  writeFileSync(file, JSON.stringify({ label, gold: gold.map((item) => ({ id: item.id, labels: item.labels })), runs: allRuns }, null, 2));
+  save(label, allGold, outcomes);
   console.log(lines.join('\n'));
-  console.error(`\nraw scores: ${file}`);
+  console.error(`\nraw scores: ${resultsFile}`);
 }
 
 const pct = (value: number) => `${Math.round(value * 100)}%`;

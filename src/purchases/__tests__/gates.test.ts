@@ -2,8 +2,9 @@ import { describe, expect, it } from 'vitest';
 
 import { FREE_GRADED_SESSIONS, paywallContext, shouldGateNewSession } from '../gates';
 
-const attempt = (scenarioId: string, number: number, total: number) => ({
+const attempt = (scenarioId: string, number: number, total: number, difficulty = 'L2') => ({
   scenarioId,
+  difficulty,
   number,
   grade: {
     dimensions: {
@@ -55,6 +56,11 @@ describe('paywallContext', () => {
       scenarioTitle: 'Extra project',
       scoreLine: '4 out of 16',
     });
+  });
+
+  it('compares the score only across attempts at the same difficulty', () => {
+    const mixed = [attempt('a', 1, 2, 'L3'), attempt('a', 2, 4, 'L1'), attempt('a', 3, 3, 'L1')];
+    expect(paywallContext('session_limit', mixed, titles, 'a').scoreLine).toBe('7 → 6 out of 16');
   });
 
   it('for "Create your own", uses the latest scenario practised', () => {

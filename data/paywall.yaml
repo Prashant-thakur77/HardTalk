@@ -5,6 +5,11 @@ session_limit:
   headline: Keep practising "{{scenario_title}}"
   body: You've used your three free graded sessions. The next retry is usually where the new line sticks.
   score: "Your score on it so far: {{score_line}}."
+# At the limit, starting a conversation you have not practised yet.
+session_limit_new:
+  headline: Practise "{{scenario_title}}" with Pro
+  body: You've used your three free graded sessions. Pro keeps every conversation open, with as many retries as you need.
+  score: ""
 custom_scenario:
   headline: Rehearse the conversation you're actually dreading
   body: Write your own scenario with the real names and stakes, and get the same pushback and scorecard.

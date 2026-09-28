@@ -6,14 +6,18 @@ disclaimer: HardTalk is a practice tool. It is not therapy, and it is not HR or 
 # once, unscored. "Stop blocking the release" is roleplay and does not match.
 stop_words: [stop, pause]
 
-# Deliberately narrow: strong signals of real distress, not workplace idioms. "The deadline is
-# killing me" must not trip it; "I want to kill myself" must.
+# Strong signals of real distress. Self-harm phrases match by default; only known workplace
+# idioms are carved out ("I'm only hurting myself", "cut myself some slack", "killing myself to
+# hit the deadline", "hit me up"). Missing a disclosure is worse than an unneeded pause, so when
+# in doubt a pattern stays broad. src/safety/__tests__/rules.test.ts lists both kinds of line.
 distress_patterns:
-  - \bkill myself\b
-  - \b(hurt|harm|cut)(ting|ing)? myself(?=\s*(?:[.!?,]|$|again\b|on purpose\b|tonight\b|when\b))
+  - \bkill(ing)? myself\b(?! (to|for|over|at|with|working|trying|on))
+  - (?<!(only|just|be|'d be|would be) )\b(hurt|harm)(ing)? myself\b(?! ((and|or) (the|my|our|everyone)\b|professionally|financially|more than|by (taking|saying|agreeing|doing|staying)))
+  - \bcut(ting)? myself\b(?! (some|a) (slack|break))
+  - \b(thought|thinking|think|thoughts) (about|of) (killing|hurting|harming|cutting|ending) (myself|my life)\b
   - \bself[- ]harm
   - \bsuicid(e|al)\b
-  - \bend(ing)? (my|it all|my own) life\b
+  - \bend(ing)? (my|my own) life\b
   - \bend it all\b
   - \bwant to die\b(?! (of|laughing))
   - \bdon'?t want to (be alive|live|exist)( anymore)?\b
@@ -21,7 +25,10 @@ distress_patterns:
   - \bbetter off dead\b
   - \bhaving a panic attack\b
   - \bi can'?t breathe\b
-  - \b(he|she|they|someone|my (manager|boss|lead|colleague|coworker|partner)) (hit|hits|grabbed|grabs|assaulted|touched) me\b(?! (up|with|on|back))
+  - \b(punched|slapped|kicked|shoved|choked|assaulted) me\b
+  - \b(hit|hits) me\b(?! (up|with|that|last|when|how|what|like|as|hard|on (slack|teams|email|chat)))
+  - \b(grabbed|grabs|groped) me\b
+  - (?<!(really|deeply|truly|it|that|this|which) )\btouched me\b
   - \bsexually harass(ed|ing|es)? me\b
 
 resources:

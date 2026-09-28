@@ -43,4 +43,4 @@ Restore purchases is on the home screen, and the entitlement listener in `src/pu
 1. Fresh install, live mode. Complete three graded sessions.
 2. Start a fourth: the paywall names the scenario you are starting and your score on it so far.
 3. Buy the annual plan in the Test Store sheet. The session starts, and "Your progress" and "Create your own scenario" unlock with no restart.
-4. Delete and reinstall the app, then tap "Restore purchases". Pro comes back.
+4. Tap "Restore purchases" and check that Pro stays active. Then try it after deleting and reinstalling the app. HardTalk has no accounts, so RevenueCat gives each install an anonymous user ID, and it is not documented whether a Test Store purchase restores across that. Film it working before claiming it, and if it does not, say so in the submission.

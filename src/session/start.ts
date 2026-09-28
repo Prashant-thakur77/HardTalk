@@ -11,7 +11,7 @@ const titleOf = (id: string) => getScenario(id)?.title ?? 'this conversation';
 
 /**
  * Every new session starts here, from "Start conversation" and from "Retry". Free users get
- * three graded sessions; the fourth start opens the paywall about the scenario just practised.
+ * three graded sessions; the fourth start opens the paywall about the scenario being started.
  */
 export async function startSession(
   scenarioId: string,

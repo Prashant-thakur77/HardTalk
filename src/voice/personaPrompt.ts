@@ -32,8 +32,12 @@ export function buildPersonaPrompt(config: PersonaConfig, scenario: Scenario, di
   return prompt.trim();
 }
 
-/** True only for the persona's exact stop line, ignoring case and punctuation. */
+/**
+ * True when the persona's reply contains its stop line anywhere, ignoring case and punctuation.
+ * The line is deliberately out of character, so no in-character reply contains it, while
+ * "Okay. Let's pause the practice here." still counts.
+ */
 export function isPersonaStopLine(config: PersonaConfig, text: string): boolean {
   const simplify = (value: string) => value.toLowerCase().replace(/[^a-z ]/g, '').replace(/\s+/g, ' ').trim();
-  return simplify(text) === simplify(config.stop_phrase);
+  return simplify(text).includes(simplify(config.stop_phrase));
 }

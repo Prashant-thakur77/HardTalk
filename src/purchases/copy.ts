@@ -7,6 +7,7 @@ const reasonCopy = z.strictObject({ headline: z.string(), body: z.string(), scor
 
 export const paywallCopySchema = z.strictObject({
   session_limit: reasonCopy,
+  session_limit_new: reasonCopy,
   custom_scenario: reasonCopy,
   features: z.array(z.string()).min(1),
   plans: z.array(z.strictObject({ id: z.string(), label: z.string(), price: z.string(), note: z.string().optional() })),
@@ -22,7 +23,8 @@ function fill(text: string, context: PaywallContext): string {
 
 /** The paywall's words for this moment. The same result feeds the mock and RevenueCat. */
 export function paywallCopy(context: PaywallContext) {
-  const forReason = copy[context.reason];
+  const firstTry = context.reason === 'session_limit' && !context.scoreLine;
+  const forReason = firstTry ? copy.session_limit_new : copy[context.reason];
   return {
     headline: fill(forReason.headline, context),
     body: fill(forReason.body, context),

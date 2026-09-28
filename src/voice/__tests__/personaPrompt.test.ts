@@ -36,10 +36,20 @@ describe('buildPersonaPrompt', () => {
     expect(() => buildPersonaPrompt({ ...config, template: 'Hi {{nickname}}' }, scenario, 'L1')).toThrow(/nickname/);
   });
 
-  it("recognises only the persona's exact stop line, however it is punctuated", () => {
-    expect(isPersonaStopLine(config, "Let's pause the practice here.")).toBe(true);
-    expect(isPersonaStopLine(config, 'lets pause the practice here')).toBe(true);
-    expect(isPersonaStopLine(config, "Let's pause the practice here, and pick it up at 4pm.")).toBe(false);
+  it("finds the persona's out-of-character stop line anywhere in its reply", () => {
+    for (const line of [
+      "Let's pause the practice here.",
+      'lets pause the practice here',
+      "Okay. Let's pause the practice here.",
+      "Let's pause the practice here. Take care of yourself.",
+      "Of course. Let's pause the practice here, okay?",
+    ]) {
+      expect(isPersonaStopLine(config, line), line).toBe(true);
+    }
+  });
+
+  it('does not mistake an in-character wrap-up for the stop line', () => {
     expect(isPersonaStopLine(config, "Okay, let's stop here, 4pm it is.")).toBe(false);
+    expect(isPersonaStopLine(config, "Fine. Let's pause the migration until Friday.")).toBe(false);
   });
 });

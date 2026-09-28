@@ -18,6 +18,9 @@ describe('isStopRequest', () => {
   it.each([
     'Stop blocking the release.',
     'No, stop adding scope.',
+    'Can we pause it?',
+    'Can we pause this?',
+    'I need this to stop.',
     'We need to stop adding scope mid-sprint.',
     "Don't stop now, we're close.",
     'Can we pause the migration until billing ships?',
@@ -36,6 +39,16 @@ describe('detectDistress', () => {
     'I’d be better off dead.',
     "I've been cutting myself again.",
     'Sometimes I think about hurting myself.',
+    // Round-4 reviewer probes: plain disclosures that must never pass.
+    "I've been cutting myself for weeks and I can't stop.",
+    'I keep hurting myself and nobody knows.',
+    'I keep thinking about hurting myself tomorrow.',
+    'I want to hurt myself so badly right now.',
+    "I've been harming myself since the reorg.",
+    'My manager hit me on the arm in the meeting.',
+    'Sam hit me.',
+    "I've thought about killing myself.",
+    'He touched me without asking.',
   ])('flags %j', (line) => expect(detectDistress(line, config)).toBe(true));
 
   it.each([
@@ -51,6 +64,11 @@ describe('detectDistress', () => {
     "I'm killing myself to hit this deadline.",
     'They hit me with a new requirement on day six.',
     'I wanted to die of embarrassment in that demo.',
+    "Honestly, I'd just be hurting myself.",
+    "If I say yes to this too, I'm only hurting myself.",
+    'It hit me last night that we never scoped it.',
+    'That news hit me hard.',
+    'What you said in the retro really touched me.',
   ])('does not flag the workplace idiom %j', (line) => expect(detectDistress(line, config)).toBe(false));
 });
 

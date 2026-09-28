@@ -142,9 +142,9 @@ describe('ElevenLabsVoiceProvider', () => {
     expect(sdk.setVolume).toHaveBeenCalledWith({ volume: 0 });
   });
 
-  it('hangs up itself, unscored, when the persona says its stop line', async () => {
+  it('hangs up itself, unscored, when the persona says its stop line, even with extra words', async () => {
     const { states } = await start();
-    fire('onMessage', { role: 'agent', message: "Let's pause the practice here.", event_id: 2 });
+    fire('onMessage', { role: 'agent', message: "Okay. Let's pause the practice here. Take care of yourself.", event_id: 2 });
     await vi.waitFor(() => expect(sdk.endSession).toHaveBeenCalledTimes(1));
     expect(states.at(-1)).toEqual({ status: 'ended', reason: 'user_stopped' });
   });
