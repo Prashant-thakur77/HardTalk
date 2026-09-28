@@ -3,46 +3,48 @@
 Live plan for HardTalk. Rewritten from SCORECARD.md at the end of every round, not from the
 previous plan. Every item names the criterion it moves (CLAUDE.md §3).
 
-**Round 2 score: 9/20** (C1 2 · C2 3 · C3 1 · C4 3), up from 6. Biggest loss: C3 — HEAD has no
-RevenueCat at all (D-001), on the criterion that defines this competition.
+**Round 3 score: 12/20** (C1 2 · C2 4 · C3 2 · C4 4), up from 9. Biggest loss: C3 — the
+purchase has never run on a device (D-001), and the paywall that shot would film has the wrong
+copy (D-033) behind a free tier that resets in two taps (D-032).
 
-**Hard ceiling, stated honestly:** no Android SDK, no device and no provider keys on this
-machine. C1 and C3 can reach "code complete, tested, bundled for Android" here; "filmed on a
-phone" needs the owner. Every round keeps that path one command away.
+**Hard ceiling, stated honestly:** no Android SDK, device or provider keys here. The three P0s
+still open (D-001 purchase, D-002/D-003 live voice and grading, D-004 real retry delta) close
+only with one recorded session on a phone. C1 and C3 cannot pass 3 from this machine; the loop
+will converge below the exit condition on those two, and the final packet will say so.
 
-## Now (round 3)
+## Now (round 4)
 
-1. **RevenueCat, committed** [C3] — D-001, D-009, D-019, D-020 copy. `pro` entitlement on the
-   Test Store; paywall only at the 4th graded session and "Create your own scenario"; copy names
-   the scenario just practised and its score move (custom variables); live flip via the
-   customer-info listener; Restore; custom scenarios and progress history behind `pro`;
-   attempts persisted. Expected: C3 1 → 3, C1 +0.5. Effort: low (built, 11 tests, e2e green).
-2. **Safety that actually holds, and text-only mode** [C4] [C1] — D-013, D-022, D-023, D-024,
-   D-028, D-016. Stop word and distress exit that are never graded (client, and server
-   refuses to score); support screen; disclaimer; delete-history; no leaked call when stopping
-   while connecting; honest audio-retention copy; typed mode with the same persona and grader;
-   screen-reader announcements with the persona muted; haptics; reduce motion; 3:1 control
-   boundaries. SAFETY.md + ACCESSIBILITY.md. Expected: C4 3 → 4. Effort: medium (mostly built).
-3. **Cheap C2/C4 correctness** [C2] [C4] — D-021 (`pnpm run server`), D-025 (schema retry
-   reachable), D-026 (word-boundary evidence), D-027 (mock ask grade matches its anchor),
-   D-030 (rate limit + text caps), D-031 (grader request text into data).
-   Expected: C2 3 → 4. Effort: low.
+1. **Paywall correctness** [C3] — D-032, D-033, D-034, D-035. Free sessions counted by a
+   counter that deleting history does not reset; one remote paywall whose headline and body are
+   custom variables filled from `data/paywall.yaml`, so each entry point gets its own copy and
+   the mock paywall is the same text; copy names the scenario being started; purchase and
+   restore failures shown; mock Pro survives reload and Restore finds it.
+   Expected: C3 2 → 3. Effort: low.
+2. **Stops that always stop, and a distress filter that does not cry wolf** [C4] [C1] —
+   D-036, D-037, D-038. Distinctive persona stop line matched exactly, and the app hangs up
+   itself when it hears it; tighter distress patterns with the reviewer's false positives as
+   tests; "No, stop." stops; the stopped screen links to support; README data claims corrected.
+   Expected: C4 holds 4 with fewer ways to lose it; C1 +0.5. Effort: low.
+3. **Scorecard and brief that do not contradict themselves** [C4] [C1] — D-039 (level cards show
+   a user-facing summary; the persona-only behaviour stays in the prompt), D-040 (the ask line
+   agrees with the Ask made score). Effort: low.
 
 ## Next
 
-4. **Evals (Phase 7)** [C2] [C4] — `pnpm eval`, gold set, EVALS.md with the numbers that can be
-   computed here and an honest "needs a key" for the rest; CLAUDE.md paths all real (D-011).
-5. **Polish** [C1] [C2] — D-015 (smaller, earned mock deltas), D-017 (real app icon, also the
-   Devpost asset), D-029 (persona captions revealed with audio alignment).
-6. **Owner-side, on a phone** [C1] [C3] — create the GitHub remote (D-006), run the dev build,
-   one Test Store purchase, one uncut L2 take. Tracked here so it is never forgotten.
+4. **Owner-side, on a phone** [C1] [C3] — create the GitHub remote (D-006); dev build; one
+   uncut L2 take; one Test Store purchase and one Restore after reinstall; `pnpm eval` with a key
+   and paste the table into EVALS.md; two or three real testers for a quote. This is what closes
+   D-001..D-004 and lifts C1 and C3.
+5. **Polish** — D-015 (mock deltas), D-029 (word-level live captions via audio alignment).
 
 ## Rejected
 
-- **Canned "smart" offline grader for mock mode** — a second, weaker grader to maintain that
-  would still not make mock "real". Mock stays a labelled replay.
+- **Canned "smart" offline grader for mock mode** — a second, weaker grader that would still not
+  make mock "real". Mock stays a labelled replay.
 - **Moving the paywall off the 4th attempt** (D-020) — the frozen product gives three graded
-  sessions. The paywall earns its placement instead: it names the scenario and the score move.
-- **Auth on /server** (part of D-030) — any secret shipped in the app is public. A per-IP rate
-  limit and request caps bound the cost instead; the README says it is a dev server.
+  sessions. The paywall names the scenario and the score move instead.
+- **Server-side quota and entitlement checks** (rest of D-032) — needs accounts or receipt
+  validation on /server, which the scope freeze rules out. The on-device counter survives
+  history deletion; a reinstall still resets it, and the README says so.
+- **Auth on /server** — any secret shipped in the app is public; the rate limit bounds cost.
 - **A web build as a product** — the browser is only the zero-install preview of mock mode.

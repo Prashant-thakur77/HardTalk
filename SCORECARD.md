@@ -7,3 +7,4 @@ Self-judged by a separate hostile-prescreener pass after every round. 1–5 per 
 |---|---|---|---|---|---|---|---|---|
 | 1 | 2026-09-28 | 1 | 2 | 1 | 2 | 6/20 | C1: no real voice or grader, so evidence quotes and retry delta are canned and 100 of 120 video seconds are unfillable (D-002/D-003/D-004) | – |
 | 2 | 2026-09-28 | 2 | 3 | 1 | 3 | 9/20 | C3: HEAD has zero RevenueCat (no `react-native-purchases`, no `pro` entitlement, paywall or Restore) in a RevenueCat competition, so the 1:45–1:55 purchase shot is unfillable (D-001) | – |
+| 3 | 2026-09-28 | 2 | 4 | 2 | 4 | 12/20 | C3: RevenueCat code (`pro`, RevenueCatUI paywall with scenario custom variables, listener, Restore) has never run against the Test Store or on a dev build, so the 1:45–1:55 purchase shot is unfilmable (D-001). The paywall it would film shows session-limit copy at the custom-scenario tap (D-033), and "Delete my practice history" resets the free tier (D-032) | – |
