@@ -2,7 +2,8 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { StyleSheet, Text, View } from 'react-native';
 
 import { findAttempt, findPreviousAttempt, useAttempts } from '@/attempts/store';
-import { DIMENSION_LABELS, DIMENSIONS, type Dimension, type Grade } from '@/grading/rubric.schema';
+import { DIMENSIONS, type Dimension, type Grade } from '@/grading/rubric.schema';
+import { rubrics } from '@/grading/rubrics';
 import { getScenario } from '@/scenarios';
 import { Button } from '@/ui/Button';
 import { MockBanner } from '@/ui/MockBanner';
@@ -104,7 +105,8 @@ function DimensionCard({
   previousScore: number | undefined;
 }) {
   const result = grade.dimensions[dimension];
-  const label = DIMENSION_LABELS[dimension];
+  const rubric = rubrics[dimension];
+  const label = rubric.name;
   return (
     <View style={styles.card}>
       <View
@@ -116,7 +118,10 @@ function DimensionCard({
             ? `${label}: ${result.score} out of 4`
             : `${label}: ${result.score} out of 4, was ${previousScore}`
         }>
-        <Text style={type.heading}>{label}</Text>
+        <View style={styles.cardTitle}>
+          <Text style={type.heading}>{label}</Text>
+          <Text style={styles.framework}>{rubric.framework.name}</Text>
+        </View>
         <View style={styles.scoreRow}>
           {previousScore !== undefined ? (
             <>
@@ -175,6 +180,8 @@ const styles = StyleSheet.create({
     gap: space.sm,
   },
   cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  cardTitle: { flexShrink: 1, gap: 2 },
+  framework: { fontSize: 13, color: colors.textMuted },
   scoreRow: { flexDirection: 'row', alignItems: 'center', gap: space.xs },
   score: { fontSize: 26, fontWeight: '700' },
   scoreMax: { fontSize: 16, color: colors.textMuted },

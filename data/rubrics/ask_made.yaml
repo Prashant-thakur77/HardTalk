@@ -1,0 +1,22 @@
+id: ask_made
+name: Ask made
+question: Did the user make a specific, doable request, and get an answer to it?
+framework:
+  name: NVC requests + Crucial Conversations "Move to Action"
+  source: >-
+    Rosenberg (2015) on concrete, positive, doable requests; Patterson, Grenny, McMillan and
+    Switzler, "Crucial Conversations: Tools for Talking When Stakes Are High", 3rd ed.,
+    McGraw-Hill, 2021, on deciding who does what by when.
+  applies: >-
+    A request is concrete, positive and doable. A conversation only moves to action when it
+    ends with who does what by when.
+anchors:
+  1: No request at all. The user hints, hopes, or leaves the next step to the other person.
+  2: >-
+    A vague request that the other person can say yes to without changing anything
+    ("whenever you get a chance", "can we sort it out?").
+  3: A specific request with an action, but no time or owner, or the answer is not confirmed.
+  4: >-
+    A specific request with action, owner and time, and the user confirms the answer ("So the
+    first part merges by 4pm?").
+evidence: Quote the request itself. If there is no request, quote the closest the user came.

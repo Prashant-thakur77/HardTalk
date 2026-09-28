@@ -1,0 +1,113 @@
+import { describe, expect, it } from 'vitest';
+
+import { downgradeUngrounded, findUngrounded, isGrounded } from '../evidence';
+import type { Grade } from '../rubric.schema';
+import type { Turn } from '../transcript';
+
+const turns: Turn[] = [
+  { speaker: 'persona', text: "It's a big change. I want it done properly." },
+  { speaker: 'user', text: 'Your auth refactor has been in review for three days.' },
+  { speaker: 'persona', text: 'So what do you want?' },
+  { speaker: 'user', text: "Can we agree the first part merges by 4pm?" },
+];
+
+function grade(overrides: Partial<Record<keyof Grade['dimensions'], Partial<Grade['dimensions']['clarity']>>> = {}): Grade {
+  const base = (quote: string, score = 3) => ({
+    score,
+    evidence_quotes: [quote],
+    rationale: 'r',
+    better_line: 'b',
+  });
+  return {
+    dimensions: {
+      clarity: { ...base('Your auth refactor has been in review for three days.'), ...overrides.clarity },
+      empathy: { ...base('Your auth refactor has been in review', 2), ...overrides.empathy },
+      ask_made: { ...base('Can we agree the first part merges by 4pm?', 4), ...overrides.ask_made },
+      boundary_held: { ...base('first part merges by 4pm', 3), ...overrides.boundary_held },
+    },
+    ask_made: true,
+    ask_text: 'Can we agree the first part merges by 4pm?',
+    boundary_held: true,
+    safety_flag: false,
+  };
+}
+
+describe('isGrounded', () => {
+  it('accepts a verbatim substring of a user turn', () => {
+    expect(isGrounded('in review for three days', turns)).toBe(true);
+  });
+
+  it('tolerates curly quotes, case and whitespace differences from speech-to-text', () => {
+    expect(isGrounded('can we agree the first part  merges by 4pm?', turns)).toBe(true);
+    expect(isGrounded('It’s a big change', [{ speaker: 'user', text: "It's a big change" }])).toBe(true);
+  });
+
+  it('rejects a paraphrase', () => {
+    expect(isGrounded('Your refactor has been stuck for three days.', turns)).toBe(false);
+  });
+
+  it('rejects a quote of the persona, even though it is in the transcript', () => {
+    expect(isGrounded("It's a big change.", turns)).toBe(false);
+  });
+
+  it('rejects a quote stitched across two user turns', () => {
+    expect(isGrounded('three days. Can we agree', turns)).toBe(false);
+  });
+
+  it('rejects empty or trivial quotes', () => {
+    expect(isGrounded('', turns)).toBe(false);
+    expect(isGrounded(' . ', turns)).toBe(false);
+  });
+});
+
+describe('findUngrounded', () => {
+  it('returns nothing for a fully grounded grade', () => {
+    expect(findUngrounded(grade(), turns)).toEqual([]);
+  });
+
+  it('flags a score above 1 whose quote is invented', () => {
+    const invented = grade({ empathy: { evidence_quotes: ['I totally understand how you feel.'] } });
+    expect(findUngrounded(invented, turns)).toEqual([
+      { dimension: 'empathy', quotes: ['I totally understand how you feel.'] },
+    ]);
+  });
+
+  it('flags a score above 1 with no quotes at all', () => {
+    expect(findUngrounded(grade({ clarity: { evidence_quotes: [] } }), turns)).toEqual([
+      { dimension: 'clarity', quotes: [] },
+    ]);
+  });
+
+  it('does not require evidence for a score of 1', () => {
+    expect(findUngrounded(grade({ clarity: { score: 1, evidence_quotes: [] } }), turns)).toEqual([]);
+  });
+});
+
+describe('downgradeUngrounded', () => {
+  it('drops an ungrounded dimension to 1, strips the bad quote, keeps good quotes, and says why', () => {
+    const mixed = grade({
+      ask_made: { evidence_quotes: ['Can we agree the first part merges by 4pm?', 'Please merge it now.'] },
+      empathy: { evidence_quotes: ['I hear you.'] },
+    });
+    const result = downgradeUngrounded(mixed, turns);
+
+    expect(result.dimensions.empathy.score).toBe(1);
+    expect(result.dimensions.empathy.evidence_quotes).toEqual([]);
+    expect(result.dimensions.empathy.rationale).toMatch(/could not be found/i);
+
+    expect(result.dimensions.ask_made.score).toBe(4);
+    expect(result.dimensions.ask_made.evidence_quotes).toEqual(['Can we agree the first part merges by 4pm?']);
+
+    expect(result.dimensions.clarity).toEqual(mixed.dimensions.clarity);
+  });
+
+  it('clears ask_text when it is not verbatim user speech', () => {
+    const result = downgradeUngrounded({ ...grade(), ask_text: 'merge the PR today' }, turns);
+    expect(result.ask_text).toBeNull();
+  });
+
+  it('leaves a grounded grade untouched', () => {
+    const clean = grade();
+    expect(downgradeUngrounded(clean, turns)).toEqual(clean);
+  });
+});

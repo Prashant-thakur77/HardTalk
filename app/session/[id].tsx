@@ -5,13 +5,14 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { addAttempt, nextAttemptNumber } from '@/attempts/store';
 import { gradeConversation } from '@/grading';
+import type { Turn } from '@/grading/transcript';
 import { getScenario } from '@/scenarios';
 import { difficultySchema } from '@/scenarios/schema';
 import { useConversation } from '@/session/useConversation';
 import { Button } from '@/ui/Button';
 import { MockBanner } from '@/ui/MockBanner';
 import { colors, radius, space, type } from '@/ui/theme';
-import type { SessionState } from '@/voice';
+import type { EndReason, SessionState } from '@/voice';
 
 function statusLabel(state: SessionState, personaName: string): string {
   switch (state.status) {
@@ -35,16 +36,17 @@ export default function Session() {
   const difficulty = difficultySchema.catch('L1').parse(params.difficulty);
   const [attempt] = useState(() => nextAttemptNumber(params.id));
   const [grading, setGrading] = useState(false);
+  const [gradeError, setGradeError] = useState<string | null>(null);
+  const ended = useRef<{ reason: EndReason; transcript: Turn[] } | null>(null);
   const scroll = useRef<ScrollView>(null);
 
-  const { turns, state, stop } = useConversation({
-    scenarioId: params.id,
-    difficulty,
-    attempt,
-    onEnd: (reason, transcript) => {
-      if (reason === 'user_stopped' || !scenario) return;
-      setGrading(true);
-      void gradeConversation({ scenarioId: scenario.id, attempt, turns: transcript }).then((grade) => {
+  const score = () => {
+    if (!ended.current || !scenario) return;
+    const { reason, transcript } = ended.current;
+    setGrading(true);
+    setGradeError(null);
+    gradeConversation({ scenarioId: scenario.id, attempt, turns: transcript })
+      .then((grade) => {
         const id = `${scenario.id}-${attempt}-${Date.now()}`;
         addAttempt({
           id,
@@ -57,7 +59,21 @@ export default function Session() {
           createdAt: Date.now(),
         });
         router.replace({ pathname: '/scorecard/[attemptId]', params: { attemptId: id } });
+      })
+      .catch((error: unknown) => {
+        setGrading(false);
+        setGradeError(error instanceof Error ? error.message : String(error));
       });
+  };
+
+  const { turns, state, stop } = useConversation({
+    scenarioId: params.id,
+    difficulty,
+    attempt,
+    onEnd: (reason, transcript) => {
+      if (reason === 'user_stopped') return;
+      ended.current = { reason, transcript };
+      score();
     },
   });
 
@@ -101,7 +117,28 @@ export default function Session() {
       </ScrollView>
 
       <View style={styles.footer}>
-        {stoppedEarly ? (
+        {state.status === 'error' ? (
+          <>
+            <Text style={type.body} accessibilityLiveRegion="assertive">
+              The conversation couldn’t continue: {state.message}
+            </Text>
+            <Button
+              label="Try again"
+              onPress={() =>
+                router.replace({ pathname: '/session/[id]', params: { id: scenario.id, difficulty } })
+              }
+            />
+            <Button label="Back to conversations" variant="secondary" onPress={() => router.dismissTo('/')} />
+          </>
+        ) : gradeError ? (
+          <>
+            <Text style={type.body} accessibilityLiveRegion="assertive">
+              Couldn’t score this conversation: {gradeError}
+            </Text>
+            <Button label="Try scoring again" onPress={score} />
+            <Button label="Back to conversations" variant="secondary" onPress={() => router.dismissTo('/')} />
+          </>
+        ) : stoppedEarly ? (
           <>
             <Text style={type.body}>You ended the conversation early, so it wasn’t scored.</Text>
             <Button

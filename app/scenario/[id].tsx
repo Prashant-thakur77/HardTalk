@@ -3,8 +3,7 @@ import { useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { getScenario } from '@/scenarios';
-import { DIFFICULTIES } from '@/scenarios/difficulty';
-import type { Difficulty } from '@/scenarios/schema';
+import { difficultySchema, type Difficulty } from '@/scenarios/schema';
 import { Button } from '@/ui/Button';
 import { MockBanner } from '@/ui/MockBanner';
 import { Screen } from '@/ui/Screen';
@@ -29,27 +28,31 @@ export default function ScenarioBrief() {
         With {scenario.persona.name}, {scenario.persona.role.toLowerCase()}
       </Text>
       <Text style={type.body}>{scenario.summary}</Text>
+      <View style={styles.goal}>
+        <Text style={styles.goalLabel}>Your goal</Text>
+        <Text style={type.body}>{scenario.user_goal}</Text>
+      </View>
       <MockBanner />
 
       <Text style={type.heading} accessibilityRole="header">
         How hard should {scenario.persona.name} push back?
       </Text>
       <View accessibilityRole="radiogroup" style={styles.levels}>
-        {(Object.keys(DIFFICULTIES) as Difficulty[]).map((level) => {
+        {difficultySchema.options.map((level) => {
           const selected = level === difficulty;
-          const { name, description } = DIFFICULTIES[level];
+          const { name, behaviour } = scenario.difficulty_levels[level];
           return (
             <Pressable
               key={level}
               accessibilityRole="radio"
               accessibilityState={{ checked: selected }}
-              accessibilityLabel={`${level}, ${name}. ${description}`}
+              accessibilityLabel={`${level}, ${name}. ${behaviour}`}
               onPress={() => setDifficulty(level)}
               style={[styles.level, selected && styles.levelSelected]}>
               <Text style={[styles.levelName, selected && styles.levelNameSelected]}>
                 {level} · {name}
               </Text>
-              <Text style={type.caption}>{description}</Text>
+              <Text style={type.caption}>{behaviour}</Text>
             </Pressable>
           );
         })}
@@ -59,6 +62,8 @@ export default function ScenarioBrief() {
 }
 
 const styles = StyleSheet.create({
+  goal: { gap: 2 },
+  goalLabel: { fontSize: 13, fontWeight: '700', color: colors.primary, textTransform: 'uppercase' },
   levels: { gap: space.sm },
   level: {
     minHeight: MIN_TARGET,

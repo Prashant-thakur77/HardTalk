@@ -1,0 +1,21 @@
+id: clarity
+name: Clarity
+question: Could the other person tell, early and without guessing, what the problem is and why it matters?
+framework:
+  name: Situation-Behavior-Impact (SBI)
+  source: Center for Creative Leadership, "Use Situation-Behavior-Impact (SBI) to Understand Intent".
+  applies: >-
+    A clear opener names the situation, the specific observable behaviour, and its impact,
+    without judgement or padding.
+anchors:
+  1: The other person could not tell what the problem is. No situation, behaviour or impact is stated.
+  2: >-
+    The issue is named but vague ("the PR thing", "a lot to add"), heavily hedged, or only
+    stated after the other person asks. Behaviour or impact is missing.
+  3: >-
+    Situation, behaviour and impact are all present, but late, spread across turns, or buried
+    in filler.
+  4: >-
+    Situation, behaviour and impact in the user's first or second turn, in two sentences or
+    fewer, with no hedging.
+evidence: Quote the sentence where the user first states the problem.

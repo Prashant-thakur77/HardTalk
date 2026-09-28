@@ -1,0 +1,24 @@
+id: boundary_held
+name: Boundary held
+question: When the other person pushed back, did the user keep their core position?
+framework:
+  name: Crucial Conversations — "Start with Heart" and "STATE my path"
+  source: >-
+    Patterson, Grenny, McMillan and Switzler, "Crucial Conversations: Tools for Talking When
+    Stakes Are High", 3rd ed., McGraw-Hill, 2021.
+  applies: >-
+    Under pressure people drift into silence (giving in) or violence (forcing). Holding a
+    boundary is staying in dialogue: keeping your content while keeping it safe for the other
+    person.
+anchors:
+  1: >-
+    The user abandons the position, or removes the stakes before any pushback ("no pressure
+    though", "I'll make it work").
+  2: The user softens the core position under pressure ("I'll try", "maybe later is fine").
+  3: >-
+    The user keeps the core position through pushback but concedes something that was not
+    asked for.
+  4: >-
+    The user keeps the core position through at least one pushback, restates it calmly,
+    and trades only deliberately.
+evidence: Quote what the user said right after the other person pushed back.

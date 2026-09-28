@@ -1,4 +1,4 @@
-import type { Difficulty } from '@/scenarios/schema';
+import type { Difficulty } from '../scenarios/schema';
 
 export type Speaker = 'user' | 'persona';
 

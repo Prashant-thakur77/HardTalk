@@ -1,0 +1,21 @@
+id: empathy
+name: Empathy
+question: Did the user acknowledge the other person's feelings or needs without giving up their own position?
+framework:
+  name: Nonviolent Communication (NVC)
+  source: Marshall B. Rosenberg, "Nonviolent Communication — A Language of Life", 3rd ed., PuddleDancer Press, 2015.
+  applies: >-
+    Empathy in NVC is naming the other person's likely feeling and underlying need, and checking
+    it, as distinct from agreeing with their strategy.
+anchors:
+  1: No acknowledgement of the other person's position, or the user blames or dismisses them.
+  2: >-
+    A generic acknowledgement ("I get that", "totally"), or an acknowledgement used to back
+    down rather than to connect.
+  3: >-
+    Acknowledges the other person's specific constraint or concern and keeps the user's own
+    position in the same breath.
+  4: >-
+    Names the other person's likely feeling or need specifically and checks it ("Sounds like
+    you're worried a rushed merge lands on you?"), while holding the user's own position.
+evidence: Quote the sentence where the user acknowledges the other person.

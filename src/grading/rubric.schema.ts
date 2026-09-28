@@ -25,9 +25,22 @@ export const gradeSchema = z.object({
 });
 export type Grade = z.infer<typeof gradeSchema>;
 
-export const DIMENSION_LABELS: Record<Dimension, string> = {
-  clarity: 'Clarity',
-  empathy: 'Empathy',
-  ask_made: 'Ask made',
-  boundary_held: 'Boundary held',
-};
+/** Shape of data/rubrics/*.yaml: anchored 1–4 descriptors plus the framework they come from. */
+export const rubricSchema = z.strictObject({
+  id: z.enum(DIMENSIONS),
+  name: z.string().min(1),
+  question: z.string().min(1),
+  framework: z.strictObject({
+    name: z.string().min(1),
+    source: z.string().min(1),
+    applies: z.string().min(1),
+  }),
+  anchors: z.strictObject({
+    1: z.string().min(1),
+    2: z.string().min(1),
+    3: z.string().min(1),
+    4: z.string().min(1),
+  }),
+  evidence: z.string().min(1),
+});
+export type Rubric = z.infer<typeof rubricSchema>;

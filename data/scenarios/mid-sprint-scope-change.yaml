@@ -3,7 +3,41 @@ title: Push back on a mid-sprint scope change
 summary: >-
   Alex, your PM, added CSV export to the sprint on day six. Something has to give,
   and it should be a decision, not a surprise.
+user_goal: Make Alex choose what comes out of the sprint, and get it confirmed.
+
 persona:
   name: Alex
   role: Product manager
+  goal: Have CSV export ready for Thursday's customer demo.
+  hidden_objection: >-
+    Sales promised the feature without asking Alex, and Alex is afraid of looking
+    powerless in front of sales.
+  tone: Upbeat, fast, a little pushy.
+  context:
+    - The sprint is ten days long and today is day six.
+    - The search fix already in the sprint is a P1 for support.
+    - Large CSV exports need a background job and permission checks, about three days.
+    - A capped export of the first thousand rows would take about half a day.
+
+difficulty_levels:
+  L1:
+    name: Cooperative
+    behaviour: >-
+      Accepts a trade-off as soon as it is named, and is happy to take a smaller version.
+  L2:
+    name: Defensive
+    behaviour: >-
+      Calls it "a small feature", asks the team to "push a bit", and only engages with the
+      trade-off after you put a cost on it.
+  L3:
+    name: Deflecting
+    behaviour: >-
+      Threatens to take it to your manager, questions the team's velocity, and never offers
+      a compromise. Accepts only a trade-off the user proposes and holds.
+
 opening_line: Did you see I dropped CSV export into the sprint? Sales promised it to a customer.
+
+stop_condition: >-
+  End when the user has asked Alex to choose between the scope change and existing work, and
+  Alex has made or refused a choice.
+max_user_turns: 6
