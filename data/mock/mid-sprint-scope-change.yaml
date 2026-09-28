@@ -1,0 +1,79 @@
+# Recorded conversations replayed in mock mode. Attempt 1 is a typical first try;
+# attempt 2 is the retry. Every evidence quote is a verbatim substring of a user turn.
+scenario_id: mid-sprint-scope-change
+attempts:
+  - end_reason: stop_condition
+    turns:
+      - { speaker: persona, text: "Did you see I dropped CSV export into the sprint? Sales promised it to a customer." }
+      - { speaker: user, text: "Yeah, I saw. That's, um, a lot to add right now." }
+      - { speaker: persona, text: "It's a small feature. Just a button that downloads the table." }
+      - { speaker: user, text: "I don't know, it might be more than that. We'll see what we can do." }
+      - { speaker: persona, text: "Great, so it'll be in the demo on Thursday?" }
+      - { speaker: user, text: "I'll try my best." }
+      - { speaker: persona, text: "Perfect. I'll tell sales it's happening." }
+    grade:
+      dimensions:
+        clarity:
+          score: 2
+          evidence_quotes: ["That's, um, a lot to add right now."]
+          rationale: "You flagged a problem but not what it costs. \"A lot\" gives Alex nothing to weigh."
+          better_line: "Large exports need a background job and permission checks, so it's about three days."
+        empathy:
+          score: 1
+          evidence_quotes: ["I don't know, it might be more than that."]
+          rationale: "You never acknowledged the customer promise Alex is under, so pushing back sounded like reluctance rather than a trade-off."
+          better_line: "I get that sales needs a win with that customer."
+        ask_made:
+          score: 1
+          evidence_quotes: ["We'll see what we can do."]
+          rationale: "No request at all. Alex filled the silence with their own plan."
+          better_line: "Do you want export or the search fix this sprint?"
+        boundary_held:
+          score: 1
+          evidence_quotes: ["I'll try my best."]
+          rationale: "Alex asked for a Thursday commitment and \"I'll try\" was heard as yes."
+          better_line: "I can't commit to Thursday without dropping the search fix."
+      ask_made: false
+      ask_text: null
+      boundary_held: false
+      safety_flag: false
+
+  - end_reason: stop_condition
+    turns:
+      - { speaker: persona, text: "Did you see I dropped CSV export into the sprint? Sales promised it to a customer." }
+      - { speaker: user, text: "I did. I get that sales needs a win with that customer. Adding it on day six means something else has to come out." }
+      - { speaker: persona, text: "It's a small feature. Just a button that downloads the table." }
+      - { speaker: user, text: "The button is small. Large exports need a background job and permission checks, so it's about three days." }
+      - { speaker: persona, text: "The customer demo is Thursday. Can't the team just push a bit?" }
+      - { speaker: user, text: "Pushing means the search fix slips, and that one is a P1 for support. Do you want export or the search fix this sprint?" }
+      - { speaker: persona, text: "Hmm. Search can't slip. Can we do a basic export for the demo?" }
+      - { speaker: user, text: "Yes. A capped export of the first thousand rows by Thursday, and the full version next sprint. Can you confirm that with sales today?" }
+      - { speaker: persona, text: "Deal. I'll tell sales it's capped for now." }
+    grade:
+      dimensions:
+        clarity:
+          score: 4
+          evidence_quotes: ["Large exports need a background job and permission checks, so it's about three days."]
+          rationale: "You turned \"small feature\" into a concrete estimate with a reason Alex can repeat to sales."
+          better_line: "It's about three days, because large exports need a background job."
+        empathy:
+          score: 3
+          evidence_quotes: ["I get that sales needs a win with that customer."]
+          rationale: "You named Alex's pressure before pushing back. A 4 checks it rather than assumes it."
+          better_line: "Sounds like sales has you in a tight spot. Is this customer at risk?"
+        ask_made:
+          score: 4
+          evidence_quotes:
+            - "Do you want export or the search fix this sprint?"
+            - "Can you confirm that with sales today?"
+          rationale: "You made Alex choose, then turned the choice into a commitment with an owner and a date."
+          better_line: "Can you confirm that with sales today? I'll send you the scope in writing."
+        boundary_held:
+          score: 4
+          evidence_quotes: ["Pushing means the search fix slips, and that one is a P1 for support."]
+          rationale: "When Alex asked the team to \"push a bit\", you named the real cost instead of absorbing it."
+          better_line: "If the team pushes, the search fix slips, and support needs that one this week."
+      ask_made: true
+      ask_text: "Can you confirm that with sales today?"
+      boundary_held: true
+      safety_flag: false

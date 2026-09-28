@@ -1,0 +1,6 @@
+nodeLinker: hoisted
+shellEmulator: true
+minimumReleaseAgeExclude:
+  - browserslist@4.29.2
+allowBuilds:
+  unrs-resolver: set this to true or false

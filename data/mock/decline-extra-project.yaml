@@ -1,0 +1,79 @@
+# Recorded conversations replayed in mock mode. Attempt 1 is a typical first try;
+# attempt 2 is the retry. Every evidence quote is a verbatim substring of a user turn.
+scenario_id: decline-extra-project
+attempts:
+  - end_reason: stop_condition
+    turns:
+      - { speaker: persona, text: "Thanks for grabbing time. I've got something I think you'd be great for." }
+      - { speaker: user, text: "Oh, sure, what is it?" }
+      - { speaker: persona, text: "The analytics migration. It needs an owner and you know the data model better than anyone." }
+      - { speaker: user, text: "Wow, okay. I mean, I'm pretty busy with billing, but I guess I could try to fit it in?" }
+      - { speaker: persona, text: "Great. It's only a few hours a week, really." }
+      - { speaker: user, text: "Yeah, okay. I'll make it work somehow." }
+      - { speaker: persona, text: "Perfect, I'll let the team know you're leading it." }
+    grade:
+      dimensions:
+        clarity:
+          score: 2
+          evidence_quotes: ["I'm pretty busy with billing, but I guess I could try to fit it in?"]
+          rationale: "You mentioned billing, but as being busy rather than as a trade-off Jordan has to make."
+          better_line: "I can't lead the migration this quarter without putting the billing launch at risk."
+        empathy:
+          score: 2
+          evidence_quotes: ["Oh, sure, what is it?"]
+          rationale: "Warm and open, but you never acknowledged what Jordan needs, so the whole conversation stayed about whether you'd say yes."
+          better_line: "I appreciate you thinking of me, and I can see why it needs someone who knows the data."
+        ask_made:
+          score: 1
+          evidence_quotes: ["I guess I could try to fit it in?"]
+          rationale: "You asked nothing of Jordan. Even a no needs an ask: which priority moves."
+          better_line: "If this is the priority, which should slip: the billing launch or the migration?"
+        boundary_held:
+          score: 1
+          evidence_quotes: ["I'll make it work somehow."]
+          rationale: "You agreed to both projects. The boundary was gone before Jordan pushed."
+          better_line: "I'd rather say no now than let billing slip later."
+      ask_made: false
+      ask_text: null
+      boundary_held: false
+      safety_flag: false
+
+  - end_reason: stop_condition
+    turns:
+      - { speaker: persona, text: "Thanks for grabbing time. I've got something I think you'd be great for." }
+      - { speaker: user, text: "Happy to hear it. What's up?" }
+      - { speaker: persona, text: "The analytics migration. It needs an owner and you know the data model better than anyone." }
+      - { speaker: user, text: "I appreciate you thinking of me, and I can see why it needs someone who knows the data. I can't lead it this quarter without putting the billing launch at risk." }
+      - { speaker: persona, text: "It's only a few hours a week, really. I'm sure you can find the time." }
+      - { speaker: user, text: "My estimate is closer to a day a week, and billing already has me at capacity. If the migration is the priority, which should slip: billing or the migration?" }
+      - { speaker: persona, text: "Billing can't slip. Legal needs it by the fifteenth." }
+      - { speaker: user, text: "Then I'd rather say no to leading the migration now. I can review Priya's design doc this week so she can own it." }
+      - { speaker: persona, text: "Okay. Let's put Priya on it and you review. Thanks for being straight with me." }
+    grade:
+      dimensions:
+        clarity:
+          score: 4
+          evidence_quotes: ["I can't lead it this quarter without putting the billing launch at risk."]
+          rationale: "A clear no with a clear reason, in one sentence."
+          better_line: "I can't lead the migration this quarter. Billing ships on the fifteenth and needs all of me."
+        empathy:
+          score: 4
+          evidence_quotes: ["I appreciate you thinking of me, and I can see why it needs someone who knows the data."]
+          rationale: "You named Jordan's actual need before declining, which is why the no landed without friction."
+          better_line: "I know you're stretched finding owners, and I appreciate you thinking of me."
+        ask_made:
+          score: 3
+          evidence_quotes: ["If the migration is the priority, which should slip: billing or the migration?"]
+          rationale: "A real ask that forced a decision. A 4 offers your alternative in the same breath."
+          better_line: "Which should slip? If billing stays, I can review Priya's design doc so she can own it."
+        boundary_held:
+          score: 4
+          evidence_quotes:
+            - "My estimate is closer to a day a week, and billing already has me at capacity."
+            - "Then I'd rather say no to leading the migration now."
+          rationale: "Jordan played down the cost; you corrected it with a number and kept the no when they pushed again."
+          better_line: "Ask me again after billing ships on the fifteenth, and I'll look at it properly."
+      ask_made: true
+      ask_text: "If the migration is the priority, which should slip: billing or the migration?"
+      boundary_held: true
+      safety_flag: false

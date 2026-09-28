@@ -1,0 +1,9 @@
+id: pr-blocking-release
+title: Your teammate's PR is blocking the release
+summary: >-
+  Sam's auth refactor has sat in review for three days and QA can't start regression
+  until it merges. Tell them, and leave with a plan.
+persona:
+  name: Sam
+  role: Senior engineer on your team
+opening_line: Hey, what's up? I've only got a few minutes before standup.

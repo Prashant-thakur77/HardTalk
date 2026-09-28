@@ -1,0 +1,9 @@
+id: mid-sprint-scope-change
+title: Push back on a mid-sprint scope change
+summary: >-
+  Alex, your PM, added CSV export to the sprint on day six. Something has to give,
+  and it should be a decision, not a surprise.
+persona:
+  name: Alex
+  role: Product manager
+opening_line: Did you see I dropped CSV export into the sprint? Sales promised it to a customer.

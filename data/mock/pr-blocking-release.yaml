@@ -1,0 +1,79 @@
+# Recorded conversations replayed in mock mode. Attempt 1 is a typical first try;
+# attempt 2 is the retry. Every evidence quote is a verbatim substring of a user turn.
+scenario_id: pr-blocking-release
+attempts:
+  - end_reason: stop_condition
+    turns:
+      - { speaker: persona, text: "Hey, what's up? I've only got a few minutes before standup." }
+      - { speaker: user, text: "Hey, um, so I just wanted to kind of check in about the PR thing, if that's okay. It's not a big deal or anything." }
+      - { speaker: persona, text: "Which PR? I've got a few open." }
+      - { speaker: user, text: "The auth refactor one. It's just that some people are sort of waiting on it, I think. No pressure though." }
+      - { speaker: persona, text: "It's a big change. I want it done properly, not rushed. Reviews take time." }
+      - { speaker: user, text: "Yeah, totally, I get that. I guess just whenever you get a chance maybe?" }
+      - { speaker: persona, text: "Sure. I'll get to it when I can." }
+    grade:
+      dimensions:
+        clarity:
+          score: 2
+          evidence_quotes: ["The auth refactor one."]
+          rationale: "You named the PR, but only when asked, and never said what it blocks or for how long. \"Sort of waiting on it, I think\" leaves Sam to guess the impact."
+          better_line: "Your auth refactor has been in review for three days, and QA can't start the release until it merges."
+        empathy:
+          score: 2
+          evidence_quotes: ["Yeah, totally, I get that."]
+          rationale: "You acknowledged Sam's concern, but used the acknowledgement to back down rather than to connect it to the goal you share."
+          better_line: "I don't want it rushed either. I want us both to make Friday."
+        ask_made:
+          score: 1
+          evidence_quotes: ["I guess just whenever you get a chance maybe?"]
+          rationale: "No specific request and no time. Sam can honestly say yes and change nothing."
+          better_line: "Can we agree a plan to get the first part merged by 4pm today?"
+        boundary_held:
+          score: 1
+          evidence_quotes: ["No pressure though."]
+          rationale: "You removed the stakes before Sam pushed back at all."
+          better_line: "I know it's a big change. The release still can't move without it, so we need a plan today."
+      ask_made: false
+      ask_text: null
+      boundary_held: false
+      safety_flag: false
+
+  - end_reason: stop_condition
+    turns:
+      - { speaker: persona, text: "Hey, what's up? I've only got a few minutes before standup." }
+      - { speaker: user, text: "Thanks, I'll be quick. Your auth refactor PR has been in review for three days, and the release is blocked until it merges." }
+      - { speaker: persona, text: "It's a big change. I want it done properly, not rushed." }
+      - { speaker: user, text: "That makes sense, and I don't want it rushed either. Right now QA can't start regression, so Friday's release slips." }
+      - { speaker: persona, text: "So what, you want me to ignore the review comments?" }
+      - { speaker: user, text: "No. Can you split out the token migration so the rest can merge today, and we review the migration tomorrow?" }
+      - { speaker: persona, text: "Splitting it is a few hours of work I didn't plan for." }
+      - { speaker: user, text: "I know. I'll pair with you on it after standup. Can we agree the first part merges by 4pm?" }
+      - { speaker: persona, text: "Fine. First part by 4pm, and you're pairing with me." }
+    grade:
+      dimensions:
+        clarity:
+          score: 4
+          evidence_quotes: ["Your auth refactor PR has been in review for three days, and the release is blocked until it merges."]
+          rationale: "Situation, behaviour and impact in one sentence, before Sam had to ask."
+          better_line: "Your auth refactor has been in review three days, and QA is blocked until it merges."
+        empathy:
+          score: 3
+          evidence_quotes: ["That makes sense, and I don't want it rushed either."]
+          rationale: "You agreed with Sam's real concern without dropping yours. A 4 names the feeling, not just the position."
+          better_line: "It sounds like you're worried a rushed merge lands on you. I don't want that either."
+        ask_made:
+          score: 4
+          evidence_quotes:
+            - "Can you split out the token migration so the rest can merge today, and we review the migration tomorrow?"
+            - "Can we agree the first part merges by 4pm?"
+          rationale: "Specific action, specific time, and you confirmed it. Sam said yes to something you can check."
+          better_line: "I'll check in at 3:30 in case anything is stuck."
+        boundary_held:
+          score: 3
+          evidence_quotes: ["No. Can you split out the token migration so the rest can merge today"]
+          rationale: "When Sam reframed your request as ignoring the review, you corrected it in one word and kept the date. Offering to pair came before Sam asked for anything; a 4 holds the date first and offers help second."
+          better_line: "The date stays at 4pm. If splitting it needs a second pair of hands, I can help."
+      ask_made: true
+      ask_text: "Can we agree the first part merges by 4pm?"
+      boundary_held: true
+      safety_flag: false

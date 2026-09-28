@@ -1,0 +1,9 @@
+id: decline-extra-project
+title: Say no to your manager's extra project
+summary: >-
+  Jordan wants you to lead the analytics migration on top of the billing launch.
+  Decline without damaging the relationship.
+persona:
+  name: Jordan
+  role: Your manager
+opening_line: Thanks for grabbing time. I've got something I think you'd be great for.
