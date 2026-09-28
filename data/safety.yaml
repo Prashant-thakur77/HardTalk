@@ -2,94 +2,112 @@
 
 disclaimer: HardTalk is a practice tool. It is not therapy, and it is not HR or legal advice.
 
-# A user line made only of one of these (plus "please", "now", "here"...) ends the roleplay at
-# once, unscored. "Stop blocking the release" is roleplay and does not match.
+# Stopping. A clause that is only a request to stop ("stop", "can we stop here please", "Sam,
+# stop") ends the practice at once, whatever else the line says. "pause" is also how people push
+# back ("Can we pause, and look at the sprint?"), so a pause clause only counts when everything
+# around it is a lead-in or a short trailer. "you" is never filler: "Can I stop you there?" is
+# roleplay.
 stop_words: [stop, pause]
+stop_filler: [please, pls, plz, now, here, there, ok, okay, no, just, wait, sorry, actually, hey,
+  can, could, we, lets, i, want, need, to, the, id, like, for, a, bit, moment, second, minute,
+  thanks, roleplay, role, play, practice, conversation, session, yes, yeah, um, so]
+stop_objects: [it, this, that]
+pause_lead_ins: [no, hold, on, hang, wait, enough, sorry, ok, okay, look, please, hey, right,
+  alright, stop, pause, just, actually]
+pause_trailers:
+  - please
+  - thanks
+  - thank you
+  - i mean it
+  - now
+  - sorry
+  - i can'?t (do this|take this|breathe|cope)( anymore)?
+  - i feel (sick|awful|terrible|unwell|faint|dizzy)
+  - this is too much( for me)?
+  - i need a (break|minute|moment|second)
 
-# Distress detection runs on each sentence, after normalising spelling ("wanna", "my self",
-# "dont", "cannot", extra spaces). See SAFETY.md for why it is built this way. Missing a real
-# disclosure is the error to avoid; pausing the practice for an idiom is the error accepted.
+# Distress detection. Missing a real disclosure is the error to avoid; pausing the practice for
+# an idiom is the error accepted. See SAFETY.md for why it is built this way.
 #
-# Tier 1: explicit disclosures. Always distress. This list only ever grows: a false alarm is
-# answered with a test marking it accepted, never by narrowing a pattern. The only carve-outs
-# are exact continuations that make a common phrase ("shoot myself in the foot").
+# Tier 1: explicit disclosures, checked sentence by sentence. Always distress. This list only
+# grows. An exception here may only be a complete harmless phrase ("cut myself some slack",
+# "beat me to it"), never a test of the next word alone.
 distress_explicit:
-  - \b(kill|killed|hang|hanged|hanging|drown|drowned|poison|poisoned) myself\b
+  - \b(kill|killed|hang|hanged|hanging|drown|drowned|poison|poisoned|off|unalive) myself\b
+  - \bunalive\b
+  - \bkms\b
   - \bshoot myself\b(?! in the foot)
   - \bharm(ed|ing)? myself\b
-  - \b(think|thinking|thought|thoughts|dream|dreaming|planning|plan|going|want|wanted|trying|tried)( about| of| on| to)? (killing|hurting|harming|cutting|hanging|ending|kill|hurt|harm|cut|hang|end) (myself|my life)\b(?! (some slack|a break|off from))
+  - \b(think|thinking|thought|thoughts|dream|dreaming|planning|plan|going|want|wanted|trying|tried|feel like|considering|consider|imagining|imagine)( about| of| on| to)? (killing|hurting|harming|cutting|hanging|ending|kill|hurt|harm|cut|hang|end) (myself|my life)\b(?! (some slack|a break|off from))
   - \b(keep|keeps|kept|been|started|start) (hurting|harming|cutting|hanging) myself\b(?! (some slack|a break|off from))
+  - \bcut(ting)? my wrists?\b
+  - \bslit my wrists?\b
   - \bself[- ]?harm
   - \bsuicid(e|al)\b(?! (mission|squad|run))
   - \b(end|ending|take|taking) (my|my own) life\b
   - \b(end|ending) it all\b
-  - \bwant to die\b(?! of (embarrassment|shame|boredom|laughing))
+  - \bwant(ed)? to die\b(?! of (embarrassment|shame|boredom|laughing))
+  - \bwish i (could|would) die\b
   - \bwant to be dead\b
+  - \b(rather|better off) be(ing)? dead\b
   - \bwish (i was|i were|i'd) (dead|never born)\b
   - \bbetter off (dead|without me)\b
-  - \bdon't want to (be alive|live|exist|be here)\b
+  - \bdon't want to (be alive|live|exist|be here|wake up)\b
   - \b(no reason|nothing) to live\b
   - \bpoint (in|of) (living|life|being alive|going on)\b(?! with the (review|meeting|project|sprint|plan|release|call))
   - \bfeel like dying\b
+  - \b(nobody|no one|no-one) would (care|notice|miss me) if i (disappeared|was gone|were gone|died|wasn't here)\b
   - \bwant to (disappear forever|not wake up|stop existing)\b
-  - \b(want|going|planning|plan) to end (it|things)$
+  - \b(want|going|planning|plan) to end (it|things)( tonight| today| this weekend| soon| now)?$
   - \b(thinking|thought|think) (of|about) ending (it|things)$
-  - \b(take|taking|swallow|swallowing) (all )?(my|the|these|those) pills\b
+  - \b(take|taking|took|taken|swallow|swallowing|swallowed) (all )?(of )?(my|the|these|those|a bunch of|a lot of|too many|a handful of) pills\b
   - \boverdos(e|ed|ing)\b
-  - \bslit my wrists?\b
-  - \bjump (off|from|in front of) (the|a) (roof|bridge|building|balcony|window|train|bus|car)\b
+  - \b(jump|jumping) (off|from) (the|a) (roof|bridge|building|balcony|window)\b
+  - \b(step|stepping|jump|jumping|walk|walking|throw myself) in front of (a|the) (bus|train|car|truck|lorry)\b
   - \bpanic attacks?\b
   - \bi can't breathe\b
   - \b(rape|raped|raping|rapist|molest|molested|molesting|groped|groping)\b
   - \bsexual(ly)? (assault|assaulted|assaulting|harass|harassed|harassing|harassment|abuse|abused)\b(?! (training|policy|course|module|workshop|video|complaint process))
-  - \b(attacked|punched|slapped|choked|strangled|assaulted|beaten) me\b
-  - \b(beat|beats|beating) me\b(?! (to it|to the punch|by|at|why|how|what))
-  - \bkicked me\b(?! (off|out))
-  - \bshoved me\b(?! (onto|on to|into) (the |another |a )?(rota|on-call|schedule|project|team|meeting))
-  - \b(i was|i've been|i got|i keep getting|i keep being|i'm being|i am being) (attacked|assaulted|punched|slapped|groped|beaten|hit|kicked|pushed|shoved|choked|grabbed|hurt|abused|harassed)\b
+  - \b(sleep|have sex) with (him|her|them|me)\b
+  - \b(attacked|punched|slapped|choked|strangled|assaulted|beaten|kicked|shoved|pinned) me\b
+  - \b(beat|beats|beating) me\b(?! (to it|to the punch))
+  - \bthreaten(ed|s|ing)? to (kill|hurt|hit|rape|beat) me\b
+  - \b(you're|you are) scaring me\b
+  - \b(i was|i've been|i got|i keep getting|i keep being|i'm being|i am being) (attacked|assaulted|punched|slapped|groped|beaten|choked|abused|harassed|kicked|shoved)\b
   - \b(got|was|been|keep getting|i'm being|am being) (hit|punched|slapped|kicked|beaten|pushed|grabbed|groped|touched|shoved|choked|attacked) by (my|him|her|them|someone|a (man|woman|guy|colleague|coworker|customer|client))\b
-  - \b(slapped|punched|hit|kicked|grabbed|choked|twisted|squeezed) my (face|neck|arm|wrist|throat|head|body|hair|chest|leg)\b
+  - \b(slapped|punched|hit|kicked|grabbed|choked|twisted|squeezed|pulled) my (face|neck|arm|wrist|throat|head|body|hair|chest|leg|hand)\b
 
-# Tier 2: words that are usually harm but also appear in workplace idioms. Distress unless
-# that exact occurrence sits inside one of the idioms below.
+# Tier 2: words that are usually harm but also appear in workplace idioms. Distress unless the
+# WHOLE line, lowercased and without punctuation, is exactly one of the idiom templates below.
+# Nothing can hide behind an idiom: one extra clause or sentence and the line is checked.
 distress_ambiguous:
   - \b(hurt|hurting|cut|cutting|killing) myself\b
   - \b(hit|hits|hitting|hurt|hurts|pushed|pushes) me\b
   - \b(grabbed|grabs|grabbing|touched|touches|touching) me\b
+  - \b(i was|i've been|i got|i keep getting|i keep being|i'm being|i am being) (hit|pushed|grabbed|hurt|touched)\b
 
-# Idioms. Two kinds, and nothing else:
-#  - a request or remark that starts its clause, with no person before it: "Hit me back by EOD",
-#    "Sam, hit me back", "It hit me that…". {{clause}} is that clause start.
-#  - a phrase whose own subject or object is harmless: "the layoffs hit me", "hit me with a new
-#    requirement", "killing myself to hit the deadline".
-# The generated tests put a person in front of every idiom and require distress each time.
-clause_start: (?:^|, )(?:(?:honestly|look|so|ok|okay|oh|well|just|please|go on|can you|could you|would you|if i take this on|if i say yes to this too)[, ]+)?
-idioms:
-  - "{{clause}}hit me (up|back)\\b(?! (against|into|on the|in the))"
-  - "{{clause}}hit me on (slack|teams|email|chat)\\b"
-  - "{{clause}}hit me with (it|your feedback|your questions|the details|the numbers)$"
-  - "\\bhit me with (a new requirement|another requirement|a new request|a new deadline|more scope)\\b"
-  - "{{clause}}it (really |finally |suddenly |just )?hit me (last night |this morning |yesterday |then )?(that|when you)\\b"
-  - "{{clause}}(that|this) (really |just )?hit me hard$"
-  - "\\b(the news|that news|the layoffs|the reorg|the feedback|your comment|that comment|the deadline change) (really |just )?hit me\\b"
-  - "\\bkilling myself (to|trying to) (hit|meet|ship|make|get|finish|deliver) (this|that|the|our) (deadline|date|release|sprint|feature|work|project)( out)?\\b"
-  - "\\bkilling myself trying to hit friday\\b"
-  - "\\bkilling myself (for this team|on the migration|on this migration|on the project|on this release|on the billing work)\\b"
-  - "\\bkilling myself with (overtime|work|meetings)\\b"
-  - "{{clause}}i'm (already |literally |honestly )?killing myself here$"
-  - "{{clause}}i'm (only|just) hurting myself$"
-  - "{{clause}}i'd (only |just )?be (only |just )?hurting myself$"
-  - "\\bbe hurting myself and (the|my|our) team('s delivery)?\\b"
-  - "\\bwould hurt myself and (the|my|our) team\\b"
-  - "\\bcut(ting)? myself (some slack|a break|off from (the|slack|email|work))\\b"
-  - "{{clause}}it (really |truly |deeply )?touched me that\\b"
-  - "{{clause}}(that|this) (really|truly|deeply) touched me$"
-  - "\\b(your message|your note|your words|your email|your kindness|what you said)( in the (retro|meeting|standup))?( really| truly| deeply)? touched me\\b"
-  - "\\b(what|that idea|the idea)( really)? grabbed me about\\b"
-  - "{{clause}}(that|the) idea (really )?grabbed me$"
-  - "{{clause}}(that|this|it) (really |honestly )?hurt me$"
-  - "\\b(that comment|your comment|your words|your feedback|that feedback|that deadline|the decision|the news)( really| honestly)? hurt me\\b"
-  - "\\bpushed me (to take|into taking|to say|into saying|to agree|into agreeing|to accept|to finish|to ship)\\b"
+line_idioms:
+  - ((so|just|please|ok|okay|sure|yeah) )?((can|could|would) you )?(just )?hit me ((up|back)( on (slack|teams|email|chat))?|on (slack|teams|email|chat))( (when it merges|later|after lunch|after standup|by eod|tomorrow|today|once you've looked|when you can|when you're done))?
+  - (go on |ok |okay |so )?(just )?hit me with (it|your feedback|your questions|the details|the numbers)
+  - ((he|she|they|you|sales|product|the pm|my pm|my manager|my boss|alex|sam|jordan|dana|qa) )?((just|also|then) )?(hit|hits) me with (a new|another|more|a last minute|three|two) (requirement|request|deadline|scope|bug report|ticket|change)s?( on day six| today| yesterday| this morning| again)?
+  - i (got|was|keep getting|have been|'ve been) hit with (a new|another|more|three|two|a lot of|a bunch of) (requirement|request|deadline|bug report|ticket|change|scope)s?( from (qa|sales|product|alex|the pm))?( on day six| today| yesterday| this morning)?
+  - i got hit by a wall of (emails|messages|tickets)( this morning)?
+  - ((honestly|look) )?(that|this) (really |just )?hit me hard
+  - (that |this |the |your )?(news|layoffs|reorg|feedback|comment|deadline change|comment in standup) (really |just )?hit me( hard| too| like a truck)?
+  - ((honestly|look) )?(i'm|i've been|i'd be)( already| literally| basically| honestly| really)? killing myself (to (hit|meet|ship|make|get|finish|deliver) (this|that|the|our) (deadline|date|release|sprint|feature|work|project)( out)?|trying to (hit|meet|get) (friday|the deadline|this done)|for this team( for (two|three|a few) years)?|on (the|this) (migration|project|release|billing work)( already)?|with (overtime|work|meetings)( already)?|here|on this for weeks)
+  - ((honestly|look) )?((if i say yes to this too|if i take this on) )?(i'm (only|just) hurting myself|i'd (only |just )?be (only |just )?hurting myself( and (the|my|our) team('s delivery)?( if i took it on)?)?)
+  - (saying yes|taking (it|this) on) would hurt myself and (the|my|our) team
+  - i('m| need to| want to| will|'ll)?( trying to| going to)? cut(ting)? myself (some slack|a break|off from (the planning thread|slack|email|work))( (today|this sprint|after six))?
+  - ((honestly|look) )?(your (message|note|words|email|kindness)|what you said( in the (retro|meeting|standup))?) (really |truly |deeply )?touched me
+  - it (really )?touched me that you (noticed|said that|remembered)
+  - (that|this) (really|truly|deeply) touched me
+  - what (really )?grabbed me about your (proposal|plan|pitch) was the (timeline|scope|price)
+  - that idea really grabbed me
+  - ((honestly|look) )?(that|this|it) (really |honestly )?hurt me
+  - ((honestly|look) )?(that|your) (comment|feedback|deadline|decision|news|words)( really| honestly)? hurt me
+  - ((he|she|they|you|sales|alex|jordan|sam|my manager) )?(pushed|pushes|keeps pushing) me (to take it on|to take this on|to agree to thursday|to finish it by friday|into taking the call)
+  - i('m| am|'ve been) being pushed to take (this|it) on
+  - i've been pushed by (qa|sales|product|alex|jordan|the pm) all week( about this)?
 
 resources:
   - name: Emergency services
