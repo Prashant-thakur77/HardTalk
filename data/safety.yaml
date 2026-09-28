@@ -8,6 +8,12 @@ disclaimer: HardTalk is a practice tool. It is not therapy, and it is not HR or 
 # around it is a lead-in or a short trailer. "you" is never filler: "Can I stop you there?" is
 # roleplay.
 stop_words: [stop, pause]
+# A clause that is only this word plus filler always stops, and so does a sentence that opens
+# with it ("stop im scared", "Stop right now."), unless the next word makes it a verb ("stop
+# blocking the release") or "you" ("stop you there").
+stop_always: stop
+# Words that may follow an opening "stop" and still make the sentence a stop request.
+stop_openers: (right )?(now|there|here|please|talking|immediately|already|seriously|it|this|that|thank you|i mean it|the (simulation|practice|roleplay|conversation|session|call))|(i'?m|im|i|you'?re|please)\b.*
 stop_filler: [please, pls, plz, now, here, there, ok, okay, no, just, wait, sorry, actually, hey,
   can, could, we, lets, i, want, need, to, the, id, like, for, a, bit, moment, second, minute,
   thanks, roleplay, role, play, practice, conversation, session, yes, yeah, um, so]
@@ -25,6 +31,10 @@ pause_trailers:
   - i feel (sick|awful|terrible|unwell|faint|dizzy)
   - this is too much( for me)?
   - i need a (break|minute|moment|second)
+  - i'?m not (okay|ok|alright|well)
+  - i'?m (scared|afraid|done|frightened)
+  - you'?re scaring me
+  - i can'?t (do|take) (this|it)( anymore)?
 
 # Distress detection. Missing a real disclosure is the error to avoid; pausing the practice for
 # an idiom is the error accepted. See SAFETY.md for why it is built this way.
@@ -43,7 +53,7 @@ distress_explicit:
   - \bcut(ting)? my wrists?\b
   - \bslit my wrists?\b
   - \bself[- ]?harm
-  - \bsuicid(e|al)\b(?! (mission|squad|run))
+  - \bsuicid(e|al)\b(?! (mission|squad)\b)
   - \b(end|ending|take|taking) (my|my own) life\b
   - \b(end|ending) it all\b
   - \bwant(ed)? to die\b(?! of (embarrassment|shame|boredom|laughing))
@@ -58,18 +68,22 @@ distress_explicit:
   - \bfeel like dying\b
   - \b(nobody|no one|no-one) would (care|notice|miss me) if i (disappeared|was gone|were gone|died|wasn't here)\b
   - \bwant to (disappear forever|not wake up|stop existing)\b
-  - \b(want|going|planning|plan) to end (it|things)( tonight| today| this weekend| soon| now)?$
-  - \b(thinking|thought|think) (of|about) ending (it|things)$
+  - \b(want|going|planning|plan) to end (it|things)( tonight| today| this weekend| soon| now)?(?=\s*(,|$))
+  - \b(thinking|thought|think) (of|about) ending (it|things)(?=\s*(,|$))
+  - \b(i've got|i have|i've saved|i've been saving|i bought|i've bought) (the|my|some|enough) pills\b
+  - \b(nobody|no one|no-one) (will|would) (miss me|care if i'?m (gone|dead))\b
   - \b(take|taking|took|taken|swallow|swallowing|swallowed) (all )?(of )?(my|the|these|those|a bunch of|a lot of|too many|a handful of) pills\b
   - \boverdos(e|ed|ing)\b
-  - \b(jump|jumping) (off|from) (the|a) (roof|bridge|building|balcony|window)\b
-  - \b(step|stepping|jump|jumping|walk|walking|throw myself) in front of (a|the) (bus|train|car|truck|lorry)\b
+  - \b(jump|jumping|step|stepping|walk|walking|throw myself|throwing myself) (off|from|in front of|under) (the|a) (roof|bridge|building|balcony|window|train|bus|car|truck|lorry|platform|cliff)\b
   - \bpanic attacks?\b
   - \bi can't breathe\b
   - \b(rape|raped|raping|rapist|molest|molested|molesting|groped|groping)\b
   - \bsexual(ly)? (assault|assaulted|assaulting|harass|harassed|harassing|harassment|abuse|abused)\b(?! (training|policy|course|module|workshop|video|complaint process))
   - \b(sleep|have sex) with (him|her|them|me)\b
-  - \b(attacked|punched|slapped|choked|strangled|assaulted|beaten|kicked|shoved|pinned) me\b
+  - \b(attacked|punched|slapped|choked|strangled|assaulted|beaten|kicked|shoved|pinned|abused) me\b
+  - \b(punch|punches|punching|slap|slaps|slapping|kick|kicks|kicking|choke|chokes|choking|strangle|strangles|strangling|attack|attacks|attacking|abuse|abuses|abusing) me\b
+  - \b(said|says|told me|swore) (he|she|they)('d| would| will|'ll)( [a-z]+)? (kill|hurt|rape|beat|hit) me\b
+  - \b(he's|she's|they're|he is|she is|they are) (going to|gonna) (kill|hurt|rape|beat) me\b
   - \b(beat|beats|beating) me\b(?! (to it|to the punch))
   - \bthreaten(ed|s|ing)? to (kill|hurt|hit|rape|beat) me\b
   - \b(you're|you are) scaring me\b
@@ -82,7 +96,7 @@ distress_explicit:
 # Nothing can hide behind an idiom: one extra clause or sentence and the line is checked.
 distress_ambiguous:
   - \b(hurt|hurting|cut|cutting|killing) myself\b
-  - \b(hit|hits|hitting|hurt|hurts|pushed|pushes) me\b
+  - \b(hit|hits|hitting|hurt|hurts|hurting|pushed|pushes) me\b
   - \b(grabbed|grabs|grabbing|touched|touches|touching) me\b
   - \b(i was|i've been|i got|i keep getting|i keep being|i'm being|i am being) (hit|pushed|grabbed|hurt|touched)\b
 

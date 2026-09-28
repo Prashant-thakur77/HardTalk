@@ -78,6 +78,23 @@ describe('isStopRequest', () => {
     'Yeah, I want to stop.',
     "Yes, let's stop.",
     'Um, can we stop?',
+    // Round 10 probes (D-076): typed without commas, 'you' before stop, frightened pauses.
+    "Can you stop?",
+    "Could you please stop?",
+    "I need you to stop.",
+    "I want you to stop.",
+    "Stop right now.",
+    "Stop right there.",
+    "Please stop talking.",
+    "Stop the simulation.",
+    "stop im scared",
+    "Stop please I'm scared",
+    "Stop I can't do this anymore",
+    "please stop i cant do this",
+    "Please pause, I'm not okay.",
+    "Hold on, pause, I'm scared.",
+    "Stop now I mean it",
+    "Stop thank you",
   ])('stops on %j', (line) => expect(isStopRequest(line, config, ['Sam', 'Jordan', 'Alex'])).toBe(true));
 
   it('treats the persona’s name, including a two-word custom name, as addressing them', () => {
@@ -331,6 +348,30 @@ describe('detectDistress', () => {
     "He keeps grabbing me in the lift.",
     "I'm being hurt at home.",
     "I was hit on the way to work.",
+    // Round 10 probes (D-074): a split pattern lost these; tier 1 only grows.
+    "I'm going to jump off the train.",
+    "I want to jump from the train tonight.",
+    "I was going to jump from the car on the motorway.",
+    "I'm going to jump off a bus.",
+    "I've had suicide running through my head all week.",
+    // Round 10 probes (D-075): present tense, 'hurting me', abuse, reported threats, a plan then a comma.
+    "My husband punches me.",
+    "He kicks me when he's drunk.",
+    "He slaps me.",
+    "He chokes me.",
+    "He strangles me when he's angry.",
+    "My boyfriend attacks me.",
+    "He keeps punching me.",
+    "He's hurting me.",
+    "My husband keeps hurting me.",
+    "He's been hurting me for months.",
+    "He abused me.",
+    "My partner is abusing me.",
+    "He said he'd kill me if I told anyone.",
+    "He's going to kill me.",
+    "I'm going to end it tonight, I've got the pills.",
+    "I'm planning to end it, nobody will miss me.",
+    "I'm thinking of ending it, I can't cope.",
   ])('flags %j', (line) => expect(detectDistress(line, config)).toBe(true));
 
   it.each([
@@ -412,7 +453,7 @@ describe('detectDistress', () => {
 // Lines that pause the practice even though they are workplace idioms. Each one shares its exact
 // wording with a real disclosure ("… and it hit me hard"), so the filter accepts the pause.
 describe('accepted false stops', () => {
-  it.each(["No, stop, that's not what I said."])('stops on %j, because a bare "stop" always stops', (line) =>
+  it.each(["No, stop, that's not what I said.", 'Wait, stop, let me finish.', 'Sam, stop, hear me out.'])('stops on %j, because a bare "stop" always stops', (line) =>
     expect(isStopRequest(line, config, ['Sam'])).toBe(true),
   );
 });
@@ -436,6 +477,17 @@ describe('accepted false positives', () => {
     'They shoved me onto another project.',
     'Beats me why the build failed.',
     "Sam, hit me back once you've looked.",
+    // Round 10 (D-073, D-077): lines that pause because no whole-line template covers them.
+    "The client attacked me in the review for the delay.",
+    "Beats me.",
+    "I was pushed to chase this by the release manager.",
+    "I keep getting pushed by QA to chase you.",
+    "I got grabbed by the release manager after standup.",
+    "Honestly, I was hurt that nobody told me.",
+    "I got kicked off the release channel.",
+    "Alex, you hit me with a new requirement on day six, and that's not how we agreed to work.",
+    "You pushed me to take on billing last quarter, and I can't do both.",
+    "My lead pushed me to sort this out today, so\u2026",
   ])(
     'pauses on %j',
     (line) => expect(detectDistress(line, config)).toBe(true),

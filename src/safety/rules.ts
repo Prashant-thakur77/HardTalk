@@ -4,6 +4,8 @@ import { z } from 'zod';
 export const safetyConfigSchema = z.strictObject({
   disclaimer: z.string().min(1),
   stop_words: z.array(z.string().min(1)).min(1),
+  stop_always: z.string().min(1),
+  stop_openers: z.string().min(1),
   stop_filler: z.array(z.string().min(1)),
   stop_objects: z.array(z.string().min(1)),
   pause_lead_ins: z.array(z.string().min(1)),
@@ -52,23 +54,37 @@ function plainLine(text: string): string {
 
 function words(clause: string, names: Set<string>): string[] {
   return clause
+    .replace(/\bthank you\b|\bi mean it\b/g, ' ')
     .replace(/[^a-z' ]+/g, ' ')
     .split(' ')
     .map((word) => word.replace(/'/g, ''))
     .filter((word) => word && !names.has(word));
 }
 
-type StopConfig = Pick<SafetyConfig, 'stop_words' | 'stop_filler' | 'stop_objects' | 'pause_lead_ins' | 'pause_trailers'>;
+type StopConfig = Pick<
+  SafetyConfig,
+  'stop_words' | 'stop_always' | 'stop_openers' | 'stop_filler' | 'stop_objects' | 'pause_lead_ins' | 'pause_trailers'
+>;
 
-/** Only stop words and filler; "it/this/that" only straight after "stop". */
+/**
+ * Only stop words and filler. "it/this/that" count only straight after the always-stop word;
+ * "you" only before it ("Can you stop?"), never after ("Can I stop you there?").
+ */
 function isStopClause(tokens: string[], config: StopConfig): boolean {
   const stops = new Set(config.stop_words);
   const filler = new Set(config.stop_filler);
   const objects = new Set(config.stop_objects);
   if (tokens.length === 0 || tokens.length > 12) return false;
+  const firstStop = tokens.findIndex((word) => stops.has(word));
   return (
-    tokens.some((word) => stops.has(word)) &&
-    tokens.every((word, i) => stops.has(word) || filler.has(word) || (objects.has(word) && tokens[i - 1] === 'stop'))
+    firstStop !== -1 &&
+    tokens.every(
+      (word, i) =>
+        stops.has(word) ||
+        filler.has(word) ||
+        (objects.has(word) && tokens[i - 1] === config.stop_always) ||
+        (word === 'you' && i < firstStop),
+    )
   );
 }
 
@@ -83,10 +99,21 @@ export function isStopRequest(text: string, config: StopConfig, personaNames: st
   const leadIns = new Set(config.pause_lead_ins);
   const trailers = config.pause_trailers.map((trailer) => new RegExp(`^(?:${trailer})$`));
 
+  const always = config.stop_always;
+  const opener = new RegExp(
+    `^(?:(?:please|just|ok|okay|oh|no|now|hey|wait)[, ]+)*${always}(?: (?:${config.stop_openers}))*$`,
+  );
+
   return sentences(text).some((sentence) => {
+    const plain = sentence.replace(/[^a-z' ]+/g, ' ').replace(/\s+/g, ' ').trim();
+    const withoutNames = plain
+      .split(' ')
+      .filter((word) => !names.has(word))
+      .join(' ');
+    if (opener.test(withoutNames)) return true;
     const clauses = sentence.split(/\s*,\s*/);
     const tokens = clauses.map((clause) => words(clause, names));
-    if (tokens.some((clause) => clause.includes('stop') && isStopClause(clause, config))) return true;
+    if (tokens.some((clause) => clause.includes(always) && isStopClause(clause, config))) return true;
 
     const pauseAt = tokens.findIndex((clause) => isStopClause(clause, config));
     if (pauseAt === -1) return false;
