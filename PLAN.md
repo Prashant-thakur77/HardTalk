@@ -3,22 +3,22 @@
 Live plan for HardTalk. Rewritten from SCORECARD.md at the end of every round, not from the
 previous plan. Every item names the criterion it moves (CLAUDE.md §3).
 
-**Round 9 score: 12/20** (C1 2 · C2 4 · C3 3 · C4 3), flat for the fifth round: 13, 12, 12, 12, 12, 12.
-Converged. Every safety regression since round 4 came from a partial-line check: a next-word
-carve-out (D-041, D-050, D-070), an idiom checked inside one clause (D-055, D-061, D-071), or a
-narrowed pattern (D-066). The builder also found that the round-7 and round-8 disclosure probes
-had never reached the test file (an edit that silently matched nothing), so two commit messages
-overstated the tests.
+**Round 10 score: 12/20** (C1 2 · C2 4 · C3 3 · C4 3), flat for the sixth round: 6, 9, 12, 13, 12,
+12, 12, 12, 12, 12. The first round since round 4 with no regression of any previously logged safety
+line. The loop has converged; this is the hand-over state.
 
-## Now (round 10, hand-over)
+**Exit condition, honestly:** converged, yes. Every criterion ≥ 4 and zero P0: no, and not
+reachable from this machine. C1 and C3 need the owner's phone session with keys, and C4's last
+point needs a real grader number and a real user quote. See Next.
 
-1. **Remove partial-line matching from the design** [C4] — tier 1 grow-only with complete-phrase
-   exceptions only (D-070); tier 2 exempt only when the whole line equals a closed idiom template,
-   so no clause or sentence can hide behind one (D-071); any bare "stop" clause stops, and only
-   "pause" keeps the pushback rule (D-072); stop word lists moved to data; the 13 D-056 phrasings;
-   D-073's status lines as whole-line templates. Every probe line from rounds 3-9 is now actually
-   in the tests (121 were missing), plus generated cross-sentence and cross-clause lines.
-2. **Final review, then the final packet.**
+## Now (hand-over)
+
+1. **Round 10 fixes, then stop** [C4] — D-074 (jump pattern restored whole; no next-word carve-out
+   left), D-075 (present tense assault, "hurting me", abuse, reported threats, a plan followed by a
+   comma), D-076 (a sentence that opens with "stop" stops; "Can you stop?"; frightened pause
+   trailers), D-078 (the always-stop word in data; the pausing premises listed as accepted false
+   positives). These fixes come after the last review and are verified by tests and the browser
+   suites only.
 
 ## Next
 
