@@ -68,18 +68,28 @@ export function findUngrounded(grade: Grade, turns: Turn[]): Ungrounded[] {
 
 const DOWNGRADE_RATIONALE =
   "The grader's evidence for a higher score could not be found in what you said, so this is scored 1.";
+const UNSUPPORTED_RATIONALE =
+  "The grader's comment quoted words that are not in what you said, so it is not shown.";
 
-/** Strips invented quotes; a dimension left with no real evidence drops to 1. */
+/**
+ * Strips invented quotes. A dimension left with no real evidence drops to 1, and any comment
+ * that rested on the invented quotes is replaced, so the card never discusses words the user
+ * did not say.
+ */
 export function downgradeUngrounded(grade: Grade, turns: Turn[]): Grade {
   const dimensions = { ...grade.dimensions };
   for (const dimension of DIMENSIONS) {
     const current = dimensions[dimension];
     const kept = current.evidence_quotes.filter((quote) => isGrounded(quote, turns));
-    if (kept.length === current.evidence_quotes.length && (current.score <= 1 || kept.length > 0)) continue;
-    dimensions[dimension] =
-      kept.length > 0 || current.score <= 1
-        ? { ...current, evidence_quotes: kept }
-        : { ...current, score: 1, evidence_quotes: [], rationale: DOWNGRADE_RATIONALE };
+    const removed = current.evidence_quotes.length - kept.length;
+    if (removed === 0 && (current.score <= 1 || kept.length > 0)) continue;
+    if (kept.length > 0) {
+      dimensions[dimension] = { ...current, evidence_quotes: kept };
+    } else if (current.score > 1) {
+      dimensions[dimension] = { ...current, score: 1, evidence_quotes: [], rationale: DOWNGRADE_RATIONALE };
+    } else {
+      dimensions[dimension] = { ...current, evidence_quotes: [], rationale: UNSUPPORTED_RATIONALE };
+    }
   }
   const askGrounded = grade.ask_text !== null && isGrounded(grade.ask_text, turns);
   return { ...grade, dimensions, ask_text: askGrounded ? grade.ask_text : null };

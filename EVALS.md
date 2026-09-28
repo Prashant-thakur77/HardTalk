@@ -38,7 +38,7 @@ Limitation: all 30 were labelled by one person, the author, who also wrote the r
 
 A grading that fails (a refusal, an API error, or output that breaks the schema twice) is recorded in the results file, and that conversation is left out of every metric for that invocation; the table says how many were excluded. A grader that fails mostly on hard conversations would look better than it is, so read the excluded count before the kappa.
 
-Raw scores go to `evals/results/`, one timestamped file per invocation. At list prices, three runs over 30 conversations with `claude-opus-5` should cost roughly $5 to $10, most of it output and thinking tokens; the system prompt is cached per scenario.
+Raw scores go to `evals/results/`. The baseline is deterministic and committed as `baseline.json`. Each model run gets its own timestamped file, so a later run never overwrites a paid one; those are git-ignored, so commit the one you quote here with `git add -f`. At list prices, three runs over 30 conversations with `claude-opus-5` should cost roughly $5 to $10, most of it output and thinking tokens; the system prompt is cached per scenario.
 
 ```sh
 pnpm eval --baseline   # no key needed

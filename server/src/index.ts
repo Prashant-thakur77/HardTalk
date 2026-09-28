@@ -3,6 +3,7 @@ import { serve } from '@hono/node-server';
 
 import { createApp, type Services } from './app';
 import { claudeGradeModel } from './grader';
+import { claudeDistressCheck } from './safety';
 import { elevenLabsTokenMinter } from './voice';
 
 const env = process.env;
@@ -15,6 +16,10 @@ if (env.ANTHROPIC_API_KEY) {
     effort: (env.GRADER_EFFORT ?? 'medium') as 'low' | 'medium' | 'high',
   };
   services.gradeModelFor = (scenario) => claudeGradeModel(grader, scenario);
+  services.checkDistress = claudeDistressCheck({
+    client: grader.client,
+    model: env.SAFETY_MODEL ?? 'claude-opus-5',
+  });
 }
 
 if (env.ELEVENLABS_API_KEY && env.ELEVENLABS_AGENT_ID) {
@@ -29,4 +34,5 @@ serve({ fetch: createApp(services).fetch, port }, () => {
   console.log(`HardTalk server on http://localhost:${port}`);
   console.log(`  grading: ${services.gradeModelFor ? 'on' : 'off (set ANTHROPIC_API_KEY)'}`);
   console.log(`  voice:   ${services.mintVoiceToken ? 'on' : 'off (set ELEVENLABS_API_KEY and ELEVENLABS_AGENT_ID)'}`);
+  console.log(`  safety:  rules on; model check ${services.checkDistress ? 'on' : 'off (set ANTHROPIC_API_KEY)'}`);
 });

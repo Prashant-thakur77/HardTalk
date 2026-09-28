@@ -30,7 +30,24 @@ describe('isStopRequest', () => {
     'Can we stop it?',
     'Can we stop this?',
     'Stop it now.',
-  ])('stops on %j', (line) => expect(isStopRequest(line, config)).toBe(true));
+    // Round 6 probes.
+    'Sam, stop.',
+    'Stop it, Sam.',
+    'Jordan, please stop.',
+    'Stop that.',
+    'stop pls',
+    'Sorry, I need to stop the practice now.',
+    'Can we please stop the roleplay now, please?',
+    'Please stop now, I mean it.',
+    'Stop. I can’t do this, I feel sick.',
+    "OK, let's stop there.",
+    'Could we stop for a moment?',
+  ])('stops on %j', (line) => expect(isStopRequest(line, config, ['Sam', 'Jordan', 'Alex'])).toBe(true));
+
+  it('treats the persona’s name alone before "stop" as addressing them', () => {
+    expect(isStopRequest('Alex stop', config, ['Alex'])).toBe(true);
+    expect(isStopRequest('Alex stop', config)).toBe(false);
+  });
 
   it.each([
     'Stop blocking the release.',
@@ -43,7 +60,11 @@ describe('isStopRequest', () => {
     'Can we pause the migration until billing ships?',
     'The deadline is Friday.',
     '',
-  ])('keeps the roleplay going on %j', (line) => expect(isStopRequest(line, config)).toBe(false));
+    'Stop blocking the release, Sam.',
+    'Sam, stop adding scope.',
+    'Can we stop the export?',
+    "Let's pause and think about the plan.",
+  ])('keeps the roleplay going on %j', (line) => expect(isStopRequest(line, config, ['Sam'])).toBe(false));
 });
 
 // Every line below came from a review round that caught the filter getting it wrong.
@@ -92,6 +113,43 @@ describe('detectDistress', () => {
     "I've been self-harming.",
     'My lead slapped me.',
     'I cut myself off from everyone and I want to die.',
+    // Round 6 probes (D-055): disclosures that an idiom must never cancel.
+    "I've been thinking about killing myself to make it all stop.",
+    'Some nights I think about killing myself to get away from all this.',
+    'I keep thinking about killing myself over the project.',
+    'I thought about killing myself here in the office last week.',
+    'The guy that grabbed me in the lift is my team lead.',
+    'My manager hit me back when I pushed his hand away.',
+    'What hit me was his fist.',
+    'He threw his mug at me and it hit me hard.',
+    'The manager that touched me is still on my team.',
+    'The colleague that hit me last week is in this meeting.',
+    "I'm just hurting myself, every single night.",
+    'Hit me up on Slack, he hit me yesterday.',
+    "I'm killing myself with pills.",
+    // Round 6 probes (D-056): phrasings never caught before.
+    'I wanna die.',
+    "I don't wanna be alive anymore.",
+    'I wish I was dead.',
+    'I want to be dead.',
+    "I'm going to hang myself tonight.",
+    'I almost killed myself last year.',
+    'I harmed myself again last night.',
+    "I'm going to take all my pills after this call.",
+    "I'm going to jump off the roof after this meeting.",
+    'Everyone would be better off without me.',
+    'I do not want to live anymore.',
+    'I cannot breathe.',
+    "I'm about to have a panic attack.",
+    'He hurt me.',
+    'My manager keeps touching me.',
+    'He pushed me into the wall.',
+    "I'm being sexually harassed by my manager.",
+    'I was sexually assaulted at the offsite.',
+    'He raped me.',
+    'I want to kill my self.',
+    'I want to kill  myself.',
+    'I want to kill\nmyself.',
   ])('flags %j', (line) => expect(detectDistress(line, config)).toBe(true));
 
   it.each([
@@ -118,6 +176,25 @@ describe('detectDistress', () => {
     'What grabbed me about your proposal was the timeline.',
     'I cut myself off from the planning thread.',
     "I'm killing myself here.",
+    // Round 6 probes (D-057).
+    "I've been killing myself for this team for two years.",
+    "I'm already killing myself on the migration.",
+    "I'm killing myself trying to hit Friday.",
+    "I'm killing myself with overtime already.",
+    'Hit me on Slack when it merges.',
+    'Go on, hit me with your feedback.',
+    'Just hit me with it.',
+    'The deadline change hit me like a truck.',
+    'Your comment in standup hit me hard.',
+    'It touched me that you noticed.',
+    'Saying yes would hurt myself and the team.',
+    'That comment really hurt me.',
+    'Alex pushed me to take it on.',
+    'That deadline really hurt me.',
+    'I want to end things with this vendor.',
+    'Honestly, that really hit me hard.',
+    'Sales pushed me into taking the call.',
+    "I'm cutting myself some slack today.",
   ])('does not flag the workplace idiom %j', (line) => expect(detectDistress(line, config)).toBe(false));
 });
 

@@ -12,6 +12,8 @@ import { rateLimit } from './limits';
 export interface Services {
   gradeModelFor?: (scenario: Scenario) => GradeModel;
   mintVoiceToken?: () => Promise<string>;
+  /** Model-based distress check for lines the shared rules pass. Live mode only. */
+  checkDistress?: (line: string) => Promise<boolean>;
   /** Provider calls allowed per client address per window. */
   limit?: { max: number; windowMs: number };
 }
@@ -48,9 +50,15 @@ export function createApp(services: Services) {
   const limited = rateLimit(services.limit ?? DEFAULT_LIMIT);
   app.use('/grade', limited);
   app.use('/voice/token', limited);
+  app.use('/safety/check', rateLimit({ max: 600, windowMs: DEFAULT_LIMIT.windowMs }));
 
   app.get('/health', (c) =>
-    c.json({ ok: true, grading: Boolean(services.gradeModelFor), voice: Boolean(services.mintVoiceToken) }),
+    c.json({
+      ok: true,
+      grading: Boolean(services.gradeModelFor),
+      voice: Boolean(services.mintVoiceToken),
+      safetyModel: Boolean(services.checkDistress),
+    }),
   );
 
   app.post('/grade', async (c) => {
@@ -79,6 +87,15 @@ export function createApp(services: Services) {
       if (error instanceof GradingError) return c.json({ error: error.message }, 422);
       throw error;
     }
+  });
+
+  // The app sends every finished user line here in the background during a live session.
+  app.post('/safety/check', async (c) => {
+    const body = z.strictObject({ text: z.string().min(1).max(2000) }).safeParse(await c.req.json().catch(() => null));
+    if (!body.success) return c.json({ error: 'Expected { text }.' }, 400);
+    if (detectDistress(body.data.text, safetyConfig)) return c.json({ distress: true, source: 'rules' });
+    if (!services.checkDistress) return c.json({ distress: false, source: 'rules' });
+    return c.json({ distress: await services.checkDistress(body.data.text), source: 'model' });
   });
 
   app.post('/voice/token', async (c) => {

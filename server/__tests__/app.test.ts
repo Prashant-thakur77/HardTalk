@@ -160,7 +160,28 @@ describe('POST /voice/token', () => {
 describe('GET /health', () => {
   it('reports which services are configured', async () => {
     const response = await createApp({ mintVoiceToken: async () => 't' }).request('/health');
-    expect(await response.json()).toEqual({ ok: true, grading: false, voice: true });
+    expect(await response.json()).toEqual({ ok: true, grading: false, voice: true, safetyModel: false });
+  });
+});
+
+describe('POST /safety/check', () => {
+  it('answers from the shared rules without calling the model when they already match', async () => {
+    const checkDistress = vi.fn(async () => false);
+    const { json } = await post(createApp({ checkDistress }), { text: "I'm going to kill myself on Friday." }, '/safety/check');
+    expect(json).toEqual({ distress: true, source: 'rules' });
+    expect(checkDistress).not.toHaveBeenCalled();
+  });
+
+  it('asks the model about lines the rules pass, which is how paraphrases get caught', async () => {
+    const checkDistress = vi.fn(async () => true);
+    const { json } = await post(createApp({ checkDistress }), { text: 'I just want everything to go quiet for good.' }, '/safety/check');
+    expect(json).toEqual({ distress: true, source: 'model' });
+    expect(checkDistress).toHaveBeenCalledWith('I just want everything to go quiet for good.');
+  });
+
+  it('falls back to the rules alone when no model is configured', async () => {
+    const { json } = await post(createApp({}), { text: 'Can we split the PR?' }, '/safety/check');
+    expect(json).toEqual({ distress: false, source: 'rules' });
   });
 });
 

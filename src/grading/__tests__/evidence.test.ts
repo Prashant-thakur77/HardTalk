@@ -116,6 +116,16 @@ describe('downgradeUngrounded', () => {
     expect(result.dimensions.clarity).toEqual(mixed.dimensions.clarity);
   });
 
+  it('replaces a score-1 comment that rested only on words the user never said', () => {
+    const result = downgradeUngrounded(
+      grade({ boundary_held: { score: 1, evidence_quotes: ['No pressure though.'], rationale: 'You removed the stakes.' } }),
+      turns,
+    );
+    expect(result.dimensions.boundary_held.score).toBe(1);
+    expect(result.dimensions.boundary_held.evidence_quotes).toEqual([]);
+    expect(result.dimensions.boundary_held.rationale).not.toMatch(/removed the stakes/);
+  });
+
   it('clears ask_text when it is not verbatim user speech', () => {
     const result = downgradeUngrounded({ ...grade(), ask_text: 'merge the PR today' }, turns);
     expect(result.ask_text).toBeNull();

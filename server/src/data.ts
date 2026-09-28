@@ -2,6 +2,7 @@ import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import YAML from 'yaml';
+import { z } from 'zod';
 
 import { graderConfigSchema } from '../../src/grading/prompt';
 import { DIMENSIONS, rubricSchema } from '../../src/grading/rubric.schema';
@@ -18,6 +19,10 @@ function load(path: string): unknown {
 export const graderConfig = graderConfigSchema.parse(load('prompts/grader.yaml'));
 
 export const safetyConfig = safetyConfigSchema.parse(load('safety.yaml'));
+
+export const safetyClassifierConfig = z
+  .strictObject({ instructions: z.string().min(1), request: z.string().includes('{{line}}') })
+  .parse(load('prompts/safety-classifier.yaml'));
 
 export const rubrics = DIMENSIONS.map((dimension) => rubricSchema.parse(load(`rubrics/${dimension}.yaml`)));
 

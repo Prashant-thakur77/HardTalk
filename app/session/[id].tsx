@@ -9,7 +9,7 @@ import { addAttempt, nextAttemptNumber, type SessionMode } from '@/attempts/stor
 import { config } from '@/config';
 import { gradeConversation } from '@/grading';
 import type { Turn } from '@/grading/transcript';
-import { isDistressLine, isStopLine, NotScoredForSafety } from '@/safety';
+import { checkDistressRemotely, isDistressLine, isStopLine, NotScoredForSafety } from '@/safety';
 import { getScenario } from '@/scenarios';
 import { difficultySchema } from '@/scenarios/schema';
 import { startSession } from '@/session/start';
@@ -49,15 +49,22 @@ export default function Session() {
   const [draft, setDraft] = useState('');
   const ended = useRef<{ reason: Exclude<EndReason, 'user_stopped'>; transcript: Turn[] } | null>(null);
   const scroll = useRef<ScrollView>(null);
+  // Set when the server's distress check flags a line, possibly after the session has ended.
+  const flagged = useRef(false);
   const personaName = scenario?.persona.name ?? 'The persona';
 
   const score = () => {
     if (!ended.current || !scenario) return;
+    if (flagged.current) {
+      router.replace('/support');
+      return;
+    }
     const { reason, transcript } = ended.current;
     setGrading(true);
     setGradeError(null);
     gradeConversation({ scenarioId: scenario.id, attempt, turns: transcript })
       .then(async (grade) => {
+        if (flagged.current) throw new NotScoredForSafety();
         const id = `${scenario.id}-${attempt}-${Date.now()}`;
         await addAttempt({
           id,
@@ -99,8 +106,16 @@ export default function Session() {
       if (isDistressLine(text)) {
         stopNow();
         router.replace('/support');
-      } else if (isStopLine(text)) {
+      } else if (isStopLine(text, [personaName])) {
         stopNow();
+      } else {
+        // Live mode: the server double-checks every line with a model, in the background.
+        void checkDistressRemotely(text).then((distress) => {
+          if (!distress || flagged.current) return;
+          flagged.current = true;
+          stopNow();
+          router.replace('/support');
+        });
       }
     },
     onStateChange: (next, lastTurn) => {

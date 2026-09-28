@@ -31,7 +31,7 @@ cp server/.env.example server/.env
 pnpm start:server
 ```
 
-The server prints which services are on. `curl localhost:8787/health` should show `"grading":true,"voice":true`.
+The server prints which services are on. `curl localhost:8787/health` should show `"grading":true,"voice":true,"safetyModel":true`.
 
 ## 4. Point the app at the server
 

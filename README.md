@@ -60,7 +60,7 @@ Rubrics, scenarios and prompts are YAML so they can be read and reviewed without
 
 ## Safety and accessibility
 
-The persona pushes back professionally and never more than the level allows. When the app recognises a distress signal it ends the roleplay, skips scoring and shows crisis lines, and the server refuses to score such a transcript too. The persona is also told to stop on distress; that stop is never scored either, and its screen links to the same crisis lines. Saved transcripts are kept only on the device and can be deleted; in live mode the conversation is sent to ElevenLabs to run it and to Anthropic to grade it. Details and limits: [SAFETY.md](SAFETY.md).
+The persona pushes back professionally and never more than the level allows. Every line you say is checked for distress on the device, and in live mode again on the server by a model; either one ends the roleplay, skips scoring and shows crisis lines. The persona and the grader are told to watch for it too, and `/grade` refuses to score a flagged transcript. Saved transcripts are kept only on the device and can be deleted; in live mode the conversation is sent to ElevenLabs to run it and to Anthropic to grade it. Details and limits: [SAFETY.md](SAFETY.md).
 
 Everything can be done by typing with a screen reader on and no audio. Turn changes are announced with the persona muted while the screen reader talks, there are haptics on each turn, a pace setting for the persona's voice, and contrast is checked by tests. The WCAG 2.2 mapping, including what is not covered yet, is in [ACCESSIBILITY.md](ACCESSIBILITY.md).
 

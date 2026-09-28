@@ -79,10 +79,11 @@ async function gradeOrThrow(item: GoldItem, client: Anthropic): Promise<RunResul
 }
 
 const RESULTS_DIR = join(dirname(fileURLToPath(import.meta.url)), 'results');
-// One file per invocation, timestamped, so a later run can never overwrite an earlier paid one.
+// The baseline is deterministic and committed as baseline.json. Model runs cost money, so each
+// gets its own timestamped file that a later run can never overwrite (git-ignored; add with -f).
 const resultsFile = join(
   RESULTS_DIR,
-  `${baseline ? 'baseline' : model}-${new Date().toISOString().replace(/[:.]/g, '-')}.json`,
+  baseline ? 'baseline.json' : `${model}-${new Date().toISOString().replace(/[:.]/g, '-')}.json`,
 );
 
 /** Rewritten after every run of this invocation, so a paid run survives a later failure. */

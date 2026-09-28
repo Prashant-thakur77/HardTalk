@@ -42,3 +42,7 @@ yarn-error.*
 
 # local secrets
 .env
+
+# eval runs: the deterministic baseline is committed; paid model runs are kept locally
+evals/results/*
+!evals/results/baseline.json
