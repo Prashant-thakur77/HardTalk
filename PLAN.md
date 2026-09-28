@@ -3,24 +3,20 @@
 Live plan for HardTalk. Rewritten from SCORECARD.md at the end of every round, not from the
 previous plan. Every item names the criterion it moves (CLAUDE.md §3).
 
-**Round 6 score: 12/20** (C1 2 · C2 4 · C3 3 · C4 3), flat. Totals: 6, 9, 12, 13, 12, 12. C4 keeps
-losing its point to the distress filter: three rounds of keyword fixes, three regressions
-(D-041, D-050, D-055). A list alone is a treadmill.
+**Round 7 score: 12/20** (C1 2 · C2 4 · C3 3 · C4 3), flat for the third round: 13, 12, 12, 12. By the
+exit rule's convergence test the loop has converged. The other two exit conditions (every
+criterion ≥ 4, zero P0) cannot be met from this machine: C1 and C3 need a phone and keys.
 
-**Hard ceiling, stated honestly:** C1 and C3 are capped here at "code complete, tested, bundled";
-the four P0s close only with one recorded session on a phone with keys.
+## Now (round 8, the last)
 
-## Now (round 7)
-
-1. **Stop the safety treadmill structurally** [C4] — D-055, D-056, D-057. Tier 1 explicit
-   disclosures that nothing can cancel; tier 2 ambiguous words cancelled only when a sentence-
-   anchored idiom covers that exact occurrence; normalisation for "wanna", "my self", spacing.
-   And the part the Phase 6 spec asked for and was never built: a server-side model check on every
-   live user line, for paraphrases no list covers. Every probe line from every round is a test.
-2. **Stops that stop** [C4] — D-058: the persona's name, "stop that", "pls", longer polite
-   requests, and a stop sentence followed by more ("Stop. I can't do this.").
-3. **No comments about words never said** [C1] [C2] — D-059 (a score-1 comment that rested on
-   stripped quotes is replaced), D-060 (deterministic, committed baseline; paid runs git-ignored).
+1. **Close the demo-killer and the safety P1 before handing over** [C1] [C4] — D-064 ("Can I stop
+   you there?" must stay roleplay; it is the natural move in the uncut take), D-061 (closed
+   idioms with no gaps, so "That man touched me" and "The call ended and he hit me" always
+   count), D-062 (exact-continuation exceptions for "shoot myself in the foot", "beat me to it",
+   "kicked me off the call"), D-063 (stops checked clause by clause; persona names anywhere),
+   D-065 (a failed model check is reported, never read as "no distress"; a late flag deletes the
+   saved attempt). Every probe line is a test.
+2. **Hand over** — final review to confirm nothing regressed, then the final packet.
 
 ## Next
 
