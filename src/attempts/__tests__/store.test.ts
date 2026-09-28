@@ -62,6 +62,16 @@ describe('attempt store', () => {
     expect(store.getGradedSessionsUsed()).toBe(2);
   });
 
+  it('withdraws a flagged attempt: transcript gone, free session given back, once', async () => {
+    await store.addAttempt(attempt('a1', 'pr', 'L2', 1));
+    await store.addAttempt(attempt('a2', 'pr', 'L2', 2));
+    await store.withdrawAttempt('a2');
+    await store.withdrawAttempt('a2');
+    await store.loadAttempts();
+    expect(store.getAttempts().map((a) => a.id)).toEqual(['a1']);
+    expect(store.getGradedSessionsUsed()).toBe(1);
+  });
+
   it('compares a retry only with the latest earlier attempt at the same difficulty', () => {
     const list = [
       attempt('a1', 'pr', 'L2', 1),

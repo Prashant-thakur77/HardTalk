@@ -63,10 +63,18 @@ export function getGradedSessionsUsed(): number {
   return gradedSessionsUsed;
 }
 
-/** Removes one saved attempt, e.g. one the server's distress check flagged after it was scored. */
-export async function removeAttempt(id: string): Promise<void> {
+/**
+ * Withdraws an attempt the server's distress check flagged after it was scored: the transcript
+ * is deleted and the free session it used is given back, since it was never a practice session.
+ */
+export async function withdrawAttempt(id: string): Promise<void> {
+  if (!attempts.some((attempt) => attempt.id === id)) return;
+  gradedSessionsUsed = Math.max(0, gradedSessionsUsed - 1);
   publish(attempts.filter((attempt) => attempt.id !== id));
-  await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(attempts));
+  await AsyncStorage.multiSet([
+    [STORAGE_KEY, JSON.stringify(attempts)],
+    [USED_KEY, String(gradedSessionsUsed)],
+  ]);
 }
 
 /** Removes every saved transcript and score. The free-session count is kept. */

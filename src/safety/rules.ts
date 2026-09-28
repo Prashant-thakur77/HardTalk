@@ -6,6 +6,7 @@ export const safetyConfigSchema = z.strictObject({
   stop_words: z.array(z.string().min(1)).min(1),
   distress_explicit: z.array(z.string().min(1)).min(1),
   distress_ambiguous: z.array(z.string().min(1)),
+  clause_start: z.string(),
   idioms: z.array(z.string().includes(' ')),
   resources: z.array(z.strictObject({ name: z.string(), detail: z.string(), url: z.url().optional() })).min(1),
 });
@@ -69,9 +70,25 @@ function isStopClause(clause: string, stops: Set<string>, names: Set<string>): b
   );
 }
 
+const LEAD_IN = new Set([
+  'no', 'hold', 'on', 'hang', 'wait', 'enough', 'sorry', 'ok', 'okay', 'look', 'please', 'hey',
+  'right', 'alright', 'stop', 'pause', 'just', 'actually',
+]);
+/** What may follow a stop in the same sentence without turning it into roleplay. */
+const TRAILER = /^(please|thanks|thank you|i mean it|now|sorry|i can'?t (do this|take this|breathe|cope)|i feel (sick|awful|terrible|unwell|faint|dizzy)|this is too much|i need a (break|minute|moment|second))$/;
+
+function clauseWords(clause: string, names: Set<string>): string[] {
+  return clause
+    .replace(/[^a-z' ]+/g, ' ')
+    .split(' ')
+    .map((word) => word.replace(/'/g, ''))
+    .filter((word) => word && !names.has(word));
+}
+
 /**
- * True when any sentence or comma-separated clause is only a request to stop: "Stop.",
- * "No, no, no, stop.", "Hold on, stop.", "Stop, Sam, please.", "Stop, I can't do this."
+ * True when a sentence is a request to stop: one clause that is only a stop request, with
+ * nothing around it but lead-ins ("Hold on,", "No, no,"), the persona's name, or short
+ * trailers ("…, I can't do this"). "Can we pause, and look at the sprint?" is pushback, not a stop.
  */
 export function isStopRequest(
   text: string,
@@ -80,9 +97,23 @@ export function isStopRequest(
 ): boolean {
   const stops = new Set(config.stop_words);
   const names = new Set(personaNames.flatMap((name) => name.toLowerCase().split(/\s+/)));
-  return sentences(text).some((sentence) =>
-    sentence.split(/\s*,\s*/).some((clause) => isStopClause(clause, stops, names)),
-  );
+  return sentences(text).some((sentence) => {
+    const clauses = sentence.split(/\s*,\s*/);
+    const stopAt = clauses.findIndex((clause) => isStopClause(clause, stops, names));
+    if (stopAt === -1) return false;
+    const leadInsOk = clauses
+      .slice(0, stopAt)
+      .every((clause) => clauseWords(clause, names).every((word) => LEAD_IN.has(word)));
+    const trailersOk = clauses
+      .slice(stopAt + 1)
+      .every(
+        (clause) =>
+          isStopClause(clause, stops, names) ||
+          clauseWords(clause, names).length === 0 ||
+          TRAILER.test(clause.replace(/[^a-z' ]+/g, ' ').trim()),
+      );
+    return leadInsOk && trailersOk;
+  });
 }
 
 function spans(pattern: RegExp, text: string): [number, number][] {
@@ -98,11 +129,11 @@ function spans(pattern: RegExp, text: string): [number, number][] {
  */
 export function detectDistress(
   text: string,
-  config: Pick<SafetyConfig, 'distress_explicit' | 'distress_ambiguous' | 'idioms'>,
+  config: Pick<SafetyConfig, 'distress_explicit' | 'distress_ambiguous' | 'clause_start' | 'idioms'>,
 ): boolean {
   const explicit = config.distress_explicit.map((pattern) => new RegExp(pattern));
   const ambiguous = config.distress_ambiguous.map((pattern) => new RegExp(pattern));
-  const idioms = config.idioms.map((idiom) => new RegExp(idiom));
+  const idioms = config.idioms.map((idiom) => new RegExp(idiom.replace('{{clause}}', config.clause_start)));
 
   return sentences(text).some((sentence) => {
     if (explicit.some((pattern) => pattern.test(sentence))) return true;

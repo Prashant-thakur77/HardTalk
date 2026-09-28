@@ -84,6 +84,16 @@ describe('isStopRequest', () => {
     'Can I just stop you for a second?',
     "I'd like to stop you there.",
     'Wait, can I stop you there, Sam?',
+    // Round 8 probes (D-067): a comma after a pause opener is still pushback.
+    "Can we pause, and look at what's already in the sprint?",
+    "I'd like to pause, and think about my current load.",
+    'We need to pause, the release is blocked.',
+    "Let's pause, and look at the numbers.",
+    'I want to pause, not cancel it.',
+    "No, stop, that's not what I said.",
+    'Sam, can we pause, I need to talk about the release.',
+    "OK, let's pause, what's actually blocking the merge?",
+    'Hang on, let’s pause, you said QA signed off?',
   ])('keeps the roleplay going on %j', (line) => expect(isStopRequest(line, config, ['Sam'])).toBe(false));
 });
 
@@ -220,7 +230,6 @@ describe('detectDistress', () => {
     "I'm going to cut myself some slack.",
     'I want to cut myself a break.',
     'I still have my sexual harassment training due this week.',
-    'Alex is going to have a panic attack when he sees the burndown.',
     "What's the point of going on with the review if nothing merges?",
     "Honestly, I'd be killing myself to hit that date.",
     'Dana hit me with a new requirement.',
@@ -228,23 +237,61 @@ describe('detectDistress', () => {
     'Sam beat me to it, he already merged the fix.',
     'The VPN kicked me off the call.',
     'Zoom kicked me out of the meeting twice.',
-    'QA is having a panic attack about Friday.',
     'Taking this on on top of billing is a suicide mission.',
     'They shoved me onto the on-call rota.',
     'Can you hit me back?',
     'It hit me that we forgot QA.',
     'Sales pushed me to agree to Thursday.',
-    'I got hit by a wall of emails this morning.',
+    // Round 8 probes (D-068) that a closed idiom now covers.
+    "If I take this on, I'd be hurting myself and my team.",
+    "I'm killing myself to get the release out.",
+    'He pushed me to finish it by Friday.',
+    'I need to cut myself off from Slack after six.',
+    'It really hit me when you said that.',
+    'Hit me back by EOD.',
+    "Sam, hit me back once you've looked.",
+    'That feedback really hurt me.',
+    'Alex beat me to the punch.',
+    'You beat me by a day.',
+    'Jenkins kicked me out.',
+    'They shoved me onto another project.',
+    'That idea really grabbed me.',
+    'Beats me why the build failed.',
   ])('does not flag the workplace idiom %j', (line) => expect(detectDistress(line, config)).toBe(false));
 });
 
 // Lines that pause the practice even though they are workplace idioms. Each one shares its exact
 // wording with a real disclosure ("… and it hit me hard"), so the filter accepts the pause.
 describe('accepted false positives', () => {
-  it.each(['Your comment in standup hit me hard.', 'That touched me.', 'It hit me hard.'])(
+  it.each([
+    'Your comment in standup hit me hard.',
+    'That touched me.',
+    'It hit me hard.',
+    "I've been killing myself on this for weeks.",
+    "I'm killing myself trying to get this done.",
+    'This scope change pushed me to the limit.',
+    'QA is having a panic attack about Friday.',
+    'Alex is going to have a panic attack when he sees the burndown.',
+    'I got hit by a wall of emails this morning.',
+  ])(
     'pauses on %j',
     (line) => expect(detectDistress(line, config)).toBe(true),
   );
+});
+
+// Generated, not hand-picked: every idiom that covers a harm word must stop covering it the
+// moment a person is the one doing it. This is the test that would have caught rounds 4-8.
+describe('idioms never cover a person doing the harm', () => {
+  const idioms = [
+    'hit me back', 'hit me up', 'hit me with it', 'hit me hard', 'hit me', 'hurt me', 'really hurt me',
+    'touched me', 'really touched me', 'grabbed me', 'pushed me', 'beat me', 'kicked me', 'shoved me',
+  ];
+  const people = ['He', 'She', 'My manager', 'My husband', 'The guy in finance', 'Sam'];
+  const endings = ['.', ' today.', ' after I pushed him away.', ' last night.', ' against the wall.'];
+  const lines = people.flatMap((person) => idioms.flatMap((idiom) => endings.map((end) => `${person} ${idiom}${end}`)));
+  const consequences = ['He grabbed my arm and it hurt me.', 'He threw a mug and it hit me.', 'He shoved the desk and that hit me hard.'];
+
+  it.each([...lines, ...consequences])('flags %j', (line) => expect(detectDistress(line, config)).toBe(true));
 });
 
 describe('data/safety.yaml', () => {

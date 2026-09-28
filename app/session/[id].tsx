@@ -5,7 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { announce, turnHaptic } from '@/a11y/announce';
 import { getPreferences } from '@/a11y/preferences';
-import { addAttempt, nextAttemptNumber, removeAttempt, type SessionMode } from '@/attempts/store';
+import { addAttempt, nextAttemptNumber, withdrawAttempt, type SessionMode } from '@/attempts/store';
 import { config } from '@/config';
 import { gradeConversation } from '@/grading';
 import type { Turn } from '@/grading/transcript';
@@ -118,8 +118,8 @@ export default function Session() {
           if (!distress || flagged.current) return;
           flagged.current = true;
           stopNow();
-          // A flag that lands after scoring removes the saved attempt too.
-          if (savedId.current) void removeAttempt(savedId.current);
+          // A flag that lands after scoring withdraws the saved attempt and its free session.
+          if (savedId.current) void withdrawAttempt(savedId.current);
           router.replace('/support');
         });
       }
