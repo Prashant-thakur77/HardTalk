@@ -1,28 +1,34 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { useRef, useState } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { addAttempt, nextAttemptNumber } from '@/attempts/store';
+import { announce, turnHaptic } from '@/a11y/announce';
+import { getPreferences } from '@/a11y/preferences';
+import { addAttempt, nextAttemptNumber, type SessionMode } from '@/attempts/store';
+import { config } from '@/config';
 import { gradeConversation } from '@/grading';
 import type { Turn } from '@/grading/transcript';
+import { isDistressLine, isStopLine, NotScoredForSafety } from '@/safety';
 import { getScenario } from '@/scenarios';
 import { difficultySchema } from '@/scenarios/schema';
+import { startSession } from '@/session/start';
 import { useConversation } from '@/session/useConversation';
 import { Button } from '@/ui/Button';
 import { MockBanner } from '@/ui/MockBanner';
-import { colors, radius, space, type } from '@/ui/theme';
+import { colors, MIN_TARGET, radius, space, type } from '@/ui/theme';
 import type { EndReason, SessionState } from '@/voice';
 
-function statusLabel(state: SessionState, personaName: string): string {
+function statusLabel(state: SessionState, personaName: string, textOnly: boolean): string {
   switch (state.status) {
     case 'idle':
     case 'connecting':
       return 'Connecting…';
     case 'persona_speaking':
-      return `${personaName} is speaking`;
+      return textOnly ? `${personaName} is replying` : `${personaName} is speaking`;
     case 'listening':
-      return 'Your turn';
+      if (config.mock && !textOnly) return 'Replaying your recorded line';
+      return textOnly ? 'Your turn. Type your reply.' : 'Your turn';
     case 'ended':
       return 'Conversation over';
     case 'error':
@@ -31,14 +37,19 @@ function statusLabel(state: SessionState, personaName: string): string {
 }
 
 export default function Session() {
-  const params = useLocalSearchParams<{ id: string; difficulty: string }>();
+  const params = useLocalSearchParams<{ id: string; difficulty: string; mode: string }>();
   const scenario = getScenario(params.id);
   const difficulty = difficultySchema.catch('L1').parse(params.difficulty);
+  const mode: SessionMode = params.mode === 'text' ? 'text' : 'voice';
+  const textOnly = mode === 'text';
   const [attempt] = useState(() => nextAttemptNumber(params.id));
+  const [preferences] = useState(getPreferences);
   const [grading, setGrading] = useState(false);
   const [gradeError, setGradeError] = useState<string | null>(null);
-  const ended = useRef<{ reason: EndReason; transcript: Turn[] } | null>(null);
+  const [draft, setDraft] = useState('');
+  const ended = useRef<{ reason: Exclude<EndReason, 'user_stopped'>; transcript: Turn[] } | null>(null);
   const scroll = useRef<ScrollView>(null);
+  const personaName = scenario?.persona.name ?? 'The persona';
 
   const score = () => {
     if (!ended.current || !scenario) return;
@@ -46,12 +57,13 @@ export default function Session() {
     setGrading(true);
     setGradeError(null);
     gradeConversation({ scenarioId: scenario.id, attempt, turns: transcript })
-      .then((grade) => {
+      .then(async (grade) => {
         const id = `${scenario.id}-${attempt}-${Date.now()}`;
-        addAttempt({
+        await addAttempt({
           id,
           scenarioId: scenario.id,
           difficulty,
+          mode,
           number: attempt,
           turns: transcript,
           grade,
@@ -61,34 +73,66 @@ export default function Session() {
         router.replace({ pathname: '/scorecard/[attemptId]', params: { attemptId: id } });
       })
       .catch((error: unknown) => {
+        if (error instanceof NotScoredForSafety) {
+          router.replace('/support');
+          return;
+        }
         setGrading(false);
         setGradeError(error instanceof Error ? error.message : String(error));
       });
   };
 
-  const { turns, state, stop } = useConversation({
+  const { turns, state, stop, sendText, setVolume, suggestedReply } = useConversation({
     scenarioId: params.id,
     difficulty,
     attempt,
+    textOnly,
+    speechRate: preferences.speechRate,
+    reduceMotion: preferences.reduceMotion,
     onEnd: (reason, transcript) => {
+      turnHaptic('ended');
       if (reason === 'user_stopped') return;
       ended.current = { reason, transcript };
       score();
+    },
+    onUserLine: (text, stopNow) => {
+      if (isDistressLine(text)) {
+        stopNow();
+        router.replace('/support');
+      } else if (isStopLine(text)) {
+        stopNow();
+      }
+    },
+    onStateChange: (next, lastTurn) => {
+      if (next.status !== 'listening') return;
+      turnHaptic('your_turn');
+      setDraft(suggestedReply() ?? '');
+      // In text mode nothing is heard, so the persona's line is read out; in voice mode the
+      // persona has just finished speaking, so only the turn change is announced.
+      const line = textOnly && lastTurn?.speaker === 'persona' ? `${personaName}: ${lastTurn.text}. ` : '';
+      announce(`${line}Your turn.`, setVolume);
     },
   });
 
   if (!scenario) return <Text style={type.body}>Scenario not found.</Text>;
 
   const stoppedEarly = state.status === 'ended' && state.reason === 'user_stopped';
+  const canSend = textOnly && state.status === 'listening' && draft.trim().length > 0;
+  const send = () => {
+    if (!canSend) return;
+    sendText(draft.trim());
+    setDraft('');
+  };
 
   return (
     <SafeAreaView style={styles.safe} edges={['bottom']}>
       <View style={styles.header}>
         <Text style={type.heading}>
           {scenario.persona.name} · {difficulty}
+          {textOnly ? ' · typed' : ''}
         </Text>
         <Text style={styles.status} accessibilityLiveRegion="polite">
-          {grading ? 'Scoring your conversation…' : statusLabel(state, scenario.persona.name)}
+          {grading ? 'Scoring your conversation…' : statusLabel(state, scenario.persona.name, textOnly)}
         </Text>
         <MockBanner />
       </View>
@@ -122,12 +166,7 @@ export default function Session() {
             <Text style={type.body} accessibilityLiveRegion="assertive">
               The conversation couldn’t continue: {state.message}
             </Text>
-            <Button
-              label="Try again"
-              onPress={() =>
-                router.replace({ pathname: '/session/[id]', params: { id: scenario.id, difficulty } })
-              }
-            />
+            <Button label="Try again" onPress={() => void startSession(scenario.id, difficulty, mode, 'replace')} />
             <Button label="Back to conversations" variant="secondary" onPress={() => router.dismissTo('/')} />
           </>
         ) : gradeError ? (
@@ -140,23 +179,43 @@ export default function Session() {
           </>
         ) : stoppedEarly ? (
           <>
-            <Text style={type.body}>You ended the conversation early, so it wasn’t scored.</Text>
-            <Button
-              label="Try again"
-              onPress={() =>
-                router.replace({ pathname: '/session/[id]', params: { id: scenario.id, difficulty } })
-              }
-            />
+            <Text style={type.body} accessibilityLiveRegion="polite">
+              Stopped. Nothing from this conversation was scored.
+            </Text>
+            <Button label="Try again" onPress={() => void startSession(scenario.id, difficulty, mode, 'replace')} />
             <Button label="Back to conversations" variant="secondary" onPress={() => router.dismissTo('/')} />
           </>
         ) : (
-          <Button
-            label="End conversation"
-            variant="secondary"
-            onPress={stop}
-            disabled={state.status === 'ended'}
-            hint="Stops the roleplay without scoring it"
-          />
+          <>
+            {textOnly ? (
+              <View style={styles.composer}>
+                {config.mock ? (
+                  <Text style={type.caption}>
+                    Prefilled with the recorded line. Send it as it is, or change it and the scorecard only keeps
+                    evidence you actually typed. Type “stop” to end without a score.
+                  </Text>
+                ) : null}
+                <TextInput
+                  accessibilityLabel="Your reply"
+                  value={draft}
+                  onChangeText={setDraft}
+                  placeholder={state.status === 'listening' ? 'Type your reply' : 'Wait for your turn'}
+                  placeholderTextColor={colors.textMuted}
+                  editable={state.status === 'listening'}
+                  multiline
+                  style={styles.input}
+                />
+                <Button label="Send" onPress={send} disabled={!canSend} />
+              </View>
+            ) : null}
+            <Button
+              label="End conversation"
+              variant="secondary"
+              onPress={stop}
+              disabled={state.status === 'ended'}
+              hint="Stops the roleplay without scoring it"
+            />
+          </>
         )}
       </View>
     </SafeAreaView>
@@ -174,6 +233,19 @@ const styles = StyleSheet.create({
   userBubble: { alignSelf: 'flex-end', backgroundColor: colors.userBubble },
   speaker: { fontSize: 13, fontWeight: '700', color: colors.textMuted },
   userText: { color: colors.onPrimary },
+  composer: { gap: space.sm },
+  input: {
+    minHeight: MIN_TARGET * 1.5,
+    maxHeight: 140,
+    borderWidth: 1.5,
+    borderColor: colors.borderStrong,
+    borderRadius: radius,
+    backgroundColor: colors.surface,
+    paddingHorizontal: space.md,
+    paddingVertical: space.sm,
+    fontSize: 16,
+    color: colors.text,
+  },
   footer: {
     padding: space.md,
     gap: space.sm,

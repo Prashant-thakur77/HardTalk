@@ -8,7 +8,7 @@ describe('MockVoiceProvider', () => {
   beforeEach(() => vi.useFakeTimers());
   afterEach(() => vi.useRealTimers());
 
-  function run(attempt: number) {
+  function run(attempt: number, options: { textOnly?: boolean; reduceMotion?: boolean } = {}) {
     const provider = new MockVoiceProvider();
     const states: SessionState[] = [];
     let turns: LiveTurn[] = [];
@@ -16,7 +16,14 @@ describe('MockVoiceProvider', () => {
     provider.onTranscript((event) => {
       turns = applyTranscriptEvent(turns, event);
     });
-    void provider.startSession({ scenarioId: 'pr-blocking-release', difficulty: 'L2', attempt });
+    void provider.startSession({
+      scenarioId: 'pr-blocking-release',
+      difficulty: 'L2',
+      attempt,
+      textOnly: options.textOnly ?? false,
+      speechRate: 1,
+      reduceMotion: options.reduceMotion ?? false,
+    });
     return { provider, states, turns: () => turns };
   }
 
@@ -55,5 +62,31 @@ describe('MockVoiceProvider', () => {
     const retry = run(2);
     vi.runAllTimers();
     expect(retry.turns().map((turn) => turn.text)).not.toEqual(first.turns().map((turn) => turn.text));
+  });
+
+  it('shows whole lines at once when Reduce Motion is on', () => {
+    const { turns } = run(1, { reduceMotion: true });
+    vi.advanceTimersByTime(700);
+    expect(turns()[0]).toMatchObject({ final: true, text: "Hey, what's up? I've only got a few minutes before standup." });
+  });
+
+  it('text-only mode waits for the typed reply and offers the recorded line as a start', () => {
+    const { provider, states, turns } = run(1, { textOnly: true });
+    vi.runAllTimers();
+    expect(states.at(-1)).toEqual({ status: 'listening' });
+    expect(turns()).toHaveLength(1);
+    expect(provider.suggestedReply()).toMatch(/^Hey, um, so I just wanted/);
+
+    provider.sendText('Your auth refactor has blocked the release for three days.');
+    vi.runAllTimers();
+    expect(turns().map((turn) => turn.speaker)).toEqual(['persona', 'user', 'persona']);
+    expect(turns()[1]!.text).toBe('Your auth refactor has blocked the release for three days.');
+
+    provider.sendText('Can you merge by 4pm?');
+    vi.runAllTimers();
+    provider.sendText('Thanks.');
+    vi.runAllTimers();
+    expect(states.at(-1)).toEqual({ status: 'ended', reason: 'stop_condition' });
+    expect(provider.suggestedReply()).toBeNull();
   });
 });

@@ -24,9 +24,9 @@ attempts:
           rationale: "You acknowledged Sam's concern, but used the acknowledgement to back down rather than to connect it to the goal you share."
           better_line: "I don't want it rushed either. I want us both to make Friday."
         ask_made:
-          score: 1
+          score: 2
           evidence_quotes: ["I guess just whenever you get a chance maybe?"]
-          rationale: "No specific request and no time. Sam can honestly say yes and change nothing."
+          rationale: "There is a request in there, but \"whenever you get a chance\" lets Sam say yes and change nothing. It needs an action and a time."
           better_line: "Can we agree a plan to get the first part merged by 4pm today?"
         boundary_held:
           score: 1

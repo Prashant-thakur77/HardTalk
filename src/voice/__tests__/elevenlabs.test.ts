@@ -7,6 +7,8 @@ type Options = Record<string, (...args: never[]) => void> & { overrides: unknown
 const sdk = vi.hoisted(() => ({
   options: null as Options | null,
   endSession: vi.fn(),
+  sendUserMessage: vi.fn(),
+  setVolume: vi.fn(),
   micGranted: true,
 }));
 
@@ -18,7 +20,7 @@ vi.mock('@elevenlabs/client', () => ({
   Conversation: {
     startSession: async (options: Options) => {
       sdk.options = options;
-      return { endSession: sdk.endSession };
+      return { endSession: sdk.endSession, sendUserMessage: sdk.sendUserMessage, setVolume: sdk.setVolume };
     },
   },
 }));
@@ -30,13 +32,20 @@ function fire(name: string, payload?: unknown) {
   (sdk.options![name] as (payload: unknown) => void)(payload);
 }
 
-async function start() {
+async function start(textOnly = false) {
   const provider = new ElevenLabsVoiceProvider();
   const states: SessionState[] = [];
   const events: TranscriptEvent[] = [];
   provider.onStateChange((state) => states.push(state));
   provider.onTranscript((event) => events.push(event));
-  await provider.startSession({ scenarioId: 'pr-blocking-release', difficulty: 'L2', attempt: 1 });
+  await provider.startSession({
+    scenarioId: 'pr-blocking-release',
+    difficulty: 'L2',
+    attempt: 1,
+    textOnly,
+    speechRate: 0.85,
+    reduceMotion: false,
+  });
   return { provider, states, events };
 }
 
@@ -106,6 +115,64 @@ describe('ElevenLabsVoiceProvider', () => {
     await provider.stopSession();
     expect(sdk.endSession).toHaveBeenCalledTimes(1);
     expect(states.at(-1)).toEqual({ status: 'ended', reason: 'user_stopped' });
+  });
+
+  it('sends the chosen speech rate to the persona voice', async () => {
+    await start();
+    expect((sdk.options!.overrides as { tts: { speed: number } }).tts.speed).toBe(0.85);
+  });
+
+  it('text-only mode: no microphone, typed lines captioned once, persona replies end the wait', async () => {
+    sdk.micGranted = false;
+    const { provider, states, events } = await start(true);
+    expect(sdk.options!.textOnly).toBe(true);
+
+    provider.sendText('Your PR has blocked the release for three days.');
+    fire('onMessage', { role: 'user', message: 'Your PR has blocked the release for three days.', event_id: 3 });
+    fire('onMessage', { role: 'agent', message: 'It is a big change.', event_id: 4 });
+
+    expect(sdk.sendUserMessage).toHaveBeenCalledWith('Your PR has blocked the release for three days.');
+    expect(events.map((event) => event.speaker)).toEqual(['user', 'persona']);
+    expect(states.at(-1)).toEqual({ status: 'listening' });
+  });
+
+  it('lowers persona volume on request, for screen reader announcements', async () => {
+    const { provider } = await start();
+    provider.setVolume(0);
+    expect(sdk.setVolume).toHaveBeenCalledWith({ volume: 0 });
+  });
+
+  it('never grades a call the persona ended with its stop line', async () => {
+    const { states } = await start();
+    fire('onMessage', { role: 'user', message: 'stop', event_id: 1 });
+    fire('onMessage', { role: 'agent', message: "Okay, let's stop here.", event_id: 2 });
+    fire('onDisconnect', { reason: 'agent' });
+    expect(states.at(-1)).toEqual({ status: 'ended', reason: 'user_stopped' });
+  });
+
+  it('stopping while connecting ends the session and never opens the call', async () => {
+    let releaseToken: (response: Response) => void = () => undefined;
+    vi.stubGlobal('fetch', vi.fn(() => new Promise<Response>((resolve) => (releaseToken = resolve))));
+    const provider = new ElevenLabsVoiceProvider();
+    const states: SessionState[] = [];
+    provider.onStateChange((state) => states.push(state));
+    const starting = provider.startSession({
+      scenarioId: 'pr-blocking-release',
+      difficulty: 'L1',
+      attempt: 1,
+      textOnly: false,
+      speechRate: 1,
+      reduceMotion: false,
+    });
+    await vi.waitFor(() => expect(fetch).toHaveBeenCalled());
+
+    await provider.stopSession();
+    expect(states.at(-1)).toEqual({ status: 'ended', reason: 'user_stopped' });
+
+    releaseToken(new Response(JSON.stringify({ token: 'late' }), { status: 200 }));
+    await starting;
+    expect(sdk.options).toBeNull();
+    expect(states.filter((state) => state.status === 'ended')).toHaveLength(1);
   });
 
   it('surfaces a connection error instead of failing silently', async () => {

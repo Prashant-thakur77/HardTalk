@@ -1,0 +1,18 @@
+# Paywall copy. The live paywall is built in the RevenueCat dashboard with this same text
+# (docs/REVENUECAT.md); the app passes scenario_title and score_line as custom variables, so
+# the paywall always talks about the conversation the user just practised.
+session_limit:
+  headline: Keep practising "{{scenario_title}}"
+  body: You've used your three free graded sessions. The next retry is usually where the new line sticks.
+  score: "Your score on it so far: {{score_line}}."
+custom_scenario:
+  headline: Rehearse the conversation you're actually dreading
+  body: Write your own scenario with the real stakes, and get the same pushback and scorecard as "{{scenario_title}}".
+  score: "Your latest score: {{score_line}}."
+features:
+  - Unlimited graded sessions and retries
+  - Your own scenarios, with your real names and stakes
+  - Progress history across every attempt
+plans:
+  - { id: annual, label: Annual, price: "$29.99 a year", note: Save 50% }
+  - { id: monthly, label: Monthly, price: "$4.99 a month" }

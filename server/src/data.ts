@@ -5,6 +5,7 @@ import YAML from 'yaml';
 
 import { graderConfigSchema } from '../../src/grading/prompt';
 import { DIMENSIONS, rubricSchema } from '../../src/grading/rubric.schema';
+import { safetyConfigSchema } from '../../src/safety/rules';
 import { scenarioSchema, type Scenario } from '../../src/scenarios/schema';
 
 const DATA = join(dirname(fileURLToPath(import.meta.url)), '../../data');
@@ -15,6 +16,8 @@ function load(path: string): unknown {
 
 /** The same YAML the app bundles, validated with the same schemas. */
 export const graderConfig = graderConfigSchema.parse(load('prompts/grader.yaml'));
+
+export const safetyConfig = safetyConfigSchema.parse(load('safety.yaml'));
 
 export const rubrics = DIMENSIONS.map((dimension) => rubricSchema.parse(load(`rubrics/${dimension}.yaml`)));
 

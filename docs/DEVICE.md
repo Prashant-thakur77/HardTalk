@@ -17,7 +17,8 @@ In the ElevenLabs dashboard, create a blank agent and set:
 - System prompt: anything short, for example "You are a workplace roleplay partner." HardTalk replaces it at the start of every session with the prompt built from `data/prompts/persona.yaml` and the chosen scenario and level.
 - First message: leave empty. The scenario's opening line is sent per session.
 - Tools: enable the built-in "End conversation" system tool, so the persona can hang up when the stop condition is met.
-- Security → Overrides: allow overriding the system prompt and the first message.
+- Security → Overrides: allow overriding the system prompt, the first message, the TTS speed (the pace setting) and text-only mode (typed practice).
+- Privacy: turn off audio saving and set the conversation retention period as short as your plan allows. HardTalk never stores audio itself, but ElevenLabs keeps call audio and transcripts by default.
 - Voice: any voice you like. A calm, natural voice works best.
 
 Copy the agent ID.
@@ -27,7 +28,7 @@ Copy the agent ID.
 ```sh
 cp server/.env.example server/.env
 # fill in ANTHROPIC_API_KEY, ELEVENLABS_API_KEY and ELEVENLABS_AGENT_ID
-pnpm server
+pnpm start:server
 ```
 
 The server prints which services are on. `curl localhost:8787/health` should show `"grading":true,"voice":true`.
@@ -58,4 +59,5 @@ On the Android emulator, enable "Virtual microphone uses host audio input" in th
 - "Voice is not configured on this server": `ELEVENLABS_API_KEY` or `ELEVENLABS_AGENT_ID` is missing in `server/.env`.
 - "Could not start a voice session (502)": the server could not get a token from ElevenLabs. Check the key and agent ID in the server log.
 - The persona ignores the scenario: prompt overrides are not enabled on the agent (step 2).
+- Typed mode or the pace setting fails to start: the text-only or TTS speed override is not enabled (step 2).
 - The persona never hangs up: the End conversation tool is not enabled. HardTalk still ends the session after six of your turns.

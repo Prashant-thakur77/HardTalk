@@ -11,7 +11,7 @@
       "supportsTablet": false,
       "bundleIdentifier": "dev.hardtalk.app",
       "infoPlist": {
-        "NSMicrophoneUsageDescription": "HardTalk listens while you practise a conversation. Audio is streamed to the roleplay partner and never stored."
+        "NSMicrophoneUsageDescription": "HardTalk uses your microphone for the practice conversation. The app does not save recordings."
       }
     },
     "android": {
@@ -41,7 +41,7 @@
       [
         "expo-audio",
         {
-          "microphonePermission": "HardTalk listens while you practise a conversation. Audio is streamed to the roleplay partner and never stored."
+          "microphonePermission": "HardTalk uses your microphone for the practice conversation. The app does not save recordings."
         }
       ],
       "@livekit/react-native-expo-plugin",

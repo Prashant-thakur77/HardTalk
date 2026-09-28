@@ -58,6 +58,21 @@ describe('isGrounded', () => {
     expect(isGrounded('', turns)).toBe(false);
     expect(isGrounded(' . ', turns)).toBe(false);
   });
+
+  it('rejects fragments inside words ("no" inside "know")', () => {
+    const said: Turn[] = [{ speaker: 'user', text: 'I know the change is big.' }];
+    expect(isGrounded('no', said)).toBe(false);
+    expect(isGrounded('ch', said)).toBe(false);
+    expect(isGrounded('now the change', said)).toBe(false);
+  });
+
+  it('rejects one- and two-word scraps that are not a whole sentence', () => {
+    const said: Turn[] = [{ speaker: 'user', text: 'I know it is big. No. It has to merge today.' }];
+    expect(isGrounded('it', said)).toBe(false);
+    expect(isGrounded('is big', said)).toBe(false);
+    expect(isGrounded('No.', said)).toBe(true);
+    expect(isGrounded('has to merge', said)).toBe(true);
+  });
 });
 
 describe('findUngrounded', () => {

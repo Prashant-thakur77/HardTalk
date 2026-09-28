@@ -1,0 +1,39 @@
+# Safety settings, read by the app and the server. See SAFETY.md for how each is used.
+
+disclaimer: HardTalk is a practice tool. It is not therapy, and it is not HR or legal advice.
+
+# A user line made only of one of these (plus "please", "now", "here"...) ends the roleplay at
+# once, unscored. "Stop blocking the release" is roleplay and does not match.
+stop_words: [stop, pause]
+
+# Deliberately narrow: strong signals of real distress, not workplace idioms. "The deadline is
+# killing me" must not trip it; "I want to kill myself" must.
+distress_patterns:
+  - \b(kill|hurt|harm|cut)(ting|ing)? myself\b
+  - \bsuicid(e|al)\b
+  - \bend(ing)? (my|it all|my own) life\b
+  - \bend it all\b
+  - \bwant to die\b
+  - \bdon'?t want to (be alive|live|exist)( anymore)?\b
+  - \b(no reason|nothing) to live\b
+  - \bbetter off dead\b
+  - \bhaving a panic attack\b
+  - \bi can'?t breathe\b
+  - \b(hit|hits|hitting|assaulted|grabbed) me\b
+  - \bsexually harass(ed|ing|es)? me\b
+
+resources:
+  - name: Emergency services
+    detail: If you or someone else is in immediate danger, call your local emergency number now.
+  - name: Find a Helpline
+    detail: Free, confidential helplines in more than 130 countries.
+    url: https://findahelpline.com
+  - name: 988 Suicide & Crisis Lifeline (US)
+    detail: Call or text 988, any time.
+    url: https://988lifeline.org
+  - name: Samaritans (UK and Ireland)
+    detail: Call 116 123, free, any time.
+    url: https://www.samaritans.org
+  - name: Tele-MANAS (India)
+    detail: Call 14416, free, any time.
+    url: https://telemanas.mohfw.gov.in

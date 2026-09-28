@@ -57,9 +57,9 @@ attempts:
           rationale: "A clear no with a clear reason, in one sentence."
           better_line: "I can't lead the migration this quarter. Billing ships on the fifteenth and needs all of me."
         empathy:
-          score: 4
+          score: 3
           evidence_quotes: ["I appreciate you thinking of me, and I can see why it needs someone who knows the data."]
-          rationale: "You named Jordan's actual need before declining, which is why the no landed without friction."
+          rationale: "You named what Jordan needs before declining, which is why the no landed. A 4 checks it with them rather than assuming."
           better_line: "I know you're stretched finding owners, and I appreciate you thinking of me."
         ask_made:
           score: 3

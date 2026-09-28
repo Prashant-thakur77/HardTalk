@@ -2,10 +2,11 @@ import { DIMENSIONS, type Dimension, type Grade } from './rubric.schema';
 import type { Turn } from './transcript';
 
 /**
- * A score above 1 must be backed by the user's own words. Quotes are compared per user turn
- * after normalising only what speech-to-text and model output legitimately vary on: case,
- * curly vs straight quotes, and whitespace. Paraphrases, persona lines and quotes stitched
- * across turns are rejected.
+ * A score above 1 must be backed by the user's own words. A quote counts only if it appears in
+ * a single user turn as whole words, and is either at least three words long or a complete
+ * sentence ("No." can be evidence; "no" inside "know" cannot). Comparison ignores only what
+ * speech-to-text and model output legitimately vary on: case, curly vs straight quotes, and
+ * whitespace. Paraphrases, persona lines and quotes stitched across turns are rejected.
  */
 function normalise(text: string): string {
   return text
@@ -20,10 +21,34 @@ function stripWrapping(quote: string): string {
   return normalise(quote).replace(/^["'\s]+|["'\s]+$/g, '');
 }
 
+const isWordChar = (char: string | undefined) => char !== undefined && /[a-z0-9']/.test(char);
+const wordCount = (text: string) => text.split(' ').filter((word) => /[a-z0-9]/.test(word)).length;
+
+function occursAsWholeWords(needle: string, haystack: string): boolean {
+  for (let at = haystack.indexOf(needle); at !== -1; at = haystack.indexOf(needle, at + 1)) {
+    const before = haystack[at - 1];
+    const after = haystack[at + needle.length];
+    const startsClean = !isWordChar(needle[0]) || !isWordChar(before);
+    const endsClean = !isWordChar(needle.at(-1)) || !isWordChar(after);
+    if (startsClean && endsClean) return true;
+  }
+  return false;
+}
+
+function isWholeSentence(needle: string, turn: string): boolean {
+  const trimmed = needle.replace(/[.!?]+$/, '');
+  return turn.split(/(?<=[.!?])\s+/).some((sentence) => sentence.replace(/[.!?]+$/, '') === trimmed);
+}
+
 export function isGrounded(quote: string, turns: Turn[]): boolean {
   const needle = stripWrapping(quote);
-  if (!/[a-z0-9].*[a-z0-9]/.test(needle)) return false;
-  return turns.some((turn) => turn.speaker === 'user' && normalise(turn.text).includes(needle));
+  if (!/[a-z0-9]/.test(needle)) return false;
+  return turns.some((turn) => {
+    if (turn.speaker !== 'user') return false;
+    const text = normalise(turn.text);
+    if (!occursAsWholeWords(needle, text)) return false;
+    return wordCount(needle) >= 3 || isWholeSentence(needle, text);
+  });
 }
 
 export interface Ungrounded {

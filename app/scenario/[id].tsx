@@ -1,26 +1,46 @@
-import { router, useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 
+import { setSpeechRate, SPEECH_RATES, usePreferences } from '@/a11y/preferences';
+import type { SessionMode } from '@/attempts/store';
+import { config } from '@/config';
 import { getScenario } from '@/scenarios';
+import { isCustomScenario } from '@/scenarios/custom';
 import { difficultySchema, type Difficulty } from '@/scenarios/schema';
+import { startSession } from '@/session/start';
 import { Button } from '@/ui/Button';
+import { ChoiceGroup } from '@/ui/ChoiceGroup';
 import { MockBanner } from '@/ui/MockBanner';
 import { Screen } from '@/ui/Screen';
-import { colors, MIN_TARGET, radius, space, type } from '@/ui/theme';
+import { colors, type } from '@/ui/theme';
+
+const MODES = [
+  { value: 'voice', label: 'Talk', description: 'Speak out loud. Live captions for both of you.' },
+  { value: 'text', label: 'Type', description: 'No microphone or audio. Same persona, same scorecard.' },
+] as const;
 
 export default function ScenarioBrief() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const scenario = getScenario(id);
+  const { speechRate } = usePreferences();
   const [difficulty, setDifficulty] = useState<Difficulty>('L1');
+  const [mode, setMode] = useState<SessionMode>('voice');
 
   if (!scenario) return <Text style={type.body}>Scenario not found.</Text>;
 
-  const start = () =>
-    router.push({ pathname: '/session/[id]', params: { id: scenario.id, difficulty } });
+  const liveOnly = config.mock && isCustomScenario(scenario.id);
 
   return (
-    <Screen footer={<Button label="Start conversation" onPress={start} hint="Starts the roleplay" />}>
+    <Screen
+      footer={
+        <Button
+          label="Start conversation"
+          onPress={() => void startSession(scenario.id, difficulty, mode, 'push')}
+          hint="Starts the roleplay"
+          disabled={liveOnly}
+        />
+      }>
       <Text style={type.title} accessibilityRole="header">
         {scenario.title}
       </Text>
@@ -32,31 +52,34 @@ export default function ScenarioBrief() {
         <Text style={styles.goalLabel}>Your goal</Text>
         <Text style={type.body}>{scenario.user_goal}</Text>
       </View>
-      <MockBanner />
+      <MockBanner message="Mock mode replays one recorded conversation at every level. Live mode uses your microphone, and the persona behaves as the level you pick." />
+      {liveOnly ? (
+        <Text style={type.body}>
+          Your own scenarios run live, with your microphone and the persona. Mock mode only replays the three
+          built-in conversations.
+        </Text>
+      ) : null}
 
-      <Text style={type.heading} accessibilityRole="header">
-        How hard should {scenario.persona.name} push back?
-      </Text>
-      <View accessibilityRole="radiogroup" style={styles.levels}>
-        {difficultySchema.options.map((level) => {
-          const selected = level === difficulty;
-          const { name, behaviour } = scenario.difficulty_levels[level];
-          return (
-            <Pressable
-              key={level}
-              accessibilityRole="radio"
-              accessibilityState={{ checked: selected }}
-              accessibilityLabel={`${level}, ${name}. ${behaviour}`}
-              onPress={() => setDifficulty(level)}
-              style={[styles.level, selected && styles.levelSelected]}>
-              <Text style={[styles.levelName, selected && styles.levelNameSelected]}>
-                {level} · {name}
-              </Text>
-              <Text style={type.caption}>{behaviour}</Text>
-            </Pressable>
-          );
-        })}
-      </View>
+      <ChoiceGroup
+        label={`How hard should ${scenario.persona.name} push back?`}
+        choices={difficultySchema.options.map((level) => ({
+          value: level,
+          label: `${level} · ${scenario.difficulty_levels[level].name}`,
+          description: scenario.difficulty_levels[level].behaviour,
+        }))}
+        selected={difficulty}
+        onSelect={setDifficulty}
+      />
+      <ChoiceGroup label="How do you want to practise?" choices={MODES} selected={mode} onSelect={setMode} horizontal />
+      {mode === 'voice' ? (
+        <ChoiceGroup
+          label={`${scenario.persona.name}'s speaking pace`}
+          choices={SPEECH_RATES.map((rate) => ({ value: rate.value, label: rate.label }))}
+          selected={speechRate}
+          onSelect={(rate) => void setSpeechRate(rate)}
+          horizontal
+        />
+      ) : null}
     </Screen>
   );
 }
@@ -64,17 +87,4 @@ export default function ScenarioBrief() {
 const styles = StyleSheet.create({
   goal: { gap: 2 },
   goalLabel: { fontSize: 13, fontWeight: '700', color: colors.primary, textTransform: 'uppercase' },
-  levels: { gap: space.sm },
-  level: {
-    minHeight: MIN_TARGET,
-    borderRadius: radius,
-    borderWidth: 1.5,
-    borderColor: colors.border,
-    backgroundColor: colors.surface,
-    padding: space.md,
-    gap: space.xs,
-  },
-  levelSelected: { borderColor: colors.primary, backgroundColor: colors.quote },
-  levelName: { fontSize: 17, fontWeight: '600', color: colors.text },
-  levelNameSelected: { color: colors.primary },
 });

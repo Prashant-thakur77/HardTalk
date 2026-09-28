@@ -7,8 +7,19 @@ import { formatTranscript, turnSchema } from './transcript';
 export { formatTranscript };
 
 /** Shape of data/prompts/grader.yaml. */
+export const retryCopySchema = z.strictObject({
+  schema: z.string().includes('{{problem}}'),
+  evidence: z.string().includes('{{problems}}'),
+  missing_quote: z.string().includes('{{dimension}}'),
+  bad_quote: z.string().includes('{{quotes}}'),
+});
+export type RetryCopy = z.infer<typeof retryCopySchema>;
+
 export const graderConfigSchema = z.strictObject({
   instructions: z.string().min(1),
+  request: z.string().includes('{{transcript}}'),
+  calibration_header: z.string().min(1),
+  retry: retryCopySchema,
   examples: z
     .array(
       z.strictObject({
@@ -68,9 +79,11 @@ export function buildSystemPrompt(config: GraderConfig, scenario: Scenario, rubr
   const instructions = config.instructions
     .replace('{{scenario}}', describeScenario(scenario))
     .replace('{{rubrics}}', rubrics.map(describeRubric).join('\n\n'));
-  return [
-    instructions.trim(),
-    'Calibration examples. They use a different scenario and exist only to show the scale.',
-    describeExamples(config),
-  ].join('\n\n');
+  return [instructions.trim(), config.calibration_header, describeExamples(config)].join('\n\n');
+}
+
+/** The user message for one grading call: the transcript, plus retry feedback if any. */
+export function buildRequest(config: GraderConfig, transcript: string, feedback?: string): string {
+  const request = config.request.replace('{{transcript}}', transcript).trim();
+  return feedback ? `${request}\n\n${feedback.trim()}` : request;
 }

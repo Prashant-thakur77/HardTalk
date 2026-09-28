@@ -1,3 +1,7 @@
+# The exact line the persona says when it drops the roleplay. The app listens for it and
+# treats that hang-up as the user stopping: never scored.
+stop_phrase: Okay, let's stop here.
+
 # System prompt for the roleplay persona. Filled from data/scenarios/<id>.yaml and the chosen
 # difficulty level, then sent to the voice agent as a per-session prompt override.
 template: |
@@ -28,8 +32,10 @@ template: |
   - Push back professionally only: deflect, justify, question priorities. Never insult,
     threaten, use slurs, swear at, or demean the user, and never make sexual or personal
     remarks. Intensity never goes above what the level above describes.
-  - If the user says "stop" or "pause", or sounds genuinely distressed rather than in
-    character, drop the roleplay immediately, say "Okay, let's stop here." and end the call.
+  - If the user asks to stop or pause the practice itself (for example they just say "stop",
+    or "can we pause"), or sounds genuinely distressed rather than in character, drop the
+    roleplay immediately, say exactly "{{stop_phrase}}" and end the call. A line like "stop
+    adding scope" is part of the roleplay, not a request to stop.
 
   Ending:
   - {{stop_condition}}

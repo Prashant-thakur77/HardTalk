@@ -16,9 +16,9 @@ instructions: |
   - Judge behaviour, not intent. If the user did not say it, it did not happen.
 
   Evidence rules (these are checked by code and ungrounded scores are downgraded to 1):
-  - Every evidence quote must be copied character for character from a single USER turn.
-    Copy a whole sentence or a clause; do not paraphrase, fix grammar, merge turns, or add
-    ellipses.
+  - Every evidence quote must be copied word for word from a single USER turn: a whole
+    sentence, or a clause of at least three words. Do not paraphrase, fix grammar, merge
+    turns, or add ellipses.
   - Any score above 1 needs at least one evidence quote.
   - Quote the moment the rubric's `evidence` field asks for.
 
@@ -40,6 +40,29 @@ instructions: |
 
   Rubrics:
   {{rubrics}}
+
+# The user message sent with each transcript.
+request: |
+  Grade this conversation.
+
+  <transcript>
+  {{transcript}}
+  </transcript>
+
+calibration_header: Calibration examples. They use a different scenario and exist only to show the scale.
+
+# Sent once, on the single retry, when the first answer broke a rule.
+retry:
+  schema: |
+    Your previous answer did not match the required schema:
+    {{problem}}
+  evidence: |
+    Some evidence quotes are not what the user actually said:
+    {{problems}}
+    Copy each quote word for word from a single USER turn: a whole sentence, or a clause of at
+    least three words. If there is no real evidence for a score above 1, score that dimension 1.
+  missing_quote: "- {{dimension}}: scored above 1 with no evidence quote."
+  bad_quote: "- {{dimension}}: {{quotes}} is not in any USER turn."
 
 examples:
   - label: weak

@@ -29,6 +29,22 @@ const grade: Grade = {
   safety_flag: false,
 };
 
+const custom = {
+  id: 'custom-raise-1',
+  title: 'Ask for a raise',
+  summary: 'Budgets are frozen.',
+  user_goal: 'A clear answer on a raise',
+  persona: { name: 'Dana', role: 'Lead', goal: 'Hold budget', hidden_objection: 'Frozen', tone: 'Guarded', context: ['x'] },
+  difficulty_levels: {
+    L1: { name: 'Cooperative', behaviour: 'Agrees once the request is specific enough.' },
+    L2: { name: 'Defensive', behaviour: 'Justifies once and needs a second, specific ask.' },
+    L3: { name: 'Deflecting', behaviour: 'Changes the subject and questions standing twice.' },
+  },
+  opening_line: 'You wanted to talk?',
+  stop_condition: 'End when the ask is answered.',
+  max_user_turns: 6,
+};
+
 function appWith(callModel: GradeModel) {
   return createApp({ gradeModelFor: () => callModel });
 }
@@ -75,6 +91,41 @@ describe('POST /grade', () => {
     expect(json.error).toMatch(/did not speak/);
   });
 
+  it('grades a custom scenario sent in full', async () => {
+    const callModel = vi.fn<GradeModel>().mockResolvedValue({
+      ...grade,
+      dimensions: { ...grade.dimensions, ask_made: dimension(1, 'x') },
+    });
+    const gradeModelFor = vi.fn(() => callModel);
+    const scenario = { ...custom, id: 'custom-raise-1' };
+    const { status } = await post(createApp({ gradeModelFor }), { scenario, turns });
+    expect(status).toBe(200);
+    expect(gradeModelFor).toHaveBeenCalledWith(expect.objectContaining({ id: 'custom-raise-1', title: 'Ask for a raise' }));
+  });
+
+  it('rejects a full scenario object that pretends to be a built-in one', async () => {
+    const { status } = await post(appWith(vi.fn<GradeModel>()), { scenario: { ...custom, id: 'pr-blocking-release' }, turns });
+    expect(status).toBe(400);
+  });
+
+  it('never scores a conversation where the user sounds genuinely distressed', async () => {
+    const callModel = vi.fn<GradeModel>();
+    const { status, json } = await post(appWith(callModel), {
+      scenarioId: 'pr-blocking-release',
+      turns: [...turns, { speaker: 'user', text: "Honestly I don't want to be alive anymore." }],
+    });
+    expect(status).toBe(422);
+    expect(json.safety).toBe(true);
+    expect(callModel).not.toHaveBeenCalled();
+  });
+
+  it('does not return a score when the grader raises the safety flag', async () => {
+    const callModel = vi.fn<GradeModel>().mockResolvedValue({ ...grade, safety_flag: true });
+    const { status, json } = await post(appWith(callModel), { scenarioId: 'pr-blocking-release', turns });
+    expect(status).toBe(422);
+    expect(json).toEqual({ error: 'This conversation was not scored.', safety: true });
+  });
+
   it('502s with a readable error when the model provider fails', async () => {
     vi.spyOn(console, 'error').mockImplementation(() => undefined);
     const callModel = vi.fn<GradeModel>().mockRejectedValue(new Error('authentication_error'));
@@ -110,5 +161,24 @@ describe('GET /health', () => {
   it('reports which services are configured', async () => {
     const response = await createApp({ mintVoiceToken: async () => 't' }).request('/health');
     expect(await response.json()).toEqual({ ok: true, grading: false, voice: true });
+  });
+});
+
+describe('limits', () => {
+  it('caps provider calls per client, so a stranger on the network cannot drain the keys', async () => {
+    const app = createApp({ mintVoiceToken: async () => 't', limit: { max: 2, windowMs: 60_000 } });
+    const statuses = [];
+    for (let i = 0; i < 3; i += 1) statuses.push((await post(app, { scenarioId: 'pr-blocking-release' }, '/voice/token')).status);
+    expect(statuses).toEqual([200, 200, 429]);
+  });
+
+  it('rejects an oversized turn before any model call', async () => {
+    const callModel = vi.fn<GradeModel>();
+    const { status } = await post(appWith(callModel), {
+      scenarioId: 'pr-blocking-release',
+      turns: [{ speaker: 'user', text: 'x'.repeat(2001) }],
+    });
+    expect(status).toBe(400);
+    expect(callModel).not.toHaveBeenCalled();
   });
 });

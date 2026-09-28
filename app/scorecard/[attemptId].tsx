@@ -5,6 +5,7 @@ import { findAttempt, findPreviousAttempt, useAttempts } from '@/attempts/store'
 import { DIMENSIONS, type Dimension, type Grade } from '@/grading/rubric.schema';
 import { rubrics } from '@/grading/rubrics';
 import { getScenario } from '@/scenarios';
+import { startSession } from '@/session/start';
 import { Button } from '@/ui/Button';
 import { MockBanner } from '@/ui/MockBanner';
 import { Screen } from '@/ui/Screen';
@@ -32,11 +33,7 @@ export default function Scorecard() {
   const { grade } = attempt;
   const score = total(grade);
 
-  const retry = () =>
-    router.replace({
-      pathname: '/session/[id]',
-      params: { id: scenario.id, difficulty: attempt.difficulty },
-    });
+  const retry = () => void startSession(scenario.id, attempt.difficulty, attempt.mode, 'replace');
 
   return (
     <Screen
@@ -46,7 +43,7 @@ export default function Scorecard() {
           <Button label="Pick another conversation" variant="secondary" onPress={() => router.dismissTo('/')} />
         </>
       }>
-      <MockBanner />
+      <MockBanner message="Mock mode: this is the recorded example grade for this replay, checked against the transcript below. Live mode grades what you actually say." />
       <View style={styles.summary} accessible accessibilityLabel={summaryLabel(score, previous && total(previous.grade))}>
         <Text style={type.caption}>
           {scenario.title} · attempt {attempt.number} · {attempt.difficulty}

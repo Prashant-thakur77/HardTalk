@@ -4,7 +4,7 @@ import YAML from 'yaml';
 import { describe, expect, it } from 'vitest';
 
 import { scenarioSchema } from '../../scenarios/schema';
-import { buildPersonaPrompt, personaConfigSchema } from '../personaPrompt';
+import { buildPersonaPrompt, isPersonaStopLine, personaConfigSchema } from '../personaPrompt';
 
 const DATA = join(__dirname, '../../../data');
 const load = (path: string) => YAML.parse(readFileSync(join(DATA, path), 'utf8')) as unknown;
@@ -26,12 +26,19 @@ describe('buildPersonaPrompt', () => {
     for (const level of ['L1', 'L2', 'L3'] as const) {
       const prompt = buildPersonaPrompt(config, scenario, level);
       expect(prompt).toMatch(/Never insult,\s+threaten,\s+use slurs/);
-      expect(prompt).toContain('"stop" or "pause"');
+      expect(prompt).toContain('just say "stop"');
+      expect(prompt).toContain(`say exactly "${config.stop_phrase}"`);
       expect(prompt).toContain(`spoken ${scenario.max_user_turns} times`);
     }
   });
 
   it('refuses to ship a prompt with an unknown placeholder', () => {
-    expect(() => buildPersonaPrompt({ template: 'Hi {{nickname}}' }, scenario, 'L1')).toThrow(/nickname/);
+    expect(() => buildPersonaPrompt({ ...config, template: 'Hi {{nickname}}' }, scenario, 'L1')).toThrow(/nickname/);
+  });
+
+  it("recognises the persona's stop line, however it is punctuated", () => {
+    expect(isPersonaStopLine(config, "Okay, let's stop here.")).toBe(true);
+    expect(isPersonaStopLine(config, 'okay lets stop here')).toBe(true);
+    expect(isPersonaStopLine(config, "Okay, let's split the PR.")).toBe(false);
   });
 });

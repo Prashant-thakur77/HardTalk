@@ -4,7 +4,9 @@ export const colors = {
   surface: '#FFFFFF',
   text: '#16161A',
   textMuted: '#55555F',
+  /** Decorative dividers only. Interactive boundaries use borderStrong (3:1, WCAG 1.4.11). */
   border: '#DAD8D0',
+  borderStrong: '#8C8A80',
   primary: '#2445C8',
   onPrimary: '#FFFFFF',
   personaBubble: '#ECEAE3',

@@ -4,14 +4,14 @@ import { config } from '@/config';
 
 import { colors, radius, space } from './theme';
 
-/** Always visible in mock mode so a replayed conversation is never mistaken for a live one. */
-export function MockBanner() {
+const DEFAULT_MESSAGE = 'Mock mode: replaying recorded conversations. No microphone, no network, no keys.';
+
+/** Always visible in mock mode so a replay is never mistaken for a live conversation or a live grade. */
+export function MockBanner({ message = DEFAULT_MESSAGE }: { message?: string }) {
   if (!config.mock) return null;
   return (
     <View style={styles.banner} accessibilityRole="text">
-      <Text style={styles.text}>
-        Mock mode: replaying recorded conversations. No microphone, no network, no keys.
-      </Text>
+      <Text style={styles.text}>{message}</Text>
     </View>
   );
 }

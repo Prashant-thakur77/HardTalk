@@ -5,4 +5,6 @@
 export const config = {
   mock: process.env.EXPO_PUBLIC_MOCK !== '0',
   serverUrl: process.env.EXPO_PUBLIC_SERVER_URL ?? 'http://localhost:8787',
+  /** RevenueCat Test Store public key. Debug builds only: the SDK crashes release builds that ship one. */
+  revenueCatKey: process.env.EXPO_PUBLIC_REVENUECAT_TEST_KEY ?? '',
 };

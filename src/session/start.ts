@@ -1,0 +1,37 @@
+import { router } from 'expo-router';
+
+import { getAttempts, type SessionMode } from '@/attempts/store';
+import { presentPaywall } from '@/purchases';
+import { isPro } from '@/purchases/entitlement';
+import { paywallContext, shouldGateNewSession } from '@/purchases/gates';
+import { getScenario } from '@/scenarios';
+import type { Difficulty } from '@/scenarios/schema';
+
+const titleOf = (id: string) => getScenario(id)?.title ?? 'this conversation';
+
+/**
+ * Every new session starts here, from "Start conversation" and from "Retry". Free users get
+ * three graded sessions; the fourth start opens the paywall about the scenario just practised.
+ */
+export async function startSession(
+  scenarioId: string,
+  difficulty: Difficulty,
+  mode: SessionMode,
+  navigation: 'push' | 'replace',
+): Promise<void> {
+  const attempts = getAttempts();
+  if (shouldGateNewSession(attempts.length, isPro())) {
+    await presentPaywall(paywallContext('session_limit', attempts, titleOf));
+    if (!isPro()) return;
+  }
+  router[navigation]({ pathname: '/session/[id]', params: { id: scenarioId, difficulty, mode } });
+}
+
+/** "Create your own scenario" is Pro. Free users see the paywall first; nothing else opens it. */
+export async function openCustomScenario(): Promise<void> {
+  if (!isPro()) {
+    await presentPaywall(paywallContext('custom_scenario', getAttempts(), titleOf));
+    if (!isPro()) return;
+  }
+  router.push('/custom/new');
+}

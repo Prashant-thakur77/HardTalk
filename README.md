@@ -4,7 +4,7 @@ Practise the conversation before you have it.
 
 HardTalk is a voice roleplay app for difficult workplace conversations. You pick a situation, say it out loud to an AI colleague who pushes back, and get a scorecard that quotes your own words back to you. Then you try again and see the score move.
 
-![HardTalk in mock mode: a first try scores 6/16, the retry scores 14/16](docs/demo.gif)
+![HardTalk in mock mode: a first try scores 7/16, the retry scores 14/16](docs/demo.gif)
 
 ## See it in 60 seconds
 
@@ -19,9 +19,11 @@ That is mock mode, and it needs no API keys, no microphone and no network. It re
 
 1. Pick one of three conversations: a teammate's PR has blocked the release for three days, your manager wants you on an extra project, or your PM added scope mid-sprint.
 2. Pick how hard the other person pushes back: L1 cooperative, L2 defensive, L3 deflecting.
-3. Talk. The persona has a goal and a hidden objection, and ends the call when your ask has been answered or after six turns. Captions run for both speakers.
+3. Talk, or type if you would rather not use audio. The persona has a goal and a hidden objection, and ends the call when your ask has been answered or after six turns. Captions run for both speakers. Saying or typing "stop" ends it at once, unscored.
 4. Read the scorecard. Clarity, Empathy, Ask made and Boundary held are each scored 1 to 4, and every score above 1 quotes something you actually said, with one line to try next time.
 5. Retry. The scorecard shows each score before and after, side by side.
+
+Three graded sessions are free. Pro (the RevenueCat `pro` entitlement) adds unlimited grading, your own scenarios and progress history. The paywall opens in exactly two places: starting a fourth graded session, and tapping "Create your own scenario". Its copy names the conversation you just practised and how your score moved on it ("Keep practising 'Your teammate's PR is blocking the release'. Your score on it so far: 6 → 14 out of 16."), passed to RevenueCat's paywall as custom variables. Restore purchases is on the home screen.
 
 ## How it works
 
@@ -37,7 +39,7 @@ flowchart LR
 
 The app never holds a provider key. `/server` mints a short-lived ElevenLabs conversation token and runs the grader. The persona and the grader are deliberately different model families (Gemini inside ElevenLabs, Claude for grading), so the grader never marks its own roleplay.
 
-Scores have to be grounded. `src/grading/evidence.ts` checks that every quote behind a score above 1 appears word for word in one of the user's turns. The grader gets one retry with the bad quotes named; anything still ungrounded is lowered to 1 and the scorecard says why. Mock mode runs its recorded grades through the same check.
+Scores have to be grounded. `src/grading/evidence.ts` checks that every quote behind a score above 1 appears in one of the user's own turns as whole words, and is either a full sentence or at least three words long. The grader gets one retry with the bad quotes named; anything still ungrounded is lowered to 1 and the scorecard says why. Mock mode runs its recorded grades through the same check, which you can watch in typed mode: rewrite the prefilled line and the evidence that depended on it disappears from the scorecard.
 
 ## Where to look
 
@@ -48,18 +50,26 @@ Scores have to be grounded. `src/grading/evidence.ts` checks that every quote be
 | `data/prompts/` | The persona prompt template and the grader instructions with weak, medium and strong calibration examples |
 | `src/grading/` | Grade schema, evidence gate, retry-then-downgrade orchestration, prompt assembly |
 | `src/voice/` | `VoiceProvider` interface, the ElevenLabs provider and the mock replay |
-| `server/` | Token minting and grading, under 200 lines |
-| `app/` | Four screens: scenarios, brief, live session, scorecard |
+| `src/purchases/` | RevenueCat entitlement, paywall with scenario-aware custom variables, restore, and the two paywall gates |
+| `src/safety/`, `data/safety.yaml` | Stop word, distress exit, crisis resources, disclaimer |
+| `server/` | Token minting, grading, safety refusal and a per-client rate limit, about 250 lines |
+| `app/` | Screens: scenarios, brief, live session, scorecard, paywall (mock mode), progress history, your own scenario |
 
 Rubrics, scenarios and prompts are YAML so they can be read and reviewed without reading code. The app and the server validate them against the same zod schemas, and `pnpm test` fails if any file drifts from its schema.
 
+## Safety and accessibility
+
+The persona pushes back professionally and never more than the level allows. A distress signal ends the roleplay, skips scoring and shows crisis lines; the server refuses to score such a transcript too. Transcripts live only on the device and can be deleted. Details and limits: [SAFETY.md](SAFETY.md).
+
+Everything can be done by typing with a screen reader on and no audio. Turn changes are announced with the persona muted while the screen reader talks, there are haptics on each turn, a pace setting for the persona's voice, and contrast is checked by tests. The WCAG 2.2 mapping, including what is not covered yet, is in [ACCESSIBILITY.md](ACCESSIBILITY.md).
+
 ## Running it for real
 
-Live mode needs a development build on a phone (Expo Go cannot load the WebRTC modules), an ElevenLabs agent, and an Anthropic API key. The full walkthrough is in [docs/DEVICE.md](docs/DEVICE.md). In short:
+Live mode needs a development build on a phone (Expo Go cannot load the WebRTC modules), an ElevenLabs agent, an Anthropic API key and a RevenueCat Test Store key. The walkthroughs are [docs/DEVICE.md](docs/DEVICE.md) and [docs/REVENUECAT.md](docs/REVENUECAT.md). In short:
 
 ```sh
 cp server/.env.example server/.env   # add ANTHROPIC_API_KEY, ELEVENLABS_API_KEY, ELEVENLABS_AGENT_ID
-pnpm server                          # grading + token minting on :8787
+pnpm start:server                    # grading + token minting on :8787
 pnpm android                         # builds and installs the dev build
 ```
 
