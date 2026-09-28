@@ -10,10 +10,27 @@ const config = safetyConfigSchema.parse(
 );
 
 describe('isStopRequest', () => {
-  it.each(['stop', 'Stop.', 'pause', 'Please stop.', 'Can we stop?', "Let's pause here.", 'I want to stop the roleplay', 'ok stop now', 'No, stop.', 'Wait, stop.'])(
-    'stops on %j',
-    (line) => expect(isStopRequest(line, config)).toBe(true),
-  );
+  it.each([
+    'stop',
+    'Stop.',
+    'pause',
+    'Please stop.',
+    'Can we stop?',
+    "Let's pause here.",
+    'I want to stop the roleplay',
+    'ok stop now',
+    'No, stop.',
+    'Wait, stop.',
+    'Stop it.',
+    'Stop it!',
+    'Please stop it.',
+    'Just stop it.',
+    'Stop this.',
+    'Stop this, please.',
+    'Can we stop it?',
+    'Can we stop this?',
+    'Stop it now.',
+  ])('stops on %j', (line) => expect(isStopRequest(line, config)).toBe(true));
 
   it.each([
     'Stop blocking the release.',
@@ -29,6 +46,7 @@ describe('isStopRequest', () => {
   ])('keeps the roleplay going on %j', (line) => expect(isStopRequest(line, config)).toBe(false));
 });
 
+// Every line below came from a review round that caught the filter getting it wrong.
 describe('detectDistress', () => {
   it.each([
     'Honestly I want to kill myself when this happens.',
@@ -39,7 +57,6 @@ describe('detectDistress', () => {
     'I’d be better off dead.',
     "I've been cutting myself again.",
     'Sometimes I think about hurting myself.',
-    // Round-4 reviewer probes: plain disclosures that must never pass.
     "I've been cutting myself for weeks and I can't stop.",
     'I keep hurting myself and nobody knows.',
     'I keep thinking about hurting myself tomorrow.',
@@ -49,6 +66,32 @@ describe('detectDistress', () => {
     'Sam hit me.',
     "I've thought about killing myself.",
     'He touched me without asking.',
+    'I want to kill myself for real this time.',
+    "I'm going to kill myself on Friday.",
+    "I'm going to kill myself at the weekend.",
+    'I want to kill myself with the pills in my drawer.',
+    "I'm planning to kill myself over the weekend.",
+    'I just hurt myself again last night.',
+    'I only hurt myself when it gets this bad.',
+    'My manager hit me last week.',
+    'He hit me when I said no.',
+    'He hit me hard across the face.',
+    'I want to hurt myself by taking all my pills.',
+    'I keep hurting myself and my arms are covered in scars.',
+    'He hit me with a stapler.',
+    'My boss keeps hitting me.',
+    "I've been thinking about ending it all.",
+    'I want to take my own life.',
+    // Builder's own probes of the idiom exceptions.
+    "I'm hurting myself.",
+    "I'm just hurting myself more and more.",
+    'He threw a stapler and it hit me.',
+    'He threw it at me and it hit me in the face.',
+    "I'm thinking of killing myself tonight.",
+    'i wanna kill myself',
+    "I've been self-harming.",
+    'My lead slapped me.',
+    'I cut myself off from everyone and I want to die.',
   ])('flags %j', (line) => expect(detectDistress(line, config)).toBe(true));
 
   it.each([
@@ -69,6 +112,12 @@ describe('detectDistress', () => {
     'It hit me last night that we never scoped it.',
     'That news hit me hard.',
     'What you said in the retro really touched me.',
+    'Can you hit me back after standup?',
+    'The layoffs hit me too.',
+    'Honestly, your message touched me.',
+    'What grabbed me about your proposal was the timeline.',
+    'I cut myself off from the planning thread.',
+    "I'm killing myself here.",
   ])('does not flag the workplace idiom %j', (line) => expect(detectDistress(line, config)).toBe(false));
 });
 

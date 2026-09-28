@@ -17,7 +17,7 @@ The persona prompt (`data/prompts/persona.yaml`) allows professional pushback on
 
 ## Distress ends the roleplay, and is never scored
 
-- A short list of strong distress signals (self-harm, suicide, panic, physical or sexual harassment) lives in `data/safety.yaml`. It is deliberately narrow: "this deadline is killing me", "hit me up on Slack" and "cut myself some slack" do not trip it. The tests list what does and does not.
+- `data/safety.yaml` lists strong distress signals (self-harm, suicide, panic, physical or sexual harassment). The patterns are unconditional. A separate list of whole workplace idioms ("cut myself some slack", "hit me back after standup", "the layoffs hit me", "I'm only hurting myself") is removed from a line before the patterns run, so an idiom can only cancel its own exact phrase: "I'm going to kill myself on Friday" is always caught. Missing a disclosure is treated as worse than pausing for an idiom. Every line a review round caught the filter getting wrong is now a test, in both directions.
 - On the device, a matching user line ends the call and opens a calm support screen (`app/support.tsx`) with crisis lines for the US, UK and Ireland, India, and a worldwide directory. Nothing from the conversation is scored or saved.
 - On the server, `/grade` refuses to score any transcript with a matching user line, and also refuses when the grader itself sets `safety_flag`. Both return `{ safety: true }`, and the app shows the support screen instead of a scorecard (`server/__tests__/app.test.ts`).
 

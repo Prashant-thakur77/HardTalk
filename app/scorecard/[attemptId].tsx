@@ -44,7 +44,13 @@ export default function Scorecard() {
           <Button label="Pick another conversation" variant="secondary" onPress={() => router.dismissTo('/')} />
         </>
       }>
-      <MockBanner message="Mock mode: this is the recorded example grade for this replay, checked against the transcript below. Live mode grades what you actually say." />
+      <MockBanner
+        message={
+          attempt.mode === 'text'
+            ? 'Mock mode: this is the recorded grade, checked against what you typed. It cannot grade new words, so any line you changed scores lower here. Live mode grades what you type.'
+            : 'Mock mode: this is the recorded example grade for this replay, checked against the transcript below. Live mode grades what you actually say.'
+        }
+      />
       <PurchaseNotice />
       <View style={styles.summary} accessible accessibilityLabel={summaryLabel(score, previous && total(previous.grade))}>
         <Text style={type.caption}>
@@ -84,12 +90,15 @@ export default function Scorecard() {
   );
 }
 
-/** Agrees with the Ask made score: the ask itself, the nearest thing to one, or none. */
+/**
+ * Agrees with the Ask made score: the ask itself, or the nearest thing to one. With no quote it
+ * says only what is known; a missing quote can mean no ask, or one the evidence check threw out.
+ */
 function askLine(grade: Grade): string {
   if (grade.ask_made && grade.ask_text) return `Your ask: “${grade.ask_text}”`;
   const closest = grade.dimensions.ask_made.evidence_quotes[0];
   if (closest) return `Closest you came to an ask: “${closest}”`;
-  return 'You didn’t make a request in this conversation.';
+  return 'No request the grader could quote from what you said.';
 }
 
 function summaryLabel(score: number, previousScore: number | undefined): string {

@@ -193,9 +193,10 @@ export default function Session() {
               <View style={styles.composer}>
                 {config.mock ? (
                   <Text style={type.caption}>
-                    Prefilled with the recorded line. The persona’s replies are recorded too, so it won’t react to
-                    changes, but the scorecard only keeps evidence you actually typed. Type “stop” to end without a
-                    score.
+                    Prefilled with the recorded line. Mock mode replays recorded replies and a recorded grade, so the
+                    persona won’t react to changes and any line you change scores lower here: the grade keeps only
+                    evidence you actually typed. Live mode answers and grades your own words. Type “stop” to end
+                    without a score.
                   </Text>
                 ) : null}
                 <TextInput

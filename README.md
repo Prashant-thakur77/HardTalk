@@ -39,7 +39,7 @@ flowchart LR
 
 The app never holds a provider key. `/server` mints a short-lived ElevenLabs conversation token and runs the grader. The persona and the grader are deliberately different model families (Gemini inside ElevenLabs, Claude for grading), so the grader never marks its own roleplay.
 
-Scores have to be grounded. `src/grading/evidence.ts` checks that every quote behind a score above 1 appears in one of the user's own turns as whole words, and is either a full sentence or at least three words long. The grader gets one retry with the bad quotes named; anything still ungrounded is lowered to 1 and the scorecard says why. Mock mode runs its recorded grades through the same check, which you can watch in typed mode: rewrite the prefilled line and the evidence that depended on it disappears from the scorecard.
+Scores have to be grounded. `src/grading/evidence.ts` checks that every quote behind a score above 1 appears in one of the user's own turns as whole words, and is either a full sentence or at least three words long. The grader gets one retry with the bad quotes named; anything still ungrounded is lowered to 1 and the scorecard says why. Mock mode runs its recorded grades through the same check. You can watch it in typed mode: rewrite a prefilled line and any score that depended on it drops to 1, because a recorded grade has no evidence for words it never saw. Only live mode can grade a better line.
 
 ## Where to look
 

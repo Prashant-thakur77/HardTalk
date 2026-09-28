@@ -79,12 +79,13 @@ async function gradeOrThrow(item: GoldItem, client: Anthropic): Promise<RunResul
 }
 
 const RESULTS_DIR = join(dirname(fileURLToPath(import.meta.url)), 'results');
+// One file per invocation, timestamped, so a later run can never overwrite an earlier paid one.
 const resultsFile = join(
   RESULTS_DIR,
-  `${baseline ? 'baseline' : model}-${new Date().toISOString().slice(0, 10)}.json`,
+  `${baseline ? 'baseline' : model}-${new Date().toISOString().replace(/[:.]/g, '-')}.json`,
 );
 
-/** Written after every run, so a paid run is never lost to a later failure. */
+/** Rewritten after every run of this invocation, so a paid run survives a later failure. */
 function save(label: string, gold: GoldItem[], runs: Outcome[][]) {
   mkdirSync(RESULTS_DIR, { recursive: true });
   writeFileSync(
