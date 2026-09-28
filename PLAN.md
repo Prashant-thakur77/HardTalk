@@ -3,25 +3,25 @@
 Live plan for HardTalk. Rewritten from SCORECARD.md at the end of every round, not from the
 previous plan. Every item names the criterion it moves (CLAUDE.md §3).
 
-**Round 4 score: 13/20** (C1 2 · C2 4 · C3 3 · C4 4), up from 12. Biggest loss: C1 — nothing has
-run on a phone or against a provider (D-001..D-004). New P1s are two safety regressions from the
-round-4 fixes (D-041, D-042): fix before anything else.
+**Round 5 score: 12/20** (C1 2 · C2 4 · C3 3 · C4 3), down from 13. The round-5 safety rewrite let
+explicit disclosures through ("I'm going to kill myself on Friday.") because each carve-out looked
+only at the next word (D-050), and broke "Stop it." (D-051). C4 lost its point for it.
 
 **Hard ceiling, stated honestly:** C1 and C3 are capped here at "code complete, tested, bundled";
-the four P0s close only with one recorded session on a phone with keys. The loop is converging
-(+3, +3, +1): once the total moves less than a point across two rounds, stop and hand over.
+the four P0s close only with one recorded session on a phone with keys. Totals: 6, 9, 12, 13, 12.
+The loop has converged on what this machine can verify.
 
-## Now (round 5)
+## Now (round 6)
 
-1. **Safety regressions** [C4] — D-041 (distress list: catch every disclosure the reviewer
-   listed, by excluding known idioms instead of allow-listing endings), D-042 (the persona's stop
-   line matched anywhere in its reply), D-043 ("Can we pause it?" is roleplay). Each probe line
-   becomes a test. Expected: C4 holds 4 without a caveat. Effort: low.
-2. **Paywall copy and eval robustness** [C3] [C2] — D-044 (score move compared at one difficulty),
-   D-045 (first-try copy at the limit; stale comments), D-048 (`pnpm eval` keeps partial results
-   and survives one failed grading; root declares its SDK). Effort: low.
-3. **README truth** [C2] [C1] — D-046 (re-record the GIF), D-047 (the short live path creates
-   `.env.local`), D-049 (mock typed mode says the persona's replies are recorded). Effort: low.
+1. **Distress detection that cannot regress by construction** [C4] — D-050, D-052. Patterns are
+   unconditional; idioms are whole phrases removed before matching, so an idiom can only cancel
+   its own words. Every probe line from rounds 3 to 5, plus the builder's own, is a test in both
+   directions. Expected: C4 back to 4. Effort: low.
+2. **"Stop it." stops again** [C4] — D-051: "it"/"this" count only straight after "stop", so
+   "Can we pause it?" and "I need this to stop." stay roleplay. Effort: low.
+3. **No false sentences** [C1] [C2] — D-053 (timestamped eval files; excluded gradings named in
+   EVALS.md), D-054 (the ask line never claims "no request" when the grader just had no quote;
+   mock typed mode says plainly that changed lines score lower there). Effort: low.
 
 ## Next
 
