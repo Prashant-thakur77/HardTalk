@@ -5,7 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { announce, turnHaptic } from '@/a11y/announce';
 import { getPreferences } from '@/a11y/preferences';
-import { addAttempt, nextAttemptNumber, type SessionMode } from '@/attempts/store';
+import { addAttempt, nextAttemptNumber, removeAttempt, type SessionMode } from '@/attempts/store';
 import { config } from '@/config';
 import { gradeConversation } from '@/grading';
 import type { Turn } from '@/grading/transcript';
@@ -51,6 +51,8 @@ export default function Session() {
   const scroll = useRef<ScrollView>(null);
   // Set when the server's distress check flags a line, possibly after the session has ended.
   const flagged = useRef(false);
+  const savedId = useRef<string | null>(null);
+  const [safetyOffline, setSafetyOffline] = useState(false);
   const personaName = scenario?.persona.name ?? 'The persona';
 
   const score = () => {
@@ -66,6 +68,7 @@ export default function Session() {
       .then(async (grade) => {
         if (flagged.current) throw new NotScoredForSafety();
         const id = `${scenario.id}-${attempt}-${Date.now()}`;
+        savedId.current = id;
         await addAttempt({
           id,
           scenarioId: scenario.id,
@@ -110,10 +113,13 @@ export default function Session() {
         stopNow();
       } else {
         // Live mode: the server double-checks every line with a model, in the background.
-        void checkDistressRemotely(text).then((distress) => {
+        void checkDistressRemotely(text).then(({ distress, checked }) => {
+          if (!checked && !config.mock) setSafetyOffline(true);
           if (!distress || flagged.current) return;
           flagged.current = true;
           stopNow();
+          // A flag that lands after scoring removes the saved attempt too.
+          if (savedId.current) void removeAttempt(savedId.current);
           router.replace('/support');
         });
       }
@@ -151,6 +157,11 @@ export default function Session() {
           {grading ? 'Scoring your conversation…' : statusLabel(state, scenario.persona.name, textOnly)}
         </Text>
         <MockBanner />
+        {safetyOffline ? (
+          <Text style={type.caption} accessibilityLiveRegion="polite">
+            The extra safety check on the server is offline. The on-device checks are still on.
+          </Text>
+        ) : null}
       </View>
 
       <ScrollView

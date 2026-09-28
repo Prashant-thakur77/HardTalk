@@ -6,7 +6,6 @@ export const safetyConfigSchema = z.strictObject({
   stop_words: z.array(z.string().min(1)).min(1),
   distress_explicit: z.array(z.string().min(1)).min(1),
   distress_ambiguous: z.array(z.string().min(1)),
-  idiom_start: z.string(),
   idioms: z.array(z.string().includes(' ')),
   resources: z.array(z.strictObject({ name: z.string(), detail: z.string(), url: z.url().optional() })).min(1),
 });
@@ -23,6 +22,9 @@ export function normalise(text: string): string {
     .replace(/\bgonna\b/g, 'going to')
     .replace(/\bcannot\b/g, "can't")
     .replace(/\bdo not\b/g, "don't")
+    .replace(/\b(don|can|won|isn|wasn)t\b/g, "$1't")
+    .replace(/\bim\b/g, "i'm")
+    .replace(/\bive\b/g, "i've")
     .replace(/\bi am\b/g, "i'm")
     .replace(/\bi have\b/g, "i've")
     .replace(/\bi would\b/g, "i'd")
@@ -37,27 +39,26 @@ function sentences(text: string): string[] {
 }
 
 const FILLER = new Set([
-  'please', 'pls', 'plz', 'now', 'here', 'ok', 'okay', 'no', 'just', 'wait', 'sorry', 'actually',
-  'hey', 'can', 'could', 'we', 'lets', 'i', 'want', 'need', 'to', 'the', 'id', 'like', 'for', 'a',
-  'bit', 'moment', 'second', 'minute', 'there', 'thanks', 'thank', 'you', 'roleplay', 'role', 'play',
+  'please', 'pls', 'plz', 'now', 'here', 'there', 'ok', 'okay', 'no', 'just', 'wait', 'sorry',
+  'actually', 'hey', 'can', 'could', 'we', 'lets', 'i', 'want', 'need', 'to', 'the', 'id', 'like',
+  'for', 'a', 'bit', 'moment', 'second', 'minute', 'thanks', 'roleplay', 'role', 'play',
   'practice', 'conversation', 'session',
 ]);
 
 /**
  * "it", "this" and "that" count only straight after "stop": "Stop it." ends the practice, while
- * "Can we pause it?" and "I need this to stop." are lines about the scenario.
+ * "Can we pause it?" and "I need this to stop." are lines about the scenario. "you" is never
+ * filler: "Can I stop you there?" interrupts the persona, it does not end the practice.
  */
 const OBJECTS_AFTER_STOP = new Set(['it', 'this', 'that']);
 
-function isStopSentence(sentence: string, stops: Set<string>, names: Set<string>): boolean {
-  let tokens = sentence
-    .replace(/\bi mean it\b/g, '')
+function isStopClause(clause: string, stops: Set<string>, names: Set<string>): boolean {
+  const tokens = clause
+    .replace(/\bthank you\b|\bi mean it\b/g, ' ')
     .replace(/[^a-z' ]+/g, ' ')
     .split(' ')
     .map((word) => word.replace(/'/g, ''))
-    .filter(Boolean);
-  // Addressing the persona by name: "Sam, stop." / "Stop it, Sam." / "Alex stop".
-  tokens = tokens.filter((word, i) => !(names.has(word) && (i === 0 || i === tokens.length - 1)));
+    .filter((word) => word && !names.has(word));
   if (tokens.length === 0 || tokens.length > 12) return false;
   return (
     tokens.some((word) => stops.has(word)) &&
@@ -68,19 +69,19 @@ function isStopSentence(sentence: string, stops: Set<string>, names: Set<string>
   );
 }
 
-/** True when any sentence is only a request to stop ("Stop.", "Sam, can we pause here please?"). */
+/**
+ * True when any sentence or comma-separated clause is only a request to stop: "Stop.",
+ * "No, no, no, stop.", "Hold on, stop.", "Stop, Sam, please.", "Stop, I can't do this."
+ */
 export function isStopRequest(
   text: string,
   config: Pick<SafetyConfig, 'stop_words'>,
   personaNames: string[] = [],
 ): boolean {
   const stops = new Set(config.stop_words);
-  const names = new Set(personaNames.map((name) => name.toLowerCase()));
-  // Split before normalising commas away, so "Sam, stop." keeps its vocative.
+  const names = new Set(personaNames.flatMap((name) => name.toLowerCase().split(/\s+/)));
   return sentences(text).some((sentence) =>
-    sentence.split(/,\s*/).length <= 3
-      ? isStopSentence(sentence.replace(/,/g, ' '), stops, names)
-      : false,
+    sentence.split(/\s*,\s*/).some((clause) => isStopClause(clause, stops, names)),
   );
 }
 
@@ -92,16 +93,16 @@ function spans(pattern: RegExp, text: string): [number, number][] {
 }
 
 /**
- * Tier 1 patterns are always distress. A tier 2 occurrence is distress unless an idiom match
- * covers it exactly where it occurs, so an idiom never cancels anything outside its own words.
+ * Tier 1 patterns are always distress. A tier 2 occurrence is distress unless one of the closed
+ * idioms covers it exactly where it occurs, so an idiom never cancels anything outside its words.
  */
 export function detectDistress(
   text: string,
-  config: Pick<SafetyConfig, 'distress_explicit' | 'distress_ambiguous' | 'idiom_start' | 'idioms'>,
+  config: Pick<SafetyConfig, 'distress_explicit' | 'distress_ambiguous' | 'idioms'>,
 ): boolean {
   const explicit = config.distress_explicit.map((pattern) => new RegExp(pattern));
   const ambiguous = config.distress_ambiguous.map((pattern) => new RegExp(pattern));
-  const idioms = config.idioms.map((idiom) => new RegExp(idiom.replace('{{start}}', config.idiom_start)));
+  const idioms = config.idioms.map((idiom) => new RegExp(idiom));
 
   return sentences(text).some((sentence) => {
     if (explicit.some((pattern) => pattern.test(sentence))) return true;

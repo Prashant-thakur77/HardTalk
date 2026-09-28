@@ -179,6 +179,19 @@ describe('POST /safety/check', () => {
     expect(checkDistress).toHaveBeenCalledWith('I just want everything to go quiet for good.');
   });
 
+  it('says the model check failed instead of passing a failure off as "no distress"', async () => {
+    vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    const checkDistress = vi.fn(async () => {
+      throw new Error('401 invalid key');
+    });
+    const { status, json } = await post(createApp({ checkDistress }), { text: 'That man touched me today.' }, '/safety/check');
+    expect(status).toBe(200);
+    expect(json).toEqual({ distress: true, source: 'rules' });
+
+    const quiet = await post(createApp({ checkDistress }), { text: 'Can we split the PR?' }, '/safety/check');
+    expect(quiet.json).toEqual({ distress: false, source: 'rules', modelError: true });
+  });
+
   it('falls back to the rules alone when no model is configured', async () => {
     const { json } = await post(createApp({}), { text: 'Can we split the PR?' }, '/safety/check');
     expect(json).toEqual({ distress: false, source: 'rules' });

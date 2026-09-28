@@ -42,11 +42,25 @@ describe('isStopRequest', () => {
     'Stop. I can’t do this, I feel sick.',
     "OK, let's stop there.",
     'Could we stop for a moment?',
+    // Round 7 probes (D-063).
+    'No, no, no, stop.',
+    'Stop, stop, stop, stop.',
+    'Hold on, stop.',
+    'Hang on, can we stop?',
+    'Enough, stop.',
+    'OK stop, this is too much.',
+    'Stop, Sam, please.',
+    'Please, Sam, stop.',
+    'Stop, Jordan, please.',
+    "Stop, I can't do this.",
+    "Stop, I can't do this, I feel sick.",
+    'Stop, thank you.',
   ])('stops on %j', (line) => expect(isStopRequest(line, config, ['Sam', 'Jordan', 'Alex'])).toBe(true));
 
-  it('treats the persona’s name alone before "stop" as addressing them', () => {
+  it('treats the persona’s name, including a two-word custom name, as addressing them', () => {
     expect(isStopRequest('Alex stop', config, ['Alex'])).toBe(true);
     expect(isStopRequest('Alex stop', config)).toBe(false);
+    expect(isStopRequest('Dana Smith, stop.', config, ['Dana Smith'])).toBe(true);
   });
 
   it.each([
@@ -64,6 +78,12 @@ describe('isStopRequest', () => {
     'Sam, stop adding scope.',
     'Can we stop the export?',
     "Let's pause and think about the plan.",
+    // Round 7 probes (D-064): interrupting the persona is roleplay, not a stop.
+    'Can I stop you there?',
+    'Sorry, can I stop you there? The release is Friday.',
+    'Can I just stop you for a second?',
+    "I'd like to stop you there.",
+    'Wait, can I stop you there, Sam?',
   ])('keeps the roleplay going on %j', (line) => expect(isStopRequest(line, config, ['Sam'])).toBe(false));
 });
 
@@ -185,7 +205,6 @@ describe('detectDistress', () => {
     'Go on, hit me with your feedback.',
     'Just hit me with it.',
     'The deadline change hit me like a truck.',
-    'Your comment in standup hit me hard.',
     'It touched me that you noticed.',
     'Saying yes would hurt myself and the team.',
     'That comment really hurt me.',
@@ -195,7 +214,37 @@ describe('detectDistress', () => {
     'Honestly, that really hit me hard.',
     'Sales pushed me into taking the call.',
     "I'm cutting myself some slack today.",
+    // Round 7 probes (D-062).
+    "I don't want to shoot myself in the foot by saying yes.",
+    "I'm trying to cut myself some slack this sprint.",
+    "I'm going to cut myself some slack.",
+    'I want to cut myself a break.',
+    'I still have my sexual harassment training due this week.',
+    'Alex is going to have a panic attack when he sees the burndown.',
+    "What's the point of going on with the review if nothing merges?",
+    "Honestly, I'd be killing myself to hit that date.",
+    'Dana hit me with a new requirement.',
+    'You beat me to it.',
+    'Sam beat me to it, he already merged the fix.',
+    'The VPN kicked me off the call.',
+    'Zoom kicked me out of the meeting twice.',
+    'QA is having a panic attack about Friday.',
+    'Taking this on on top of billing is a suicide mission.',
+    'They shoved me onto the on-call rota.',
+    'Can you hit me back?',
+    'It hit me that we forgot QA.',
+    'Sales pushed me to agree to Thursday.',
+    'I got hit by a wall of emails this morning.',
   ])('does not flag the workplace idiom %j', (line) => expect(detectDistress(line, config)).toBe(false));
+});
+
+// Lines that pause the practice even though they are workplace idioms. Each one shares its exact
+// wording with a real disclosure ("… and it hit me hard"), so the filter accepts the pause.
+describe('accepted false positives', () => {
+  it.each(['Your comment in standup hit me hard.', 'That touched me.', 'It hit me hard.'])(
+    'pauses on %j',
+    (line) => expect(detectDistress(line, config)).toBe(true),
+  );
 });
 
 describe('data/safety.yaml', () => {

@@ -95,7 +95,14 @@ export function createApp(services: Services) {
     if (!body.success) return c.json({ error: 'Expected { text }.' }, 400);
     if (detectDistress(body.data.text, safetyConfig)) return c.json({ distress: true, source: 'rules' });
     if (!services.checkDistress) return c.json({ distress: false, source: 'rules' });
-    return c.json({ distress: await services.checkDistress(body.data.text), source: 'model' });
+    try {
+      return c.json({ distress: await services.checkDistress(body.data.text), source: 'model' });
+    } catch (error) {
+      // Say so, rather than let a failure read as "no distress": the app shows that the extra
+      // check is offline while the on-device rules keep running.
+      console.error(error);
+      return c.json({ distress: false, source: 'rules', modelError: true });
+    }
   });
 
   app.post('/voice/token', async (c) => {
