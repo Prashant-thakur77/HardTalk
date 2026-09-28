@@ -3,31 +3,25 @@
 Live plan for HardTalk. Rewritten from SCORECARD.md at the end of every round, not from the
 previous plan. Every item names the criterion it moves (CLAUDE.md §3).
 
-**Round 3 score: 12/20** (C1 2 · C2 4 · C3 2 · C4 4), up from 9. Biggest loss: C3 — the
-purchase has never run on a device (D-001), and the paywall that shot would film has the wrong
-copy (D-033) behind a free tier that resets in two taps (D-032).
+**Round 4 score: 13/20** (C1 2 · C2 4 · C3 3 · C4 4), up from 12. Biggest loss: C1 — nothing has
+run on a phone or against a provider (D-001..D-004). New P1s are two safety regressions from the
+round-4 fixes (D-041, D-042): fix before anything else.
 
-**Hard ceiling, stated honestly:** no Android SDK, device or provider keys here. The three P0s
-still open (D-001 purchase, D-002/D-003 live voice and grading, D-004 real retry delta) close
-only with one recorded session on a phone. C1 and C3 cannot pass 3 from this machine; the loop
-will converge below the exit condition on those two, and the final packet will say so.
+**Hard ceiling, stated honestly:** C1 and C3 are capped here at "code complete, tested, bundled";
+the four P0s close only with one recorded session on a phone with keys. The loop is converging
+(+3, +3, +1): once the total moves less than a point across two rounds, stop and hand over.
 
-## Now (round 4)
+## Now (round 5)
 
-1. **Paywall correctness** [C3] — D-032, D-033, D-034, D-035. Free sessions counted by a
-   counter that deleting history does not reset; one remote paywall whose headline and body are
-   custom variables filled from `data/paywall.yaml`, so each entry point gets its own copy and
-   the mock paywall is the same text; copy names the scenario being started; purchase and
-   restore failures shown; mock Pro survives reload and Restore finds it.
-   Expected: C3 2 → 3. Effort: low.
-2. **Stops that always stop, and a distress filter that does not cry wolf** [C4] [C1] —
-   D-036, D-037, D-038. Distinctive persona stop line matched exactly, and the app hangs up
-   itself when it hears it; tighter distress patterns with the reviewer's false positives as
-   tests; "No, stop." stops; the stopped screen links to support; README data claims corrected.
-   Expected: C4 holds 4 with fewer ways to lose it; C1 +0.5. Effort: low.
-3. **Scorecard and brief that do not contradict themselves** [C4] [C1] — D-039 (level cards show
-   a user-facing summary; the persona-only behaviour stays in the prompt), D-040 (the ask line
-   agrees with the Ask made score). Effort: low.
+1. **Safety regressions** [C4] — D-041 (distress list: catch every disclosure the reviewer
+   listed, by excluding known idioms instead of allow-listing endings), D-042 (the persona's stop
+   line matched anywhere in its reply), D-043 ("Can we pause it?" is roleplay). Each probe line
+   becomes a test. Expected: C4 holds 4 without a caveat. Effort: low.
+2. **Paywall copy and eval robustness** [C3] [C2] — D-044 (score move compared at one difficulty),
+   D-045 (first-try copy at the limit; stale comments), D-048 (`pnpm eval` keeps partial results
+   and survives one failed grading; root declares its SDK). Effort: low.
+3. **README truth** [C2] [C1] — D-046 (re-record the GIF), D-047 (the short live path creates
+   `.env.local`), D-049 (mock typed mode says the persona's replies are recorded). Effort: low.
 
 ## Next
 
