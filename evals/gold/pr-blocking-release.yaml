@@ -1,0 +1,105 @@
+# Gold labels for the grader: 10 conversations for this scenario, each scored 1-4 on every
+# rubric dimension by the author against the anchors in data/rubrics/. See EVALS.md.
+scenario_id: pr-blocking-release
+transcripts:
+  - id: pr-01-hedged-fold
+    difficulty: L1
+    labels: { clarity: 1, empathy: 1, ask_made: 1, boundary_held: 1 }
+    turns:
+      - { speaker: persona, text: "Hey, what's up? I've only got a few minutes before standup." }
+      - { speaker: user, text: "Oh, nothing major. Just the release thing, you know how it is." }
+      - { speaker: persona, text: "Not really. What about it?" }
+      - { speaker: user, text: "I guess things are kind of slow. Anyway, no worries, I'll let you go." }
+
+  - id: pr-02-clear-no-ask
+    difficulty: L2
+    labels: { clarity: 3, empathy: 2, ask_made: 1, boundary_held: 1 }
+    turns:
+      - { speaker: persona, text: "Hey, what's up? I've only got a few minutes before standup." }
+      - { speaker: user, text: "Your auth refactor PR has been open three days and QA is waiting on it." }
+      - { speaker: persona, text: "It's a big change. I want it done properly." }
+      - { speaker: user, text: "Yeah, that's fair. Okay, I just wanted you to know." }
+
+  - id: pr-03-forceful
+    difficulty: L2
+    labels: { clarity: 4, empathy: 1, ask_made: 3, boundary_held: 3 }
+    turns:
+      - { speaker: persona, text: "Hey, what's up? I've only got a few minutes before standup." }
+      - { speaker: user, text: "Your PR has blocked the release for three days. Merge it today." }
+      - { speaker: persona, text: "It's a big change. I'm not rushing it." }
+      - { speaker: user, text: "That's not my problem. It needs to be merged today, full stop." }
+      - { speaker: persona, text: "Then you'll have to take it up with the lead." }
+
+  - id: pr-04-soft-ask
+    difficulty: L2
+    labels: { clarity: 4, empathy: 3, ask_made: 2, boundary_held: 2 }
+    turns:
+      - { speaker: persona, text: "Hey, what's up? I've only got a few minutes before standup." }
+      - { speaker: user, text: "Hey Sam, the auth refactor PR has been in review for three days and it's holding up the release." }
+      - { speaker: persona, text: "It's a big change. Security left comments I'm still working through." }
+      - { speaker: user, text: "Got it, security comments take time. Could you prioritise getting it merged?" }
+      - { speaker: persona, text: "I'll try." }
+
+  - id: pr-05-strong-split
+    difficulty: L2
+    labels: { clarity: 4, empathy: 4, ask_made: 4, boundary_held: 4 }
+    turns:
+      - { speaker: persona, text: "Hey, what's up? I've only got a few minutes before standup." }
+      - { speaker: user, text: "Quick one. The auth refactor has been in review three days, and QA can't start the release until it's in." }
+      - { speaker: persona, text: "It's a big change. I'm not rushing it." }
+      - { speaker: user, text: "I don't want it rushed either. What's actually left?" }
+      - { speaker: persona, text: "Two security comments on the token migration. Honestly, I'm not sure how to fix them yet." }
+      - { speaker: user, text: "Thanks for telling me. Could we split the migration out, merge the rest by 2pm, and I'll ask Priya to pair with you on the security part?" }
+      - { speaker: persona, text: "Yeah, that works. 2pm." }
+      - { speaker: user, text: "Great, 2pm for the main part. I'll message Priya now." }
+
+  - id: pr-06-padded
+    difficulty: L1
+    labels: { clarity: 3, empathy: 2, ask_made: 2, boundary_held: 2 }
+    turns:
+      - { speaker: persona, text: "Hey, what's up? I've only got a few minutes before standup." }
+      - { speaker: user, text: "So, first of all, thanks for making time, I know standup's soon and you're super busy, and I really appreciate all the work you've put into the auth refactor, it's clearly a huge piece of work, but the thing is, and I hate to bring this up, it's been in review for about three days now and QA is kind of blocked on it, which means the release might slip, which isn't anyone's fault really." }
+      - { speaker: persona, text: "So what are you asking?" }
+      - { speaker: user, text: "I suppose I'm asking if there's any way it could merge a bit sooner, if that's possible." }
+      - { speaker: persona, text: "I'll see." }
+
+  - id: pr-07-empathy-no-ask
+    difficulty: L2
+    labels: { clarity: 4, empathy: 4, ask_made: 1, boundary_held: 2 }
+    turns:
+      - { speaker: persona, text: "Hey, what's up? I've only got a few minutes before standup." }
+      - { speaker: user, text: "The auth PR has been open three days and QA is blocked, so Friday is at risk." }
+      - { speaker: persona, text: "I know, I know. Everyone keeps pinging me about it." }
+      - { speaker: user, text: "That sounds exhausting, getting pinged from every side. Is it the security comments holding it up?" }
+      - { speaker: persona, text: "Yeah. I don't know how to fix the token migration bit." }
+      - { speaker: user, text: "Okay. Well, hopefully you figure it out soon." }
+
+  - id: pr-08-l3-holds
+    difficulty: L3
+    labels: { clarity: 4, empathy: 2, ask_made: 4, boundary_held: 4 }
+    turns:
+      - { speaker: persona, text: "Hey, what's up? I've only got a few minutes before standup." }
+      - { speaker: user, text: "Your PR has held up the release for three days. I need it merged or split today." }
+      - { speaker: persona, text: "Didn't your own PR sit for a week last month?" }
+      - { speaker: user, text: "It did, and I'm not proud of it. This one is blocking Friday though. Can you split the migration out and merge the rest by 4pm?" }
+      - { speaker: persona, text: "Is this even your call? You're not the tech lead." }
+      - { speaker: user, text: "It's not about whose call it is. QA is blocked. Can we agree 4pm, or should we take it to Dana together?" }
+      - { speaker: persona, text: "Fine. 4pm." }
+
+  - id: pr-09-concedes-date
+    difficulty: L2
+    labels: { clarity: 4, empathy: 1, ask_made: 1, boundary_held: 1 }
+    turns:
+      - { speaker: persona, text: "Hey, what's up? I've only got a few minutes before standup." }
+      - { speaker: user, text: "Sam, your PR has been in review for three days and it's blocking QA." }
+      - { speaker: persona, text: "It's a big change. I need until next week." }
+      - { speaker: user, text: "Next week? Okay, I guess if you need until next week that's fine." }
+
+  - id: pr-10-unconfirmed
+    difficulty: L1
+    labels: { clarity: 4, empathy: 1, ask_made: 3, boundary_held: 2 }
+    turns:
+      - { speaker: persona, text: "Hey, what's up? I've only got a few minutes before standup." }
+      - { speaker: user, text: "Your auth refactor has blocked the release for three days. Could you merge the part without the migration by end of day?" }
+      - { speaker: persona, text: "Maybe. I'll see how the afternoon goes." }
+      - { speaker: user, text: "Thanks." }

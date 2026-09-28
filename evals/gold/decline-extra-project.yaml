@@ -1,0 +1,105 @@
+# Gold labels for the grader: 10 conversations for this scenario, each scored 1-4 on every
+# rubric dimension by the author against the anchors in data/rubrics/. See EVALS.md.
+scenario_id: decline-extra-project
+transcripts:
+  - id: dx-01-says-yes
+    difficulty: L1
+    labels: { clarity: 1, empathy: 1, ask_made: 1, boundary_held: 1 }
+    turns:
+      - { speaker: persona, text: "Thanks for grabbing time. I've got something I think you'd be great for." }
+      - { speaker: user, text: "Sure, anything you need." }
+      - { speaker: persona, text: "The analytics migration. It needs an owner." }
+      - { speaker: user, text: "Oh wow. Okay, yeah, I can take that on." }
+
+  - id: dx-02-hedge-then-fold
+    difficulty: L2
+    labels: { clarity: 2, empathy: 1, ask_made: 1, boundary_held: 1 }
+    turns:
+      - { speaker: persona, text: "Thanks for grabbing time. I've got something I think you'd be great for." }
+      - { speaker: user, text: "Hmm, I'm not sure. I've got a lot going on with billing, and I'm not sure I'd be the best person, maybe?" }
+      - { speaker: persona, text: "You'd be great. It's only a few hours a week." }
+      - { speaker: user, text: "Well, if it's only a few hours, maybe I can make it work." }
+
+  - id: dx-03-curt-no
+    difficulty: L2
+    labels: { clarity: 3, empathy: 1, ask_made: 1, boundary_held: 4 }
+    turns:
+      - { speaker: persona, text: "Thanks for grabbing time. I've got something I think you'd be great for." }
+      - { speaker: user, text: "No. I'm on billing, I can't take the migration." }
+      - { speaker: persona, text: "It's only a few hours a week." }
+      - { speaker: user, text: "It's more than that, and billing needs me. No." }
+      - { speaker: persona, text: "Okay, I'll find someone else." }
+
+  - id: dx-04-vague-alternative
+    difficulty: L2
+    labels: { clarity: 4, empathy: 2, ask_made: 3, boundary_held: 3 }
+    turns:
+      - { speaker: persona, text: "Thanks for grabbing time. I've got something I think you'd be great for." }
+      - { speaker: user, text: "I appreciate you thinking of me. Right now billing has me at full capacity, and taking this on would put the launch at risk." }
+      - { speaker: persona, text: "It's only a few hours a week, really." }
+      - { speaker: user, text: "I think it's more like a day a week. Could we find someone else to own it?" }
+      - { speaker: persona, text: "Who, though? Everyone's busy." }
+      - { speaker: user, text: "I'm not sure. Maybe someone on the data team." }
+
+  - id: dx-05-strong-handoff
+    difficulty: L3
+    labels: { clarity: 4, empathy: 3, ask_made: 4, boundary_held: 4 }
+    turns:
+      - { speaker: persona, text: "Thanks for grabbing time. I've got something I think you'd be great for." }
+      - { speaker: user, text: "I'm glad you thought of me for it. I have to say no for this quarter though: billing ships on the fifteenth and it has all of me." }
+      - { speaker: persona, text: "Your director would notice if you led this. It's good for your career." }
+      - { speaker: user, text: "I know, and I do want that kind of project. If it can wait until after the fifteenth I'd like to be considered. For now, would Priya be a good owner, with me reviewing her plan?" }
+      - { speaker: persona, text: "Hm. Priya could do it. Okay, let's try that." }
+      - { speaker: user, text: "Great. I'll set up thirty minutes with her tomorrow." }
+
+  - id: dx-06-defensive-cave
+    difficulty: L3
+    labels: { clarity: 1, empathy: 1, ask_made: 1, boundary_held: 1 }
+    turns:
+      - { speaker: persona, text: "Thanks for grabbing time. I've got something I think you'd be great for." }
+      - { speaker: user, text: "What is it?" }
+      - { speaker: persona, text: "The analytics migration. I need someone who's committed to this team." }
+      - { speaker: user, text: "Are you saying I'm not committed? I work late every week." }
+      - { speaker: persona, text: "I'm saying I need an owner." }
+      - { speaker: user, text: "Fine, whatever, I'll do it." }
+
+  - id: dx-07-empathy-holds-no-ask
+    difficulty: L2
+    labels: { clarity: 3, empathy: 4, ask_made: 1, boundary_held: 4 }
+    turns:
+      - { speaker: persona, text: "Thanks for grabbing time. I've got something I think you'd be great for." }
+      - { speaker: user, text: "Sounds like you're under pressure to find an owner fast. Is that right?" }
+      - { speaker: persona, text: "Honestly, yes. My director asked for it this morning." }
+      - { speaker: user, text: "That makes sense. I can't take it on while I'm leading billing, though." }
+      - { speaker: persona, text: "Can't you do both? It's a few hours." }
+      - { speaker: user, text: "Not without billing slipping, so it's still a no from me." }
+
+  - id: dx-08-asks-then-folds
+    difficulty: L2
+    labels: { clarity: 3, empathy: 1, ask_made: 3, boundary_held: 1 }
+    turns:
+      - { speaker: persona, text: "Thanks for grabbing time. I've got something I think you'd be great for." }
+      - { speaker: user, text: "If I take the migration, billing slips. Which one matters more to you?" }
+      - { speaker: persona, text: "Both matter. I need you on both." }
+      - { speaker: user, text: "Okay. I'll try to do both then." }
+
+  - id: dx-09-padded-decline
+    difficulty: L1
+    labels: { clarity: 2, empathy: 2, ask_made: 1, boundary_held: 1 }
+    turns:
+      - { speaker: persona, text: "Thanks for grabbing time. I've got something I think you'd be great for." }
+      - { speaker: user, text: "So, first, thank you so much, it really means a lot that you'd think of me for something like this, and I know the migration is important to you and the team, and I'd love to help in any way I can, but I also have the billing launch, which as you know is pretty big, and I'm a bit worried that if I take on too much, something might slip, though of course I'd do my best either way." }
+      - { speaker: persona, text: "So is that a yes?" }
+      - { speaker: user, text: "It's more of a... I'd rather not, if that's okay?" }
+      - { speaker: persona, text: "I really need someone." }
+      - { speaker: user, text: "Okay. I understand. I'll do it." }
+
+  - id: dx-10-clear-handoff-cold
+    difficulty: L2
+    labels: { clarity: 4, empathy: 1, ask_made: 4, boundary_held: 4 }
+    turns:
+      - { speaker: persona, text: "Thanks for grabbing time. I've got something I think you'd be great for." }
+      - { speaker: user, text: "I can't lead the migration this quarter because billing ships on the fifteenth. Priya asked for more ownership; can she lead it, with me reviewing her design?" }
+      - { speaker: persona, text: "Priya's pretty junior." }
+      - { speaker: user, text: "She's ready for this, and my review covers the risk. Can we give it to her this week?" }
+      - { speaker: persona, text: "Alright, I'll talk to her today." }

@@ -53,6 +53,7 @@ Scores have to be grounded. `src/grading/evidence.ts` checks that every quote be
 | `src/purchases/` | RevenueCat entitlement, paywall with scenario-aware custom variables, restore, and the two paywall gates |
 | `src/safety/`, `data/safety.yaml` | Stop word, distress exit, crisis resources, disclaimer |
 | `server/` | Token minting, grading, safety refusal and a per-client rate limit, about 250 lines |
+| `evals/` | 30 hand-labelled conversations and `pnpm eval`, which measures the grader against them ([EVALS.md](EVALS.md)) |
 | `app/` | Screens: scenarios, brief, live session, scorecard, paywall (mock mode), progress history, your own scenario |
 
 Rubrics, scenarios and prompts are YAML so they can be read and reviewed without reading code. The app and the server validate them against the same zod schemas, and `pnpm test` fails if any file drifts from its schema.
@@ -79,7 +80,10 @@ pnpm android                         # builds and installs the dev build
 pnpm test        # unit tests: schemas, data files, evidence gate, grader retry, server routes, both voice providers
 pnpm lint        # zero warnings
 pnpm typecheck   # TypeScript strict
+pnpm eval        # grader vs hand labels: kappa, agreement, run-to-run stability (needs a key; --baseline does not)
 ```
+
+[EVALS.md](EVALS.md) explains the gold set and the metrics, and is explicit about what has not been run yet.
 
 ## How this was built
 

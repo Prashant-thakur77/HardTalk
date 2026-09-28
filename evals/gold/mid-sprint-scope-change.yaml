@@ -1,0 +1,104 @@
+# Gold labels for the grader: 10 conversations for this scenario, each scored 1-4 on every
+# rubric dimension by the author against the anchors in data/rubrics/. See EVALS.md.
+scenario_id: mid-sprint-scope-change
+transcripts:
+  - id: sc-01-squeeze-it-in
+    difficulty: L1
+    labels: { clarity: 1, empathy: 1, ask_made: 1, boundary_held: 1 }
+    turns:
+      - { speaker: persona, text: "Did you see I dropped CSV export into the sprint? Sales promised it to a customer." }
+      - { speaker: user, text: "Oh, yeah, sure, we can probably squeeze it in." }
+      - { speaker: persona, text: "Great, so Thursday?" }
+      - { speaker: user, text: "Should be fine." }
+
+  - id: sc-02-well-try
+    difficulty: L2
+    labels: { clarity: 2, empathy: 1, ask_made: 1, boundary_held: 2 }
+    turns:
+      - { speaker: persona, text: "Did you see I dropped CSV export into the sprint? Sales promised it to a customer." }
+      - { speaker: user, text: "That's going to be tough, the sprint's already full." }
+      - { speaker: persona, text: "It's just a button." }
+      - { speaker: user, text: "It's more than a button. But okay, we'll try." }
+
+  - id: sc-03-strong-trade
+    difficulty: L2
+    labels: { clarity: 4, empathy: 3, ask_made: 4, boundary_held: 4 }
+    turns:
+      - { speaker: persona, text: "Did you see I dropped CSV export into the sprint? Sales promised it to a customer." }
+      - { speaker: user, text: "I saw. Adding export on day six means something already in the sprint comes out. I get that sales made a promise." }
+      - { speaker: persona, text: "It's just a button that downloads the table." }
+      - { speaker: user, text: "For small tables, yes. Large exports need a background job, so it's about three days. Do you want export or the search fix this sprint?" }
+      - { speaker: persona, text: "Hmm, search is a P1. Can we do a smaller export?" }
+      - { speaker: user, text: "Yes: a capped export of the first thousand rows by Thursday, and the full one next sprint. Can you confirm that with sales today?" }
+      - { speaker: persona, text: "Deal, I'll tell them." }
+
+  - id: sc-04-estimate-then-soften
+    difficulty: L2
+    labels: { clarity: 3, empathy: 1, ask_made: 1, boundary_held: 2 }
+    turns:
+      - { speaker: persona, text: "Did you see I dropped CSV export into the sprint? Sales promised it to a customer." }
+      - { speaker: user, text: "The export is about three days of work because of the background job." }
+      - { speaker: persona, text: "Can't the team push a bit? The demo is Thursday." }
+      - { speaker: user, text: "I mean, we could try. It'll be tight." }
+
+  - id: sc-05-hard-refusal
+    difficulty: L2
+    labels: { clarity: 2, empathy: 1, ask_made: 1, boundary_held: 3 }
+    turns:
+      - { speaker: persona, text: "Did you see I dropped CSV export into the sprint? Sales promised it to a customer." }
+      - { speaker: user, text: "No. You can't just dump features into the sprint on day six." }
+      - { speaker: persona, text: "Sales promised it. I don't have a choice." }
+      - { speaker: user, text: "That's sales' problem, not mine. It's not happening." }
+
+  - id: sc-06-empathy-choice-unconfirmed
+    difficulty: L1
+    labels: { clarity: 3, empathy: 4, ask_made: 3, boundary_held: 3 }
+    turns:
+      - { speaker: persona, text: "Did you see I dropped CSV export into the sprint? Sales promised it to a customer." }
+      - { speaker: user, text: "Sounds like sales put you in a tough spot. Did they promise a date?" }
+      - { speaker: persona, text: "Thursday. And they promised it without asking me." }
+      - { speaker: user, text: "That's rough. If export goes in, the search fix slips. Which would you rather ship this sprint?" }
+      - { speaker: persona, text: "I'll have to think about it." }
+
+  - id: sc-07-l3-calm-escalation
+    difficulty: L3
+    labels: { clarity: 4, empathy: 1, ask_made: 4, boundary_held: 4 }
+    turns:
+      - { speaker: persona, text: "Did you see I dropped CSV export into the sprint? Sales promised it to a customer." }
+      - { speaker: user, text: "Adding export on day six pushes out the search fix, which support needs. We need to pick one." }
+      - { speaker: persona, text: "If you can't handle it, I'll ask your manager." }
+      - { speaker: user, text: "You can, and I'd like her in the conversation too. The trade-off stays the same: export or search. Which one?" }
+      - { speaker: persona, text: "Fine. Search stays. Export next sprint." }
+      - { speaker: user, text: "Okay: search this sprint, export next. I'll update the board." }
+
+  - id: sc-08-rambling-retreat
+    difficulty: L2
+    labels: { clarity: 2, empathy: 2, ask_made: 2, boundary_held: 1 }
+    turns:
+      - { speaker: persona, text: "Did you see I dropped CSV export into the sprint? Sales promised it to a customer." }
+      - { speaker: user, text: "So I've been thinking about the export thing, and I totally understand the pressure with sales and everything, and I don't want to be difficult, but I also have to think about the team, and the sprint, and the search fix, which is kind of important for support, so I was wondering if maybe, possibly, we could talk about what might come out, if anything, or maybe push export, if that works for you?" }
+      - { speaker: persona, text: "Just tell me what you need." }
+      - { speaker: user, text: "Maybe push export to next sprint?" }
+      - { speaker: persona, text: "Sales won't like it." }
+      - { speaker: user, text: "Yeah, true. Never mind then." }
+
+  - id: sc-09-clear-cold-confirmed
+    difficulty: L2
+    labels: { clarity: 4, empathy: 1, ask_made: 4, boundary_held: 4 }
+    turns:
+      - { speaker: persona, text: "Did you see I dropped CSV export into the sprint? Sales promised it to a customer." }
+      - { speaker: user, text: "Export on day six would push the search fix out of the sprint. Can we move export to next sprint and tell sales today?" }
+      - { speaker: persona, text: "The customer demo is Thursday." }
+      - { speaker: user, text: "Then a thousand-row export by Thursday is doable, and the full version next sprint. Can you confirm that with sales this afternoon?" }
+      - { speaker: persona, text: "Okay. I'll message them." }
+
+  - id: sc-10-good-start-folds
+    difficulty: L2
+    labels: { clarity: 4, empathy: 3, ask_made: 3, boundary_held: 1 }
+    turns:
+      - { speaker: persona, text: "Did you see I dropped CSV export into the sprint? Sales promised it to a customer." }
+      - { speaker: user, text: "I know sales has you under pressure. Adding export on day six pushes the search fix out, and support needs it." }
+      - { speaker: persona, text: "It's a small feature. Can't the team push a bit?" }
+      - { speaker: user, text: "Hmm. Maybe the team can push a bit. Can we at least keep search in?" }
+      - { speaker: persona, text: "Let's try to do both." }
+      - { speaker: user, text: "Okay, both then." }

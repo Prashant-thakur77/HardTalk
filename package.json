@@ -12,6 +12,7 @@
     "start:live": "EXPO_PUBLIC_MOCK=0 expo start --dev-client",
     "start:server": "pnpm --filter hardtalk-server start",
     "test": "vitest run",
+    "eval": "tsx --env-file-if-exists=server/.env evals/run.ts",
     "lint": "expo lint --max-warnings 0",
     "typecheck": "tsc --noEmit"
   },
@@ -49,6 +50,7 @@
     "@types/react": "~19.2.2",
     "eslint": "^9.39.0",
     "eslint-config-expo": "~57.0.2",
+    "tsx": "^4.23.15",
     "typescript": "~6.0.3",
     "vitest": "^5.0.2"
   },
