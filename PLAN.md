@@ -36,3 +36,9 @@ score. Only the owner-side session in Next can.
   history deletion; a reinstall still resets it, and the README says so.
 - **Auth on /server** — any secret shipped in the app is public; the rate limit bounds cost.
 - **A web build as a product** — the browser is only the zero-install preview of mock mode.
+- **Pitch, debate, interview and panel modes** (proposed 2026-09-30) — a broader "practise any
+  hard questioning" product. Rejected for Shipaton: each mode needs its own rubric (the four
+  dimensions grade a hard conversation, not a pitch answer), its own mock replay and gold set,
+  and a panel needs several voices in one session. None of it can be verified live before the
+  deadline, and a sharper product demos better than a wider one. "Create your own scenario"
+  already lets a Pro user rehearse an investor or interviewer persona. First item after Shipaton.
