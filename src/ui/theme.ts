@@ -24,9 +24,6 @@ export const colors = {
   track: '#E6E4DC',
 } as const;
 
-/** Persona avatar colours. White initials on each are at least 4.5:1. */
-export const personaColors = ['#2445C8', '#12703F', '#8A4B00', '#6B2FA3'] as const;
-
 /** Soft card elevation, identical on iOS, Android and web. */
 export const shadow = {
   shadowColor: '#1B1B2F',

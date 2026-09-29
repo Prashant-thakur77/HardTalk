@@ -61,7 +61,10 @@ export function useConversation({
       setState(next);
       onStateChangeRef.current?.(next, latest.at(-1));
       if (next.status === 'ended') {
-        onEndRef.current(next.reason, latest.map(({ speaker, text }) => ({ speaker, text })));
+        onEndRef.current(
+          next.reason,
+          latest.map(({ speaker, name, text }) => (name ? { speaker, name, text } : { speaker, text })),
+        );
       }
     });
     provider

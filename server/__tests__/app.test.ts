@@ -23,9 +23,7 @@ const grade: Grade = {
     ask_made: dimension(2, 'I need it merged by four.'),
     boundary_held: dimension(1, 'blocked'),
   },
-  ask_made: false,
-  ask_text: null,
-  boundary_held: false,
+  key_line: null,
   safety_flag: false,
 };
 
@@ -66,8 +64,8 @@ describe('POST /grade', () => {
     expect(status).toBe(200);
     expect(callModel).toHaveBeenCalledTimes(2);
     expect(json.downgraded).toEqual(['ask_made']);
-    expect((json.grade as Grade).dimensions.ask_made.score).toBe(1);
-    expect((json.grade as Grade).dimensions.clarity.score).toBe(3);
+    expect((json.grade as Grade).dimensions.ask_made?.score).toBe(1);
+    expect((json.grade as Grade).dimensions.clarity?.score).toBe(3);
   });
 
   it('rejects a malformed body without calling the model', async () => {

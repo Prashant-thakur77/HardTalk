@@ -32,14 +32,14 @@ function fire(name: string, payload?: unknown) {
   (sdk.options![name] as (payload: unknown) => void)(payload);
 }
 
-async function start(textOnly = false) {
+async function start(textOnly = false, scenarioId = 'pr-blocking-release') {
   const provider = new ElevenLabsVoiceProvider();
   const states: SessionState[] = [];
   const events: TranscriptEvent[] = [];
   provider.onStateChange((state) => states.push(state));
   provider.onTranscript((event) => events.push(event));
   await provider.startSession({
-    scenarioId: 'pr-blocking-release',
+    scenarioId,
     difficulty: 'L2',
     attempt: 1,
     textOnly,
@@ -87,9 +87,18 @@ describe('ElevenLabsVoiceProvider', () => {
     expect(states).toContainEqual({ status: 'persona_speaking' });
     expect(states.at(-1)).toEqual({ status: 'listening' });
     expect(events.map((event) => [event.id, event.speaker, event.text])).toEqual([
-      ['persona-1', 'persona', 'It is a big change and I want it done properly.'],
-      ['persona-1', 'persona', 'It is a big change'],
+      ['persona-1-0', 'persona', 'It is a big change and I want it done properly.'],
+      ['persona-1-0', 'persona', 'It is a big change'],
       ['user-2', 'user', 'Can we split it?'],
+    ]);
+  });
+
+  it('captions each person on a panel under their own name', async () => {
+    const { events } = await start(false, 'pitch-seed-round');
+    fire('onMessage', { role: 'agent', message: 'Who pays? <Leo>I like the traction.</Leo>', event_id: 7 });
+    expect(events.map((event) => [event.id, event.name, event.text])).toEqual([
+      ['persona-7-0', undefined, 'Who pays?'],
+      ['persona-7-1', 'Leo', 'I like the traction.'],
     ]);
   });
 

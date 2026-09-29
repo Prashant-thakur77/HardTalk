@@ -1,17 +1,28 @@
 import { getRecording, type Recording } from '@/mock/recordings';
+import { getScenario } from '@/scenarios';
+import { peopleIn } from '@/scenarios/people';
 
+import type { Speaker } from './speech';
 import type { SessionConfig, SessionState, TranscriptEvent, VoiceProvider } from './VoiceProvider';
 
 const WORD_MS = 90;
+/** Caption pace for a line read aloud, close to a speech engine's pace at rate 1. */
+const SPOKEN_WORD_MS = 360;
 const TURN_GAP_MS = 700;
 const CONNECT_MS = 600;
 
 /**
  * Replays a recorded conversation with the same event shape a live provider emits:
- * word-by-word partial captions, speaker state changes, then `ended`. In text-only mode the
- * persona's recorded lines wait for the user to send each reply.
+ * word-by-word partial captions, speaker state changes, then `ended`. With a speaker, each
+ * persona's lines are read aloud in their own pitch and captioned at speaking pace. In
+ * text-only mode nothing is heard, and the persona's lines wait for each typed reply.
  */
 export class MockVoiceProvider implements VoiceProvider {
+  constructor(private readonly speaker?: Speaker) {}
+
+  private pitches = new Map<string, number>();
+  private muted = false;
+
   private transcriptListeners = new Set<(event: TranscriptEvent) => void>();
   private stateListeners = new Set<(state: SessionState) => void>();
   private timers: ReturnType<typeof setTimeout>[] = [];
@@ -24,6 +35,10 @@ export class MockVoiceProvider implements VoiceProvider {
   async startSession(config: SessionConfig): Promise<void> {
     this.recording = getRecording(config.scenarioId, config.attempt);
     this.config = config;
+    const scenario = getScenario(config.scenarioId);
+    this.pitches = new Map(
+      scenario ? peopleIn(scenario, config.difficulty).map((person) => [person.name, person.pitch]) : [],
+    );
     this.ended = false;
     this.cursor = 0;
     this.emitState({ status: 'connecting' });
@@ -50,7 +65,11 @@ export class MockVoiceProvider implements VoiceProvider {
     this.playPersonaTurns(0);
   }
 
-  setVolume(): void {}
+  /** Screen reader announcements set this to 0 while they speak, so the two never overlap. */
+  setVolume(volume: number): void {
+    this.muted = volume === 0;
+    if (this.muted) this.speaker?.stop();
+  }
 
   suggestedReply(): string | null {
     return this.recording?.turns.slice(this.cursor).find((turn) => turn.speaker === 'user')?.text ?? null;
@@ -84,23 +103,32 @@ export class MockVoiceProvider implements VoiceProvider {
 
   /** Schedules captions for the given turns starting at `start` ms; returns when they finish. */
   private playTurns(turns: { turn: Recording['turns'][number]; index: number }[], start: number): number {
-    const { attempt, speechRate, reduceMotion } = this.config!;
-    const wordMs = WORD_MS / speechRate;
+    const { attempt, speechRate, reduceMotion, textOnly } = this.config!;
+    const lead = getScenario(this.config!.scenarioId)?.persona.name;
     let at = start;
     for (const { turn, index } of turns) {
+      const spoken = Boolean(this.speaker) && !textOnly && turn.speaker === 'persona';
+      const wordMs = (spoken ? SPOKEN_WORD_MS : WORD_MS) / speechRate;
       const id = `${attempt}-${index}`;
+      const who = turn.name ? { speaker: turn.speaker, name: turn.name } : { speaker: turn.speaker };
       const words = turn.text.split(' ');
       this.schedule(at, () =>
         this.emitState({ status: turn.speaker === 'persona' ? 'persona_speaking' : 'listening' }),
       );
+      if (spoken) {
+        const pitch = this.pitches.get(turn.name ?? lead ?? '') ?? 1;
+        this.schedule(at, () => {
+          if (!this.muted) this.speaker!.speak(turn.text, { pitch, rate: speechRate });
+        });
+      }
       if (reduceMotion) {
-        this.schedule(at, () => this.emitTranscript({ id, speaker: turn.speaker, text: turn.text, final: true }));
+        this.schedule(at, () => this.emitTranscript({ id, ...who, text: turn.text, final: true }));
       } else {
         words.forEach((_, wordIndex) => {
           const final = wordIndex === words.length - 1;
           const text = words.slice(0, wordIndex + 1).join(' ');
           this.schedule(at + wordIndex * wordMs, () =>
-            this.emitTranscript({ id, speaker: turn.speaker, text, final }),
+            this.emitTranscript({ id, ...who, text, final }),
           );
         });
       }
@@ -117,6 +145,7 @@ export class MockVoiceProvider implements VoiceProvider {
   private finish(state: SessionState) {
     if (this.ended) return;
     this.ended = true;
+    this.speaker?.stop();
     this.timers.forEach(clearTimeout);
     this.timers = [];
     this.emitState(state);

@@ -1,13 +1,17 @@
 import { describe, expect, it } from 'vitest';
 
-import { DIMENSIONS } from '../../src/grading/rubric.schema';
 import { detectDistress } from '../../src/safety/rules';
-import { getScenario, safetyConfig } from '../../server/src/data';
-import { loadGold } from '../gold';
+import { getScenario, getTrack, safetyConfig } from '../../server/src/data';
+import { GOLD_DIMENSIONS, loadGold } from '../gold';
 
 const gold = loadGold();
 
 describe('evals/gold', () => {
+  it('is labelled on exactly the workplace rubrics, the track its scenarios belong to', () => {
+    expect([...GOLD_DIMENSIONS]).toEqual(getTrack('workplace').rubrics);
+    for (const item of gold) expect(getScenario(item.scenarioId)?.track, item.id).toBe('workplace');
+  });
+
   it('has 30 or more labelled conversations with unique ids', () => {
     expect(gold.length).toBeGreaterThanOrEqual(30);
     expect(new Set(gold.map((item) => item.id)).size).toBe(gold.length);
@@ -22,7 +26,7 @@ describe('evals/gold', () => {
   });
 
   it('uses every score 1-4 on every dimension, so agreement is measured across the scale', () => {
-    for (const dimension of DIMENSIONS) {
+    for (const dimension of GOLD_DIMENSIONS) {
       expect(new Set(gold.map((item) => item.labels[dimension])), dimension).toEqual(new Set([1, 2, 3, 4]));
     }
   });

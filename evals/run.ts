@@ -13,13 +13,13 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { gradeTranscript } from '../src/grading/grade';
-import { DIMENSIONS, type Dimension } from '../src/grading/rubric.schema';
-import { getScenario, graderConfig } from '../server/src/data';
+import { trackGradeSchema, type Dimension } from '../src/grading/rubric.schema';
+import { getScenario, getTrack, graderConfig } from '../server/src/data';
 import { claudeGradeModel } from '../server/src/grader';
-import { loadGold, type GoldItem } from './gold';
+import { GOLD_DIMENSIONS, loadGold, type GoldItem } from './gold';
 import { exactAgreement, quadraticKappa, stability, withinOne } from './metrics';
 
-type Scores = Record<Dimension, number>;
+type Scores = Record<(typeof GOLD_DIMENSIONS)[number], number>;
 interface RunResult {
   id: string;
   scores: Scores;
@@ -70,10 +70,11 @@ async function gradeOrThrow(item: GoldItem, client: Anthropic): Promise<RunResul
   const result = await gradeTranscript({
     turns: item.turns,
     callModel: claudeGradeModel({ client, model, effort }, scenario),
+    schema: trackGradeSchema(getTrack(scenario.track).rubrics),
     retryCopy: graderConfig.retry,
   });
   const scores = Object.fromEntries(
-    DIMENSIONS.map((dimension) => [dimension, result.grade.dimensions[dimension].score]),
+    GOLD_DIMENSIONS.map((dimension) => [dimension, result.grade.dimensions[dimension]!.score]),
   ) as Scores;
   return { id: item.id, scores, modelCalls: result.modelCalls, downgraded: result.downgraded, ms: Date.now() - started };
 }
@@ -145,7 +146,7 @@ async function main() {
     '| Dimension | Kappa | Exact | Within 1 |' + (runs > 1 ? ' Identical across runs | Mean SD |' : ''),
     '| --- | --- | --- | --- |' + (runs > 1 ? ' --- | --- |' : ''),
   ];
-  for (const dimension of DIMENSIONS) {
+  for (const dimension of GOLD_DIMENSIONS) {
     const truth = gold.map((item) => item.labels[dimension]);
     const perRun = allRuns.map((run) => run.map((result) => result.scores[dimension]));
     const kappas = perRun.map((scores) => quadraticKappa(truth, scores));

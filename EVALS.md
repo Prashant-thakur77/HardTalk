@@ -6,7 +6,7 @@ The scorecard is only worth showing if its scores mean something. This file is h
 
 | What | Status |
 | --- | --- |
-| Gold set: 30 hand-labelled conversations | Done (`evals/gold/`) |
+| Gold set: 30 hand-labelled conversations | Done for the Workplace track (`evals/gold/`). Pitch Q&A, Interview and Debate have no gold set yet, so their grades are uncalibrated (D-084). |
 | Metrics: quadratic-weighted kappa, agreement, run-to-run stability | Done, unit-tested against scikit-learn (`evals/__tests__/metrics.test.ts`) |
 | Baseline ("always score 2") | Run, numbers below |
 | Claude grader against the gold set, 3 runs | **Not run yet.** It needs an Anthropic API key, and none was available where this was built. `pnpm eval` produces the table below with the real numbers. |

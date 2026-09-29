@@ -1,29 +1,32 @@
-# Defaults for scenarios people write themselves (Pro). The form asks for the conversation,
-# who it is with, what the user needs and the pushback they expect; everything else is here.
+# Defaults for scenarios people write themselves (Pro). The form asks for the track, the
+# conversation, who it is with, what the user needs and the pushback they expect; the opening
+# line comes from the track, and everything else is here, worded to fit every track.
 persona:
-  goal: Protect their own priorities and avoid extra work or blame.
+  goal: Protect their own position, and test the user's case before giving them anything.
   tone: Professional, a little guarded, busy.
 difficulty_levels:
   L1:
     name: Cooperative
     summary: Busy but reasonable.
     behaviour: >-
-      Busy but reasonable. Raises the expected pushback once, then agrees as soon as the
-      request is clear and specific.
+      Busy but reasonable. Raises the expected pushback once, then comes round as soon as the
+      user's point is clear and specific.
+    mood: friendly
   L2:
     name: Defensive
     summary: Pushes back more than once.
     behaviour: >-
-      Raises the expected pushback, justifies their position once, and only agrees after a
-      second, specific ask.
+      Raises the expected pushback, defends their own position once, and only comes round
+      after a second, specific answer or request.
+    mood: skeptical
   L3:
     name: Deflecting
-    summary: Deflects, and questions whether this is your call.
+    summary: Deflects, and questions whether you have a case.
     behaviour: >-
-      Raises the expected pushback, changes the subject once, questions whether this is the
-      user's call, and only accepts a concrete, time-boxed request after two pushbacks.
-opening_line: Hey, you wanted to talk?
+      Raises the expected pushback, changes the subject once, questions whether the user has
+      standing or evidence, and only comes round to something concrete after two pushbacks.
+    mood: stern
 stop_condition: >-
-  End when the user has made a specific request and you have clearly accepted it, declined
-  it, or countered with a concrete alternative.
+  End when the user has made their point or request and you have clearly accepted it,
+  rejected it, or countered with a concrete alternative.
 max_user_turns: 6

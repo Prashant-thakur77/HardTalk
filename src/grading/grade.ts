@@ -1,8 +1,8 @@
-import { prettifyError } from 'zod';
+import { prettifyError, type ZodError } from 'zod';
 
 import { downgradeUngrounded, findUngrounded, type Ungrounded } from './evidence';
 import type { RetryCopy } from './prompt';
-import { DIMENSIONS, gradeSchema, type Dimension, type Grade } from './rubric.schema';
+import { scoredDimensions, type Dimension, type Grade } from './rubric.schema';
 import type { Turn } from './transcript';
 
 export interface GradeModelRequest {
@@ -13,6 +13,11 @@ export interface GradeModelRequest {
 
 /** One call to the grader model. Returns its raw JSON; validation happens here, not there. */
 export type GradeModel = (request: GradeModelRequest) => Promise<unknown>;
+
+/** Validates model output for one track: its four dimensions, no others. */
+export interface GradeParser {
+  safeParse(data: unknown): { success: true; data: Grade } | { success: false; error: ZodError };
+}
 
 export interface GradeResult {
   grade: Grade;
@@ -29,11 +34,12 @@ type Attempt = { grade: Grade; problem?: never } | { grade?: never; problem: str
 
 async function attempt(
   callModel: GradeModel,
+  schema: GradeParser,
   turns: Turn[],
   copy: RetryCopy,
   feedback?: string,
 ): Promise<Attempt> {
-  const parsed = gradeSchema.safeParse(await callModel({ turns, feedback }));
+  const parsed = schema.safeParse(await callModel({ turns, feedback }));
   if (parsed.success) return { grade: parsed.data };
   return { problem: copy.schema.replace('{{problem}}', prettifyError(parsed.error)) };
 }
@@ -58,10 +64,13 @@ function evidenceFeedback(ungrounded: Ungrounded[], copy: RetryCopy): string {
 export async function gradeTranscript({
   turns,
   callModel,
+  schema,
   retryCopy,
 }: {
   turns: Turn[];
   callModel: GradeModel;
+  /** The track's grade schema, from trackGradeSchema. */
+  schema: GradeParser;
   /** Retry wording, from data/prompts/grader.yaml. */
   retryCopy: RetryCopy;
 }): Promise<GradeResult> {
@@ -69,7 +78,7 @@ export async function gradeTranscript({
     throw new GradingError('There is nothing to grade: the user did not speak.');
   }
 
-  const first = await attempt(callModel, turns, retryCopy);
+  const first = await attempt(callModel, schema, turns, retryCopy);
   let feedback: string;
   if (first.grade) {
     const ungrounded = findUngrounded(first.grade, turns);
@@ -79,13 +88,13 @@ export async function gradeTranscript({
     feedback = first.problem;
   }
 
-  const retry = await attempt(callModel, turns, retryCopy, feedback);
+  const retry = await attempt(callModel, schema, turns, retryCopy, feedback);
   const candidate = retry.grade ?? first.grade;
   if (!candidate) throw new GradingError('The grader returned output that did not match the schema twice.');
 
   const grade = downgradeUngrounded(candidate, turns);
-  const downgraded = DIMENSIONS.filter(
-    (dimension) => grade.dimensions[dimension].score < candidate.dimensions[dimension].score,
-  );
+  const downgraded = scoredDimensions(candidate)
+    .filter(([dimension, before]) => (grade.dimensions[dimension]?.score ?? 0) < before.score)
+    .map(([dimension]) => dimension);
   return { grade, modelCalls: 2, downgraded };
 }

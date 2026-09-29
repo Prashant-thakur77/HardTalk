@@ -1,0 +1,22 @@
+id: rebuttal
+name: Rebuttal
+question: Did the user answer the opponent's strongest point directly, rather than repeat their own case?
+framework:
+  name: Toulmin rebuttal and debate "clash"
+  source: >-
+    Stephen E. Toulmin, "The Uses of Argument", Cambridge University Press, 1958; Austin J.
+    Freeley and David L. Steinberg, "Argumentation and Debate: Critical Thinking for Reasoned
+    Decision Making", 13th ed., Cengage Learning, 2014.
+  applies: >-
+    A rebuttal meets the opposing argument where it is strongest. Debate calls this clash:
+    arguments that pass each other without meeting settle nothing.
+anchors:
+  1: The user ignores the opponent's point and repeats their own case.
+  2: >-
+    The user answers a weaker or different version of the point, or only attacks its tone
+    ("that's just emotional").
+  3: Answers the opponent's actual point, but not their strongest one, or with assertion only.
+  4: >-
+    Names the opponent's strongest point and answers it with a reason or evidence ("Your best
+    point is cost. But the pilot cost less than one hire.").
+evidence: Quote what the user said right after the opponent made their main point.

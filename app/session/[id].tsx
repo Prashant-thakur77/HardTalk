@@ -11,23 +11,26 @@ import { gradeConversation } from '@/grading';
 import type { Turn } from '@/grading/transcript';
 import { checkDistressRemotely, isDistressLine, isStopLine, NotScoredForSafety } from '@/safety';
 import { getScenario } from '@/scenarios';
+import { peopleIn } from '@/scenarios/people';
 import { difficultySchema } from '@/scenarios/schema';
 import { startSession } from '@/session/start';
 import { useConversation } from '@/session/useConversation';
-import { Avatar } from '@/ui/Avatar';
 import { Button } from '@/ui/Button';
+import { Face } from '@/ui/Face';
 import { MockBanner } from '@/ui/MockBanner';
+import { Room } from '@/ui/Room';
 import { SpeakingIndicator } from '@/ui/SpeakingIndicator';
 import { colors, MIN_TARGET, radius, space, type } from '@/ui/theme';
 import type { EndReason, SessionState } from '@/voice';
 
-function statusLabel(state: SessionState, personaName: string, textOnly: boolean): string {
+/** `speakerName` is whoever in the room holds the floor: the lead persona or a panelist. */
+function statusLabel(state: SessionState, speakerName: string, textOnly: boolean): string {
   switch (state.status) {
     case 'idle':
     case 'connecting':
       return 'Connecting…';
     case 'persona_speaking':
-      return textOnly ? `${personaName} is replying` : `${personaName} is speaking`;
+      return textOnly ? `${speakerName} is replying` : `${speakerName} is speaking`;
     case 'listening':
       if (config.mock && !textOnly) return 'Replaying your recorded line';
       return textOnly ? 'Your turn. Type your reply.' : 'Your turn';
@@ -133,13 +136,18 @@ export default function Session() {
       setDraft((current) => (current.trim() ? current : (suggestedReply() ?? '')));
       // In text mode nothing is heard, so the persona's line is read out; in voice mode the
       // persona has just finished speaking, so only the turn change is announced.
-      const line = textOnly && lastTurn?.speaker === 'persona' ? `${personaName}: ${lastTurn.text}. ` : '';
+      const line =
+        textOnly && lastTurn?.speaker === 'persona' ? `${lastTurn.name ?? personaName}: ${lastTurn.text}. ` : '';
       announce(`${line}Your turn.`, setVolume);
     },
   });
 
   if (!scenario) return <Text style={type.body}>Scenario not found.</Text>;
 
+  const people = peopleIn(scenario, difficulty);
+  const faces = new Map(people.map((person) => [person.name, person]));
+  const lastPersonaTurn = turns.findLast((turn) => turn.speaker === 'persona');
+  const speaker = lastPersonaTurn?.name ?? scenario.persona.name;
   const stoppedEarly = state.status === 'ended' && state.reason === 'user_stopped';
   const canSend = textOnly && state.status === 'listening' && draft.trim().length > 0;
   const send = () => {
@@ -152,15 +160,15 @@ export default function Session() {
     <SafeAreaView style={styles.safe} edges={['bottom']}>
       <View style={styles.header}>
         <View style={styles.personaRow}>
-          <Avatar
-            name={scenario.persona.name}
+          <Room
+            people={people}
+            speaking={state.status === 'persona_speaking' ? speaker : null}
             size={52}
-            speaking={state.status === 'persona_speaking'}
             reduceMotion={preferences.reduceMotion}
           />
           <View style={styles.personaText}>
             <Text style={type.heading}>
-              {scenario.persona.name} · {difficulty}
+              {people.map((person) => person.name).join(' & ')} · {difficulty}
               {textOnly ? ' · typed' : ''}
             </Text>
             <View style={styles.statusRow}>
@@ -169,12 +177,16 @@ export default function Session() {
                 reduceMotion={preferences.reduceMotion}
               />
               <Text style={styles.status} accessibilityLiveRegion="polite">
-                {grading ? 'Scoring your conversation…' : statusLabel(state, scenario.persona.name, textOnly)}
+                {grading ? 'Scoring your conversation…' : statusLabel(state, speaker, textOnly)}
               </Text>
             </View>
           </View>
         </View>
-        <MockBanner />
+        <MockBanner
+          message={
+            textOnly ? 'Mock mode: replaying recorded replies, with no audio. No microphone, no network, no keys.' : undefined
+          }
+        />
         {safetyOffline ? (
           <Text style={type.caption} accessibilityLiveRegion="polite">
             The extra safety check on the server is offline. The on-device checks are still on.
@@ -190,16 +202,18 @@ export default function Session() {
         accessibilityLabel="Live captions">
         {turns.map((turn) => {
           const persona = turn.speaker === 'persona';
+          const who = persona ? (turn.name ?? scenario.persona.name) : 'You';
+          const face = faces.get(who);
           return (
-            <View
-              key={turn.id}
-              style={[styles.bubble, persona ? styles.personaBubble : styles.userBubble]}
-              accessible
-              accessibilityLabel={`${persona ? scenario.persona.name : 'You'}: ${turn.text}`}>
-              <Text style={[styles.speaker, !persona && styles.userText]}>
-                {persona ? scenario.persona.name : 'You'}
-              </Text>
-              <Text style={[type.body, !persona && styles.userText]}>{turn.text}</Text>
+            <View key={turn.id} style={[styles.line, !persona && styles.userLine]}>
+              {persona && face ? <Face face={face.face} mood={face.mood} size={30} reduceMotion /> : null}
+              <View
+                style={[styles.bubble, persona ? styles.personaBubble : styles.userBubble]}
+                accessible
+                accessibilityLabel={`${who}: ${turn.text}`}>
+                <Text style={[styles.speaker, !persona && styles.userText]}>{who}</Text>
+                <Text style={[type.body, !persona && styles.userText]}>{turn.text}</Text>
+              </View>
             </View>
           );
         })}
@@ -273,15 +287,17 @@ export default function Session() {
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.background },
   header: { padding: space.md, gap: space.sm },
-  personaRow: { flexDirection: 'row', alignItems: 'center', gap: space.sm },
-  personaText: { flex: 1, gap: 4 },
+  personaRow: { flexDirection: 'row', alignItems: 'center', gap: space.sm, flexWrap: 'wrap' },
+  personaText: { flex: 1, minWidth: 160, gap: 4 },
   statusRow: { flexDirection: 'row', alignItems: 'center', gap: space.sm },
   status: { fontSize: 16, fontWeight: '600', color: colors.primary },
   captions: { flex: 1 },
   captionsContent: { padding: space.md, gap: space.sm },
-  bubble: { borderRadius: radius, padding: space.md - 4, maxWidth: '88%', gap: 2 },
-  personaBubble: { alignSelf: 'flex-start', backgroundColor: colors.personaBubble },
-  userBubble: { alignSelf: 'flex-end', backgroundColor: colors.userBubble },
+  line: { flexDirection: 'row', alignItems: 'flex-end', gap: space.xs, maxWidth: '92%' },
+  userLine: { alignSelf: 'flex-end' },
+  bubble: { borderRadius: radius, padding: space.md - 4, gap: 2, flexShrink: 1 },
+  personaBubble: { backgroundColor: colors.personaBubble, borderBottomLeftRadius: 4 },
+  userBubble: { backgroundColor: colors.userBubble, borderBottomRightRadius: 4 },
   speaker: { fontSize: 13, fontWeight: '700', color: colors.textMuted },
   userText: { color: colors.onPrimary },
   composer: { gap: space.sm },

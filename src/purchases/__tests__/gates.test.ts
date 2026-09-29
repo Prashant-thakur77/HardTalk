@@ -13,9 +13,7 @@ const attempt = (scenarioId: string, number: number, total: number, difficulty =
       ask_made: { score: 1, evidence_quotes: [], rationale: 'r', better_line: 'b' },
       boundary_held: { score: 1, evidence_quotes: [], rationale: 'r', better_line: 'b' },
     },
-    ask_made: false,
-    ask_text: null,
-    boundary_held: false,
+    key_line: null,
     safety_flag: false,
   },
 });

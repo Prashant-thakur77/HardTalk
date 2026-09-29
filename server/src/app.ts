@@ -2,10 +2,11 @@ import { Hono } from 'hono';
 import { z } from 'zod';
 
 import { gradeTranscript, GradingError, type GradeModel } from '../../src/grading/grade';
+import { trackGradeSchema } from '../../src/grading/rubric.schema';
 import { turnSchema } from '../../src/grading/transcript';
 import { detectDistress } from '../../src/safety/rules';
 import { scenarioSchema, type Scenario } from '../../src/scenarios/schema';
-import { getScenario, graderConfig, safetyConfig } from './data';
+import { getScenario, getTrack, graderConfig, safetyConfig } from './data';
 import { rateLimit } from './limits';
 
 /** Each service is optional so the server runs with whichever keys are configured. */
@@ -79,6 +80,7 @@ export function createApp(services: Services) {
       const result = await gradeTranscript({
         turns: body.data.turns,
         callModel: services.gradeModelFor(scenario),
+        schema: trackGradeSchema(getTrack(scenario.track).rubrics),
         retryCopy: graderConfig.retry,
       });
       if (result.grade.safety_flag) return c.json(NOT_SCORED, 422);

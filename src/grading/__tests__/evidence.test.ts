@@ -25,9 +25,7 @@ function grade(overrides: Partial<Record<keyof Grade['dimensions'], Partial<Grad
       ask_made: { ...base('Can we agree the first part merges by 4pm?', 4), ...overrides.ask_made },
       boundary_held: { ...base('first part merges by 4pm', 3), ...overrides.boundary_held },
     },
-    ask_made: true,
-    ask_text: 'Can we agree the first part merges by 4pm?',
-    boundary_held: true,
+    key_line: 'Can we agree the first part merges by 4pm?',
     safety_flag: false,
   };
 }
@@ -106,12 +104,12 @@ describe('downgradeUngrounded', () => {
     });
     const result = downgradeUngrounded(mixed, turns);
 
-    expect(result.dimensions.empathy.score).toBe(1);
-    expect(result.dimensions.empathy.evidence_quotes).toEqual([]);
-    expect(result.dimensions.empathy.rationale).toMatch(/could not be found/i);
+    expect(result.dimensions.empathy?.score).toBe(1);
+    expect(result.dimensions.empathy?.evidence_quotes).toEqual([]);
+    expect(result.dimensions.empathy?.rationale).toMatch(/could not be found/i);
 
-    expect(result.dimensions.ask_made.score).toBe(4);
-    expect(result.dimensions.ask_made.evidence_quotes).toEqual(['Can we agree the first part merges by 4pm?']);
+    expect(result.dimensions.ask_made?.score).toBe(4);
+    expect(result.dimensions.ask_made?.evidence_quotes).toEqual(['Can we agree the first part merges by 4pm?']);
 
     expect(result.dimensions.clarity).toEqual(mixed.dimensions.clarity);
   });
@@ -121,14 +119,14 @@ describe('downgradeUngrounded', () => {
       grade({ boundary_held: { score: 1, evidence_quotes: ['No pressure though.'], rationale: 'You removed the stakes.' } }),
       turns,
     );
-    expect(result.dimensions.boundary_held.score).toBe(1);
-    expect(result.dimensions.boundary_held.evidence_quotes).toEqual([]);
-    expect(result.dimensions.boundary_held.rationale).not.toMatch(/removed the stakes/);
+    expect(result.dimensions.boundary_held?.score).toBe(1);
+    expect(result.dimensions.boundary_held?.evidence_quotes).toEqual([]);
+    expect(result.dimensions.boundary_held?.rationale).not.toMatch(/removed the stakes/);
   });
 
-  it('clears ask_text when it is not verbatim user speech', () => {
-    const result = downgradeUngrounded({ ...grade(), ask_text: 'merge the PR today' }, turns);
-    expect(result.ask_text).toBeNull();
+  it('clears the key line when it is not verbatim user speech', () => {
+    const result = downgradeUngrounded({ ...grade(), key_line: 'merge the PR today' }, turns);
+    expect(result.key_line).toBeNull();
   });
 
   it('leaves a grounded grade untouched', () => {

@@ -2,14 +2,18 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { applyTranscriptEvent, type LiveTurn } from '@/session/turns';
 import { MockVoiceProvider } from '@/voice/mock';
+import type { Speaker } from '@/voice/speech';
 import type { SessionState } from '@/voice/VoiceProvider';
 
 describe('MockVoiceProvider', () => {
   beforeEach(() => vi.useFakeTimers());
   afterEach(() => vi.useRealTimers());
 
-  function run(attempt: number, options: { textOnly?: boolean; reduceMotion?: boolean } = {}) {
-    const provider = new MockVoiceProvider();
+  function run(
+    attempt: number,
+    options: { textOnly?: boolean; reduceMotion?: boolean; speaker?: Speaker; scenarioId?: string } = {},
+  ) {
+    const provider = new MockVoiceProvider(options.speaker);
     const states: SessionState[] = [];
     let turns: LiveTurn[] = [];
     provider.onStateChange((state) => states.push(state));
@@ -17,7 +21,7 @@ describe('MockVoiceProvider', () => {
       turns = applyTranscriptEvent(turns, event);
     });
     void provider.startSession({
-      scenarioId: 'pr-blocking-release',
+      scenarioId: options.scenarioId ?? 'pr-blocking-release',
       difficulty: 'L2',
       attempt,
       textOnly: options.textOnly ?? false,
@@ -88,5 +92,42 @@ describe('MockVoiceProvider', () => {
     vi.runAllTimers();
     expect(states.at(-1)).toEqual({ status: 'ended', reason: 'stop_condition' });
     expect(provider.suggestedReply()).toBeNull();
+  });
+
+  describe('reading lines aloud', () => {
+    const fakeSpeaker = () => ({ speak: vi.fn<Speaker['speak']>(), stop: vi.fn() });
+
+    it("speaks every persona line, in each person's own pitch, and never the user's lines", () => {
+      const speaker = fakeSpeaker();
+      const { turns } = run(1, { speaker, scenarioId: 'pitch-seed-round' });
+      vi.runAllTimers();
+      const personaLines = turns().filter((turn) => turn.speaker === 'persona');
+      expect(speaker.speak.mock.calls.map(([text]) => text)).toEqual(personaLines.map((turn) => turn.text));
+      const pitches = new Set(speaker.speak.mock.calls.map(([, voice]) => voice.pitch));
+      expect(pitches.size).toBe(new Set(personaLines.map((turn) => turn.name ?? 'lead')).size);
+    });
+
+    it('stays silent in text-only mode', () => {
+      const speaker = fakeSpeaker();
+      const { provider } = run(1, { speaker, textOnly: true });
+      vi.runAllTimers();
+      provider.sendText('Your auth refactor has blocked the release for three days.');
+      vi.runAllTimers();
+      expect(speaker.speak).not.toHaveBeenCalled();
+    });
+
+    it('goes quiet while a screen reader announcement plays, and on stop', async () => {
+      const speaker = fakeSpeaker();
+      const { provider } = run(1, { speaker });
+      provider.setVolume(0);
+      vi.runAllTimers();
+      expect(speaker.speak).not.toHaveBeenCalled();
+      expect(speaker.stop).toHaveBeenCalled();
+
+      const again = run(1, { speaker: fakeSpeaker() });
+      await again.provider.stopSession();
+      vi.runAllTimers();
+      expect(again.states.at(-1)).toEqual({ status: 'ended', reason: 'user_stopped' });
+    });
   });
 });

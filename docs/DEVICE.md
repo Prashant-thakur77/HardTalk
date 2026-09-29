@@ -19,7 +19,8 @@ In the ElevenLabs dashboard, create a blank agent and set:
 - Tools: enable the built-in "End conversation" system tool, so the persona can hang up when the stop condition is met.
 - Security → Overrides: allow overriding the system prompt, the first message, the TTS speed (the pace setting) and text-only mode (typed practice).
 - Privacy: turn off audio saving and set the conversation retention period as short as your plan allows. HardTalk never stores audio itself, but ElevenLabs keeps call audio and transcripts by default.
-- Voice: any voice you like. A calm, natural voice works best.
+- Voice: any voice you like. A calm, natural voice works best. It is the lead persona's voice.
+- Multi-voice, for the pitch, interview and debate panels: in the agent's voice settings, turn on multi-voice support and add one voice per panelist, labelled with the panelist's first name: Leo, Kenji, Tom, Grace, Aisha and Mateo (the `panel` names in `data/scenarios/*.yaml`). The persona prompt tells the agent to wrap a panelist's words in their name tag (`<Leo>…</Leo>`), ElevenLabs speaks them in that voice, and the app captions them under that person's name and face. Without these voices the panelists still speak and are captioned by name, in the lead's voice.
 
 Copy the agent ID.
 

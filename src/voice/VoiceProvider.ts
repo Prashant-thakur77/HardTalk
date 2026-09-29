@@ -6,6 +6,8 @@ export type Speaker = 'user' | 'persona';
 export interface TranscriptEvent {
   id: string;
   speaker: Speaker;
+  /** Which panelist spoke. Absent for the user and for the lead persona. */
+  name?: string;
   text: string;
   final: boolean;
 }

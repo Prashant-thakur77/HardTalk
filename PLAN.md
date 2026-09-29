@@ -8,14 +8,36 @@ first safety fix that lost nothing in either direction; every round-11 finding i
 a regression. Deadline day: the reviewer is explicit that further safety rounds will not move the
 score. Only the owner-side session in Next can.
 
-## Now (round 12)
+## Now (round 12): practice tracks, panels and faces
 
-1. **Round 11 additions** [C4] [C3] — D-079 (stabbing, burning, tried/threatened to, future-tense
-   threats, plans with a time, bridges, floors, bottles of pills, stockpiling, "I can't go on"),
-   D-080 (would/will you stop, I said/told you to stop, make it stop, "stop this is too much",
-   "pause im scared"), D-081 (the "beat me to it" exception holds in reported speech; the other
-   workplace lines are listed as accepted false positives), D-082 (the plan picker drives the
-   purchase button), D-078 (the last hardcoded stop words moved to data).
+Owner decision, 2026-09-29: widen HardTalk from three workplace conversations to four
+**practice tracks**, each graded on its own framework-cited rubrics. Built data-first, so a
+judge can read every track, rubric and persona without reading code.
+
+1. **Tracks** [C4] — `data/tracks/*.yaml`: Workplace (the original three), Pitch Q&A,
+   Interview and Debate. A track names the setting the persona is in, what the grader is
+   grading, its four rubrics and its "key line" (your ask, your close, your result, your claim).
+   Every track has four rubrics, so every score is still out of 16 and the retry delta and the
+   paywall copy stay comparable.
+2. **Nine new rubrics** [C4] — anchored 1–4, each citing a named framework: Pyramid Principle
+   (answer first), Made to Stick (evidence), LAER (objections), STAR (structured stories),
+   Kolb (ownership), Toulmin (claim, rebuttal, held position) and Rapoport's rules (steelman).
+3. **Panels** [C1] [C4] — a scenario can seat up to two more people with their own stance: one
+   who agrees with you, one who keeps questioning. Captions say who spoke. Live mode voices
+   them through ElevenLabs multi-voice tags; mock mode replays them.
+4. **Faces** [C1] — every persona gets a drawn face (data in the scenario YAML, SVG in code, no
+   image assets or network). It blinks, talks while speaking, and its expression follows the
+   difficulty level and your final score. Reduce Motion stills it. Decorative to screen readers.
+5. **Three new scenarios with mock replays** [C1] — a seed-round Q&A with two investors, a
+   first-job interview panel, and a debate with a moderator. Mock mode stays complete for all six.
+6. **Custom scenarios pick a track** [C3] — Pro users can write a pitch, interview or debate of
+   their own, graded on that track's rubrics.
+7. **Generic grading** [C2] — the grade is keyed by the track's rubrics; the model's output schema
+   is built per track, so a missing or extra dimension is a schema error and gets the one retry.
+   Saved attempts from before the change still load.
+
+Acceptance: `pnpm test`, `pnpm lint`, `pnpm typecheck` clean; browser e2e runs a scenario in every
+track with zero page errors; a hostile review finds no P0.
 
 ## Next
 
@@ -36,9 +58,3 @@ score. Only the owner-side session in Next can.
   history deletion; a reinstall still resets it, and the README says so.
 - **Auth on /server** — any secret shipped in the app is public; the rate limit bounds cost.
 - **A web build as a product** — the browser is only the zero-install preview of mock mode.
-- **Pitch, debate, interview and panel modes** (proposed 2026-09-30) — a broader "practise any
-  hard questioning" product. Rejected for Shipaton: each mode needs its own rubric (the four
-  dimensions grade a hard conversation, not a pitch answer), its own mock replay and gold set,
-  and a panel needs several voices in one session. None of it can be verified live before the
-  deadline, and a sharper product demos better than a wider one. "Create your own scenario"
-  already lets a Pro user rehearse an investor or interviewer persona. First item after Shipaton.

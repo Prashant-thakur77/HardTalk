@@ -9,11 +9,14 @@ import {
   saveCustomScenario,
   type CustomScenarioForm,
 } from '@/scenarios/custom';
+import { tracks } from '@/tracks';
+import type { TrackId } from '@/tracks/schema';
 import { Button } from '@/ui/Button';
+import { ChoiceGroup } from '@/ui/ChoiceGroup';
 import { Screen } from '@/ui/Screen';
 import { colors, MIN_TARGET, radius, space, type } from '@/ui/theme';
 
-const FIELDS: { key: keyof CustomScenarioForm; label: string; placeholder: string }[] = [
+const FIELDS: { key: Exclude<keyof CustomScenarioForm, 'track'>; label: string; placeholder: string }[] = [
   { key: 'title', label: 'What is the conversation?', placeholder: 'Ask my lead for a raise' },
   { key: 'personaName', label: 'Who is it with?', placeholder: 'Dana' },
   { key: 'personaRole', label: 'Their role', placeholder: 'Engineering lead' },
@@ -21,10 +24,14 @@ const FIELDS: { key: keyof CustomScenarioForm; label: string; placeholder: strin
   { key: 'pushback', label: 'What pushback do you expect?', placeholder: 'Budgets are frozen until next year' },
 ];
 
-/** Pro: write your own scenario. The persona, levels and scorecard work exactly as built-ins. */
+/**
+ * Pro: write your own scenario, in any track. The persona, levels and scorecard work exactly as
+ * built-ins, graded on that track's rubrics.
+ */
 export default function NewCustomScenario() {
   const pro = usePro();
   const [form, setForm] = useState<CustomScenarioForm>({
+    track: 'workplace',
     title: '',
     personaName: '',
     personaRole: '',
@@ -47,6 +54,12 @@ export default function NewCustomScenario() {
 
   return (
     <Screen footer={<Button label="Save scenario" onPress={() => void save()} />}>
+      <ChoiceGroup<TrackId>
+        label="What kind of practice?"
+        choices={tracks.map((track) => ({ value: track.id, label: track.name, description: track.tagline }))}
+        selected={form.track}
+        onSelect={(track) => setForm((current) => ({ ...current, track }))}
+      />
       {FIELDS.map((field) => (
         <View key={field.key} style={styles.field}>
           <Text style={styles.label} nativeID={`label-${field.key}`}>

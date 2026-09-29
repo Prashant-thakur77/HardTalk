@@ -9,6 +9,9 @@ import { difficultySchema } from '../src/scenarios/schema';
 
 const score = z.number().int().min(1).max(4);
 
+/** The gold set is workplace conversations, labelled on the workplace track's rubrics. */
+export const GOLD_DIMENSIONS = ['clarity', 'empathy', 'ask_made', 'boundary_held'] as const;
+
 const goldFileSchema = z.strictObject({
   scenario_id: z.string(),
   transcripts: z.array(

@@ -18,5 +18,5 @@ anchors:
   3: A specific request with an action, but no time or owner, or the answer is not confirmed.
   4: >-
     A specific request with action, owner and time, and the user confirms the answer ("So the
-    first part merges by 4pm?").
+    first part merges by 4pm?", "So we're meeting your partners on Thursday?").
 evidence: Quote the request itself. If there is no request, quote the closest the user came.

@@ -1,0 +1,21 @@
+id: held_position
+name: Held your ground
+question: Under pressure, did the user keep their claim, conceding only specific points and on purpose?
+framework:
+  name: Toulmin's qualifier
+  source: Stephen E. Toulmin, "The Uses of Argument", Cambridge University Press, 1958.
+  applies: >-
+    A qualifier states how strongly a claim holds and under what conditions. Narrowing a
+    claim deliberately keeps it standing; dropping it or overstating it does not.
+anchors:
+  1: >-
+    The user abandons the claim under pressure ("okay, maybe you're right"), or never
+    defends it.
+  2: >-
+    The user retreats to a vaguer claim without saying so, or overstates it to push through
+    ("it always works").
+  3: The user keeps the claim through pushback, but concedes a point without qualifying why.
+  4: >-
+    The user keeps the claim, concedes a specific point on purpose and states the qualifier
+    ("You're right for small teams. For teams over twenty, my point stands.").
+evidence: Quote what the user said right after the opponent pushed back hardest.

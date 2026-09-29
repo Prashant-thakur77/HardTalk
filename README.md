@@ -2,7 +2,14 @@
 
 Practise the conversation before you have it.
 
-HardTalk is a voice roleplay app for difficult workplace conversations. You pick a situation, say it out loud to an AI colleague who pushes back, and get a scorecard that quotes your own words back to you. Then you try again and see the score move.
+HardTalk is a practice room for the spoken moments you only get one shot at: your first job interview, the Q&A after your first pitch, a debate, or telling a teammate their PR is blocking the release. It is built for students and people early in their careers who are about to do one of these for the first time.
+
+You say it out loud to a room of AI personas who push back, each with their own face, voice and line of questioning. Then you get a scorecard that quotes your own words as the evidence for every score, and one better line to try. You try again and see the score move.
+
+- **Every score shows its evidence.** A score above 1 must quote something you actually said, and code (not the model) throws out any quote you didn't say.
+- **The rubrics are open.** Thirteen anchored rubrics in `data/rubrics/`, each citing a named framework (SBI, Nonviolent Communication, Crucial Conversations, STAR, the Pyramid Principle, Toulmin and more).
+- **A panel, not a chatbot.** An investor who likes you, one who doubts the model, an advisor who asks what stops a copycat. The brief tells you what each will ask about.
+- **The whole loop works with a screen reader and no audio**, and saying "stop" ends it at once, unscored.
 
 ![HardTalk in mock mode: a first try scores 7/16, the retry scores 14/16](docs/demo.gif)
 
@@ -13,17 +20,25 @@ pnpm install
 pnpm dev        # then press w for the browser, or scan the QR code with Expo Go
 ```
 
-That is mock mode, and it needs no API keys, no microphone and no network. It replays recorded conversations through the same screens, captions and scorecard as the live app, and a yellow banner says so on every screen. Node 20 and pnpm 10 are the only requirements.
+That is mock mode, and it needs no API keys, no microphone and no network. It replays recorded conversations through the same screens, captions and scorecard as the live app, reads each persona's lines aloud with the device's own speech engine at their own pitch, and a yellow banner says so on every screen. Node 20 and pnpm 10 are the only requirements.
 
 ## What happens in a session
 
-1. Pick one of three conversations: a teammate's PR has blocked the release for three days, your manager wants you on an extra project, or your PM added scope mid-sprint.
-2. Pick how hard the other person pushes back: L1 cooperative, L2 defensive, L3 deflecting.
-3. Talk, or type if you would rather not use audio. The persona has a goal and a hidden objection, and ends the call when your ask has been answered or after six turns. Captions run for both speakers. Saying or typing "stop" ends it at once, unscored.
-4. Read the scorecard. Clarity, Empathy, Ask made and Boundary held are each scored 1 to 4, and every score above 1 quotes something you actually said, with one line to try next time.
+1. Pick a track and a conversation:
+
+   | Track | Built-in conversation | Who is in the room | Scored on |
+   | --- | --- | --- | --- |
+   | Workplace | A teammate's PR is blocking the release; saying no to your manager's extra project; pushing back on mid-sprint scope | One colleague | Clarity (SBI), Empathy (NVC), Ask made, Boundary held (Crucial Conversations) |
+   | Pitch Q&A | Questions after your seed pitch | Maya (who pays, retention), Leo (the team), Kenji (what stops a copycat) | Answered first, Evidence, Objections, Ask made |
+   | Interview | Your first engineering interview | Priya (a time it failed), Tom (the technical why), Grace (why this team) | Answered first, Structured story (STAR), Evidence, Ownership |
+   | Debate | AI assistants in programming exams | Daniel (against), Aisha (moderator), Mateo (how would it be checked) | Clear claim, Rebuttal, Fair to the other side, Held your ground |
+
+2. Read the brief: who is in the room, whose side they are on, and what each will ask about. Pick how hard they push back: L1, L2 or L3. The lead persona's face changes with the level.
+3. Talk, or type if you would rather not use audio. Everyone has a goal, the lead has a hidden objection, and the conversation ends when it reaches its stop condition or after six of your turns. Captions run for every speaker, under their name and face. Saying or typing "stop" ends it at once, unscored.
+4. Read the scorecard. The track's four rubrics are each scored 1 to 4, every score above 1 quotes something you actually said, and each comes with one line to try next time. Your key line (your ask, your close, your result or your claim) is pulled out at the top.
 5. Retry. The scorecard shows each score before and after, side by side.
 
-Three graded sessions are free. Pro (the RevenueCat `pro` entitlement) adds unlimited grading, your own scenarios and progress history. The paywall opens in exactly two places: starting a fourth graded session, and tapping "Create your own scenario". At the session limit its copy names the conversation you are starting and how your score has moved on it ("Keep practising 'Your teammate's PR is blocking the release'. Your score on it so far: 7 → 14 out of 16."); at "Create your own scenario" it says why you would write one. The words come from `data/paywall.yaml` and reach RevenueCat's paywall as custom variables. The free sessions are counted on the device, so deleting your history does not reset them; reinstalling does, because there are no accounts. Restore purchases is on the home screen.
+Three graded sessions are free, in any track. Pro (the RevenueCat `pro` entitlement) adds unlimited grading, your own scenarios in any track (your real interview, your real pitch) and progress history. The paywall opens in exactly two places: starting a fourth graded session, and tapping "Create your own scenario". At the session limit its copy names the conversation you are starting and how your score has moved on it ("Keep practising 'Your teammate's PR is blocking the release'. Your score on it so far: 7 → 14 out of 16."); at "Create your own scenario" it says why you would write one. The words come from `data/paywall.yaml` and reach RevenueCat's paywall as custom variables. The free sessions are counted on the device, so deleting your history does not reset them; reinstalling does, because there are no accounts. Restore purchases is on the home screen.
 
 ## How it works
 
@@ -31,7 +46,7 @@ Three graded sessions are free. Pro (the RevenueCat `pro` entitlement) adds unli
 flowchart LR
   App["Expo app<br/>src/voice/VoiceProvider.ts"] -- "POST /voice/token" --> Server["/server (Hono)"]
   Server -- "short-lived token" --> App
-  App <-- "WebRTC audio" --> Persona["ElevenLabs agent<br/>persona on Gemini"]
+  App <-- "WebRTC audio" --> Persona["ElevenLabs agent<br/>persona and panel on Gemini,<br/>one voice per person"]
   App -- "POST /grade (transcript)" --> Server
   Server -- "structured JSON" --> Grader["Claude grader"]
   Server -- "evidence-checked grade" --> App
@@ -45,15 +60,17 @@ Scores have to be grounded. `src/grading/evidence.ts` checks that every quote be
 
 | Path | What is there |
 | --- | --- |
-| `data/rubrics/*.yaml` | The four rubrics, with anchored 1–4 descriptors citing SBI, Nonviolent Communication and Crucial Conversations |
-| `data/scenarios/*.yaml` | Each persona's goal, hidden objection, tone, L1–L3 behaviour and stop condition |
+| `data/tracks/*.yaml` | The four tracks: the room the persona is in, what the grader grades, the four rubrics and the key line |
+| `data/rubrics/*.yaml` | Thirteen rubrics with anchored 1–4 descriptors, each citing a named framework and its source |
+| `data/scenarios/*.yaml` | Each persona's goal, hidden objection, tone, face, voice, what they ask about, L1–L3 behaviour and stop condition, plus the panel |
 | `data/prompts/` | The persona prompt template and the grader instructions with weak, medium and strong calibration examples |
 | `src/grading/` | Grade schema, evidence gate, retry-then-downgrade orchestration, prompt assembly |
-| `src/voice/` | `VoiceProvider` interface, the ElevenLabs provider and the mock replay |
+| `src/voice/` | `VoiceProvider` interface, the ElevenLabs provider (with panel voices split by speaker) and the mock replay read aloud on the device |
+| `src/ui/Face.tsx` | The drawn persona faces: SVG, no image assets, blinking and talking, stilled by Reduce Motion |
 | `src/purchases/` | RevenueCat entitlement, paywall with scenario-aware custom variables, restore, and the two paywall gates |
 | `src/safety/`, `data/safety.yaml` | Stop word, distress exit, crisis resources, disclaimer |
 | `server/` | Token minting, grading, safety refusal and a per-client rate limit, about 250 lines |
-| `evals/` | 30 hand-labelled conversations and `pnpm eval`, which measures the grader against them ([EVALS.md](EVALS.md)) |
+| `evals/` | 30 hand-labelled workplace conversations and `pnpm eval`, which measures the grader against them ([EVALS.md](EVALS.md)); the other tracks have no gold set yet |
 | `app/` | Screens: scenarios, brief, live session, scorecard, paywall (mock mode), progress history, your own scenario |
 
 Rubrics, scenarios and prompts are YAML so they can be read and reviewed without reading code. The app and the server validate them against the same zod schemas, and `pnpm test` fails if any file drifts from its schema.

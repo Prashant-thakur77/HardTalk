@@ -33,9 +33,7 @@ attempts:
           evidence_quotes: ["I'll make it work somehow."]
           rationale: "You agreed to both projects. The boundary was gone before Jordan pushed."
           better_line: "I'd rather say no now than let billing slip later."
-      ask_made: false
-      ask_text: null
-      boundary_held: false
+      key_line: null
       safety_flag: false
 
   - end_reason: stop_condition
@@ -73,7 +71,5 @@ attempts:
             - "Then I'd rather say no to leading the migration now."
           rationale: "Jordan played down the cost; you corrected it with a number and kept the no when they pushed again."
           better_line: "Ask me again after billing ships on the fifteenth, and I'll look at it properly."
-      ask_made: true
-      ask_text: "If the migration is the priority, which should slip: billing or the migration?"
-      boundary_held: true
+      key_line: "If the migration is the priority, which should slip: billing or the migration?"
       safety_flag: false

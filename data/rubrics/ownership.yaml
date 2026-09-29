@@ -1,0 +1,23 @@
+id: ownership
+name: Ownership
+question: Did the user own their part, name what went wrong without blaming others, and say what they learned and changed?
+framework:
+  name: Kolb's experiential learning cycle
+  source: >-
+    David A. Kolb, "Experiential Learning: Experience as the Source of Learning and
+    Development", Prentice Hall, 1984.
+  applies: >-
+    Learning from an experience means reflecting on it honestly, drawing a lesson from it,
+    and trying something different next time. Blame skips the reflection step.
+anchors:
+  1: >-
+    The user blames others or circumstances, or hides behind "we" for every decision ("the
+    team missed it", "the client kept changing things").
+  2: Admits something went wrong, but vaguely, with no clear part of their own and no lesson.
+  3: >-
+    Owns a specific decision in the first person ("I decided...") and names a lesson, but
+    not what they changed.
+  4: >-
+    Owns a specific decision without blame, names the lesson, and says what they now do
+    differently ("I shipped without a rollback plan. Now every release has one.").
+evidence: Quote the sentence where the user names their own part in what happened.

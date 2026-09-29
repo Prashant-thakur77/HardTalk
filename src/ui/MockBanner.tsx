@@ -4,7 +4,8 @@ import { config } from '@/config';
 
 import { colors, radius, space } from './theme';
 
-const DEFAULT_MESSAGE = 'Mock mode: replaying recorded conversations. No microphone, no network, no keys.';
+const DEFAULT_MESSAGE =
+  'Mock mode: replaying recorded conversations, read aloud by your device. No microphone, no network, no keys.';
 
 /** Always visible in mock mode so a replay is never mistaken for a live conversation or a live grade. */
 export function MockBanner({ message = DEFAULT_MESSAGE }: { message?: string }) {

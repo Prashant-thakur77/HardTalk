@@ -1,0 +1,91 @@
+# Recorded conversations replayed in mock mode. Attempt 1 is a typical first try;
+# attempt 2 is the retry. Every evidence quote is a verbatim substring of a user turn.
+scenario_id: pitch-seed-round
+attempts:
+  - end_reason: stop_condition
+    turns:
+      - { speaker: persona, text: "Thanks for the pitch. Let's go straight to questions. Who actually pays for this?" }
+      - { speaker: user, text: "So, um, that's a great question. There are a lot of ways we could go with monetisation, like premium features, maybe partnerships with universities, and we've thought about ads too, but we don't want to ruin the experience." }
+      - { speaker: persona, text: "So today, nobody pays?" }
+      - { speaker: user, text: "Not yet, no. But students really love it, we get tons of messages saying it helped them study." }
+      - { speaker: persona, name: Kenji, text: "How does the matching actually work? And what stops a university building the same thing?" }
+      - { speaker: user, text: "It's an algorithm that matches people who are compatible. Honestly, universities are way too slow to build anything like this." }
+      - { speaker: persona, name: Leo, text: "The usage is genuinely interesting. But you both graduate in May. Are you going full-time on this?" }
+      - { speaker: user, text: "Yeah, I mean, we're really passionate about it, so we'll definitely figure something out." }
+      - { speaker: persona, text: "My worry is retention. What happens to your users when they graduate?" }
+      - { speaker: user, text: "I think that's true for every student app, honestly. New students come in every year, so it kind of balances out." }
+      - { speaker: persona, text: "Okay. Thanks for coming in. We'll be in touch." }
+      - { speaker: user, text: "Great, thanks so much, let us know if you have any other questions!" }
+    grade:
+      dimensions:
+        answer_directness:
+          score: 2
+          evidence_quotes: ["Not yet, no."]
+          rationale: "You gave the real answer only when Maya asked a second time. Your first reply listed options and never said who pays today."
+          better_line: "Today one campus club pays us for a group plan, and next is a four dollar monthly premium tier."
+        evidence:
+          score: 2
+          evidence_quotes: ["But students really love it, we get tons of messages saying it helped them study."]
+          rationale: "\"Tons of messages\" is support nobody can check. You had real numbers and didn't use one."
+          better_line: "38% of students who join are still active eight weeks later."
+        objection_handling:
+          score: 1
+          evidence_quotes:
+            - "universities are way too slow to build anything like this"
+            - "New students come in every year, so it kind of balances out."
+          rationale: "You waved off both worries. Kenji's copying question got \"too slow\" and Maya's retention question got \"kind of balances out\", with no fact behind either."
+          better_line: "A university could copy the form, but not fourteen months of data on which groups keep meeting."
+        ask_made:
+          score: 1
+          evidence_quotes: ["let us know if you have any other questions!"]
+          rationale: "You left the next step to Maya, so the meeting ended with nothing booked."
+          better_line: "Can we book a partner meeting next Tuesday to go through the retention data?"
+      key_line: null
+      safety_flag: false
+
+  - end_reason: stop_condition
+    turns:
+      - { speaker: persona, text: "Thanks for the pitch. Let's go straight to questions. Who actually pays for this?" }
+      - { speaker: user, text: "Today, one campus club pays us $300 a semester for a group plan. Next is a $4 a month premium tier, which we launch in January." }
+      - { speaker: persona, text: "One club isn't a business. Why would a student pay four dollars?" }
+      - { speaker: user, text: "Fair, one club proves the price, not the market. In a survey of 410 active users, 22% said they'd pay $4 a month for exam-week matching, and that's the premium feature." }
+      - { speaker: persona, name: Kenji, text: "Walk me through the matching. What stops a university or a big platform building the same thing?" }
+      - { speaker: user, text: "Matching uses course, free hours in each student's timetable, and exam date. A university could copy the form, but not fourteen months of data on which groups keep meeting. Does that answer the copying question?" }
+      - { speaker: persona, name: Leo, text: "It answers mine. But you both graduate in May. Are you going full-time?" }
+      - { speaker: user, text: "Yes. We both go full-time on June 1st, and this round pays us both for eighteen months." }
+      - { speaker: persona, text: "Students graduate and leave. What happens to your users then?" }
+      - { speaker: user, text: "That's a fair worry. 38% of students who join are still active eight weeks later, and every fall a new first-year class arrives, which is when our sign-ups peak. So we measure retention per semester, not per student." }
+      - { speaker: persona, text: "Per semester. I'd want to see that cohort data." }
+      - { speaker: user, text: "I'll send the cohort data tonight. Can we book a partner meeting next Tuesday at 10 to walk through it?" }
+      - { speaker: persona, text: "Send it tonight. If it holds up, Tuesday at 10 works." }
+    grade:
+      dimensions:
+        answer_directness:
+          score: 4
+          evidence_quotes:
+            - "Today, one campus club pays us $300 a semester for a group plan."
+            - "Matching uses course, free hours in each student's timetable, and exam date."
+          rationale: "Every first sentence answered the question just asked: who pays for Maya, how matching works for Kenji, and a plain yes for Leo."
+          better_line: "Today, one campus club pays us $300 a semester, and premium launches in January."
+        evidence:
+          score: 3
+          evidence_quotes:
+            - "38% of students who join are still active eight weeks later"
+            - "In a survey of 410 active users, 22% said they'd pay $4 a month for exam-week matching"
+          rationale: "Your numbers were specific and checkable. The 22% is what students said they'd pay, not what they paid, so it needed a real payment behind it."
+          better_line: "The Engineering Society renewed its $300 plan this semester without us asking."
+        objection_handling:
+          score: 4
+          evidence_quotes:
+            - "Fair, one club proves the price, not the market."
+            - "Does that answer the copying question?"
+            - "That's a fair worry."
+          rationale: "You agreed with the fair part of each concern, answered it with a fact, and checked with Kenji that his question was covered."
+          better_line: "That's fair. Per semester, 38% stay active, and each fall brings a new first-year class."
+        ask_made:
+          score: 4
+          evidence_quotes: ["Can we book a partner meeting next Tuesday at 10 to walk through it?"]
+          rationale: "You asked for a specific meeting at a specific time, tied it to what Maya wanted to see, and got a yes with a condition."
+          better_line: "Great. Cohort data tonight, partner meeting Tuesday at 10."
+      key_line: "Can we book a partner meeting next Tuesday at 10 to walk through it?"
+      safety_flag: false

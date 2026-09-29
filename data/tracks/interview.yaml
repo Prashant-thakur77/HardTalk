@@ -1,0 +1,16 @@
+id: interview
+name: Interview
+tagline: Answer behavioural questions with a real story.
+setting: >-
+  a live, spoken job interview, where you are interviewing the person in front of you for a
+  role on your team
+practising: answering tough job interview questions
+rubrics: [answer_directness, star_structure, evidence, ownership]
+key_line:
+  label: Your result
+  instruction: >-
+    the sentence where the user states the result or outcome of their story
+  closest: Closest you came to a result
+  none: No result the grader could quote from what you said.
+  from: evidence
+custom_opening_line: Thanks for coming in. Shall we get started?

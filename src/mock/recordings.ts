@@ -1,14 +1,13 @@
-import prBlockingRelease from '@data/mock/pr-blocking-release.yaml';
+import debateAiInExams from '@data/mock/debate-ai-in-exams.yaml';
 import declineExtraProject from '@data/mock/decline-extra-project.yaml';
+import interviewFirstRole from '@data/mock/interview-first-role.yaml';
 import midSprintScopeChange from '@data/mock/mid-sprint-scope-change.yaml';
+import pitchSeedRound from '@data/mock/pitch-seed-round.yaml';
+import prBlockingRelease from '@data/mock/pr-blocking-release.yaml';
 import { z } from 'zod';
 
 import { gradeSchema } from '@/grading/rubric.schema';
-
-const turnSchema = z.object({
-  speaker: z.enum(['user', 'persona']),
-  text: z.string().min(1),
-});
+import { turnSchema } from '@/grading/transcript';
 
 const recordingSchema = z.object({
   end_reason: z.enum(['stop_condition', 'turn_limit']),
@@ -22,9 +21,14 @@ const recordingFileSchema = z.object({
   attempts: z.array(recordingSchema).min(2),
 });
 
-const files = [prBlockingRelease, declineExtraProject, midSprintScopeChange].map((raw) =>
-  recordingFileSchema.parse(raw),
-);
+const files = [
+  prBlockingRelease,
+  declineExtraProject,
+  midSprintScopeChange,
+  pitchSeedRound,
+  interviewFirstRole,
+  debateAiInExams,
+].map((raw) => recordingFileSchema.parse(raw));
 
 /**
  * Mock mode replays a typical first try on attempt 1 and the improved retry on every

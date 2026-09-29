@@ -1,0 +1,16 @@
+id: debate
+name: Debate
+tagline: Argue your side against someone who disagrees.
+setting: >-
+  a live, spoken debate, where the person in front of you holds the opposing position and
+  you are arguing against it
+practising: arguing a position against a live opponent
+rubrics: [claim_clarity, rebuttal, steelman, held_position]
+key_line:
+  label: Your claim
+  instruction: >-
+    the user's main claim
+  closest: Closest you came to a claim
+  none: No claim the grader could quote from what you said.
+  from: claim_clarity
+custom_opening_line: Go ahead, make your case. I'm not convinced yet.

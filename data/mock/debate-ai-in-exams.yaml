@@ -1,0 +1,84 @@
+# Recorded conversations replayed in mock mode. Attempt 1 is a typical first try;
+# attempt 2 is the retry. Every evidence quote is a verbatim substring of a user turn.
+scenario_id: debate-ai-in-exams
+attempts:
+  - end_reason: stop_condition
+    turns:
+      - { speaker: persona, text: "An exam measures what you can do alone. Allow AI in the room and you're grading the tool, not the student." }
+      - { speaker: user, text: "I mean, AI is basically everywhere now, and it's the future, so I kind of think universities need to get with the times. Everyone uses it anyway." }
+      - { speaker: persona, name: Aisha, text: "What exactly are you proposing for the exam? And what's your evidence that everyone uses it?" }
+      - { speaker: user, text: "Just that it should be allowed, I guess. Most developers use it at work, so the exam should match that." }
+      - { speaker: persona, text: "Then what are we grading? If the assistant writes the code, a student who can't program still passes." }
+      - { speaker: user, text: "Well, calculators are allowed in maths exams, and nobody complains about that." }
+      - { speaker: persona, name: Mateo, text: "I set these exams. What exactly would students be allowed to use, and how would we check it?" }
+      - { speaker: user, text: "I don't know, probably whatever tools they want. The details can be worked out later." }
+      - { speaker: persona, name: Aisha, text: "Daniel's point was about what the grade measures. Can you answer that directly?" }
+      - { speaker: user, text: "I guess it would be harder to tell who actually knows the material. Maybe it should only be allowed in some exams." }
+      - { speaker: persona, text: "So even you aren't sure it should be allowed." }
+      - { speaker: user, text: "No, I still think it's better overall. It's just how things are going." }
+    grade:
+      dimensions:
+        claim_clarity:
+          score: 2
+          evidence_quotes: ["Most developers use it at work, so the exam should match that."]
+          rationale: "You got to a claim and a reason, but only on your second turn, hedged with \"I guess\", and when Mateo asked what exactly you'd allow, you left it for later."
+          better_line: "AI assistants should be allowed in programming exams, because the exam should test the job students will actually do."
+        rebuttal:
+          score: 1
+          evidence_quotes: ["Well, calculators are allowed in maths exams, and nobody complains about that."]
+          rationale: "Daniel asked what the grade would measure, and you answered with a comparison that left his question open."
+          better_line: "A student who can't program can't fix the assistant's mistakes, so build the exam around that."
+        steelman:
+          score: 2
+          evidence_quotes: ["I guess it would be harder to tell who actually knows the material."]
+          rationale: "You did put Daniel's worry into your own words, but as a way of giving ground rather than before answering it."
+          better_line: "Your worry is that the grade no longer shows who can program, and that's fair."
+        held_position:
+          score: 2
+          evidence_quotes: ["No, I still think it's better overall."]
+          rationale: "You came back to your side, but only after giving half of it away without saying on what terms."
+          better_line: "I'll grant the logging needs a trial, and my position stands: allow it."
+      key_line: "Just that it should be allowed, I guess."
+      safety_flag: false
+
+  - end_reason: stop_condition
+    turns:
+      - { speaker: persona, text: "An exam measures what you can do alone. Allow AI in the room and you're grading the tool, not the student." }
+      - { speaker: user, text: "AI assistants should be allowed in programming exams, because the exam should test the job students will actually do. Most working developers now use one, and a full ban tests a way of working that barely exists anymore." }
+      - { speaker: persona, name: Aisha, text: "That's a big claim about industry. Evidence, please. And Daniel, I'll want the same from you." }
+      - { speaker: user, text: "Our own department survey found most final-year students already use an assistant weekly. So the exam should move from writing boilerplate to designing, testing and explaining code, which the assistant can't do for you." }
+      - { speaker: persona, text: "Then what are we grading? If the assistant writes the code, a student who can't program still passes." }
+      - { speaker: user, text: "That's the strongest point against me. You're worried the grade no longer shows that this student can program, and that's fair. My answer is that a student who can't program can't debug the assistant's mistakes, and the exam should be built around exactly that." }
+      - { speaker: persona, name: Mateo, text: "I set these exams. What exactly would students be allowed to use, and how would we check it?" }
+      - { speaker: user, text: "Only the university's own assistant, on the exam laptops, with every prompt logged. Half the marks come from a live debugging task where the assistant's code has planted bugs, so a student who only copies answers fails that half." }
+      - { speaker: persona, text: "Logs can be gamed. And a ban is simpler." }
+      - { speaker: user, text: "Simpler, yes, but the department caught 14 students using AI on take-home work last year, so the ban isn't working either. I'll grant the logging needs a trial, so I'd pilot it in one module first." }
+      - { speaker: persona, text: "A pilot in one module is a much smaller claim than the motion." }
+      - { speaker: user, text: "It's how we get to the motion safely. My position stands: allow it, and test what the assistant can't do." }
+      - { speaker: persona, name: Aisha, text: "Thank you both. We'll leave it there." }
+    grade:
+      dimensions:
+        claim_clarity:
+          score: 3
+          evidence_quotes: ["AI assistants should be allowed in programming exams, because the exam should test the job students will actually do."]
+          rationale: "Claim and reason came first and were easy to follow. Your support was a general line about industry until Aisha asked, so the checkable fact came a turn late."
+          better_line: "AI should be allowed in programming exams, because most of our final-years already use it weekly, and exams should test real work."
+        rebuttal:
+          score: 4
+          evidence_quotes: ["My answer is that a student who can't program can't debug the assistant's mistakes, and the exam should be built around exactly that."]
+          rationale: "You answered the exact question Daniel asked, and when Mateo asked how it would work, you showed how the exam would check it."
+          better_line: "A student who can't program fails the debugging half, with or without the assistant."
+        steelman:
+          score: 3
+          evidence_quotes: ["You're worried the grade no longer shows that this student can program, and that's fair."]
+          rationale: "You put Daniel's point fairly before disagreeing with it. You didn't check that he'd accept your version of it, which would have made it airtight."
+          better_line: "Your worry is that a pass no longer means the student can program. Is that it?"
+        held_position:
+          score: 4
+          evidence_quotes:
+            - "I'll grant the logging needs a trial, so I'd pilot it in one module first."
+            - "My position stands: allow it, and test what the assistant can't do."
+          rationale: "You gave ground on one detail on purpose, said exactly what you were conceding, and kept the claim when Daniel tried to shrink it."
+          better_line: "A pilot is how we start, and the claim is the same: allow it."
+      key_line: "AI assistants should be allowed in programming exams, because the exam should test the job students will actually do."
+      safety_flag: false

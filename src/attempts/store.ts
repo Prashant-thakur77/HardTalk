@@ -6,6 +6,16 @@ import { gradeSchema } from '@/grading/rubric.schema';
 import { turnSchema } from '@/grading/transcript';
 import { difficultySchema } from '@/scenarios/schema';
 
+/**
+ * Grades saved before practice tracks had fixed workplace flags (ask_made, ask_text,
+ * boundary_held). The ask became the key line; the flags were never shown on their own.
+ */
+function migrateGrade(raw: unknown): unknown {
+  if (typeof raw !== 'object' || raw === null || 'key_line' in raw) return raw;
+  const { ask_text: askText, ...rest } = raw as Record<string, unknown>;
+  return { ...rest, key_line: askText ?? null };
+}
+
 const attemptSchema = z.object({
   id: z.string(),
   scenarioId: z.string(),
@@ -14,7 +24,7 @@ const attemptSchema = z.object({
   /** 1-based attempt number within this scenario. */
   number: z.number().int().min(1),
   turns: z.array(turnSchema),
-  grade: gradeSchema,
+  grade: z.preprocess(migrateGrade, gradeSchema),
   endReason: z.enum(['stop_condition', 'turn_limit']),
   createdAt: z.number(),
 });

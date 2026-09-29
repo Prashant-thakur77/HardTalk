@@ -7,6 +7,8 @@ import { DIMENSIONS, rubricSchema } from '@/grading/rubric.schema';
 import { rubrics } from '@/grading/rubrics';
 import { scenarios } from '@/scenarios';
 import { scenarioSchema } from '@/scenarios/schema';
+import { tracks } from '@/tracks';
+import { TRACK_IDS, trackSchema } from '@/tracks/schema';
 
 const DATA = join(__dirname, '../../../data');
 
@@ -22,12 +24,53 @@ function yamlFiles(dir: string) {
 describe('data/scenarios', () => {
   const files = yamlFiles('scenarios');
 
-  it('ships exactly the three frozen scenarios', () => {
+  it('ships the three workplace conversations and one per other track', () => {
     expect(files.map((file) => file.id).sort()).toEqual([
+      'debate-ai-in-exams',
       'decline-extra-project',
+      'interview-first-role',
       'mid-sprint-scope-change',
+      'pitch-seed-round',
       'pr-blocking-release',
     ]);
+  });
+
+  it('gives every built-in persona and panelist a drawn face', () => {
+    for (const scenario of scenarios) {
+      expect(scenario.persona.face, scenario.id).toBeDefined();
+      for (const member of scenario.panel) expect(member.face, `${scenario.id}: ${member.name}`).toBeDefined();
+    }
+  });
+
+  it('tells the user what everyone in the room will ask about, without giving away the hidden objection', () => {
+    const pairs = (text: string) => {
+      const words = text.toLowerCase().match(/[a-z']+/g) ?? [];
+      return new Set(words.slice(1).map((word, i) => `${words[i]} ${word}`));
+    };
+    for (const scenario of scenarios) {
+      const secret = pairs(scenario.persona.hidden_objection);
+      for (const person of [scenario.persona, ...scenario.panel]) {
+        expect(person.asks_about?.length, `${scenario.id}: ${person.name}`).toBeGreaterThan(0);
+        for (const topic of person.asks_about ?? []) {
+          expect([...pairs(topic)].filter((pair) => secret.has(pair)), `${scenario.id}: ${topic}`).toEqual([]);
+        }
+      }
+    }
+  });
+
+  it('gives everyone in a room a voice pitch of their own', () => {
+    for (const scenario of scenarios) {
+      const pitches = [scenario.persona, ...scenario.panel].map((person) => person.voice?.pitch);
+      expect(pitches.every((pitch) => pitch !== undefined), scenario.id).toBe(true);
+      expect(new Set(pitches).size, scenario.id).toBe(pitches.length);
+    }
+  });
+
+  it('rejects two people in one room with the same name', () => {
+    const [first] = files;
+    const clash = structuredClone(first!.data) as { persona: { name: string }; panel?: unknown[] };
+    clash.panel = [{ name: clash.persona.name, role: 'r', stance: 'agrees', view: 'v', tone: 't' }];
+    expect(scenarioSchema.safeParse(clash).success).toBe(false);
   });
 
   for (const file of files) {
@@ -72,13 +115,46 @@ describe('data/rubrics', () => {
 
     it(`${file.id}.yaml cites a named framework with a source`, () => {
       const rubric = rubricSchema.parse(file.data);
-      expect(rubric.framework.name).toMatch(/SBI|Nonviolent Communication|NVC|Crucial Conversations/);
+      expect(rubric.framework.name.length).toBeGreaterThan(3);
       expect(rubric.framework.source.length).toBeGreaterThan(20);
     });
   }
 
   it('every rubric is registered with the app loader', () => {
     expect(Object.keys(rubrics).sort()).toEqual([...DIMENSIONS].sort());
+  });
+
+  it('every rubric is used by at least one track', () => {
+    const used = new Set(tracks.flatMap((track) => track.rubrics));
+    expect([...used].sort()).toEqual([...DIMENSIONS].sort());
+  });
+});
+
+describe('data/tracks', () => {
+  const files = yamlFiles('tracks');
+
+  it('has one file per track, each registered with the app loader', () => {
+    expect(files.map((file) => file.id).sort()).toEqual([...TRACK_IDS].sort());
+    expect(tracks.map((track) => track.id)).toEqual([...TRACK_IDS]);
+  });
+
+  for (const file of files) {
+    it(`${file.id}.yaml matches the track schema and its filename`, () => {
+      expect(trackSchema.parse(file.data).id).toBe(file.id);
+    });
+  }
+
+  it('every track has at least one built-in conversation to practise', () => {
+    for (const track of tracks) {
+      expect(scenarios.some((scenario) => scenario.track === track.id), track.id).toBe(true);
+    }
+  });
+
+  it('rejects a track that lists a rubric twice', () => {
+    const [first] = files;
+    const broken = structuredClone(first!.data) as { rubrics: string[] };
+    broken.rubrics = [broken.rubrics[0]!, ...broken.rubrics.slice(0, 3)];
+    expect(trackSchema.safeParse(broken).success).toBe(false);
   });
 });
 

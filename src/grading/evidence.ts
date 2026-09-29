@@ -1,4 +1,4 @@
-import { DIMENSIONS, type Dimension, type Grade } from './rubric.schema';
+import { scoredDimensions, type Dimension, type Grade } from './rubric.schema';
 import type { Turn } from './transcript';
 
 /**
@@ -58,8 +58,7 @@ export interface Ungrounded {
 }
 
 export function findUngrounded(grade: Grade, turns: Turn[]): Ungrounded[] {
-  return DIMENSIONS.flatMap((dimension) => {
-    const { score, evidence_quotes } = grade.dimensions[dimension];
+  return scoredDimensions(grade).flatMap(([dimension, { score, evidence_quotes }]) => {
     if (score <= 1) return [];
     const bad = evidence_quotes.filter((quote) => !isGrounded(quote, turns));
     return bad.length > 0 || evidence_quotes.length === 0 ? [{ dimension, quotes: bad }] : [];
@@ -78,8 +77,7 @@ const UNSUPPORTED_RATIONALE =
  */
 export function downgradeUngrounded(grade: Grade, turns: Turn[]): Grade {
   const dimensions = { ...grade.dimensions };
-  for (const dimension of DIMENSIONS) {
-    const current = dimensions[dimension];
+  for (const [dimension, current] of scoredDimensions(grade)) {
     const kept = current.evidence_quotes.filter((quote) => isGrounded(quote, turns));
     const removed = current.evidence_quotes.length - kept.length;
     if (removed === 0 && (current.score <= 1 || kept.length > 0)) continue;
@@ -91,6 +89,6 @@ export function downgradeUngrounded(grade: Grade, turns: Turn[]): Grade {
       dimensions[dimension] = { ...current, evidence_quotes: [], rationale: UNSUPPORTED_RATIONALE };
     }
   }
-  const askGrounded = grade.ask_text !== null && isGrounded(grade.ask_text, turns);
-  return { ...grade, dimensions, ask_text: askGrounded ? grade.ask_text : null };
+  const keyLineGrounded = grade.key_line !== null && isGrounded(grade.key_line, turns);
+  return { ...grade, dimensions, key_line: keyLineGrounded ? grade.key_line : null };
 }

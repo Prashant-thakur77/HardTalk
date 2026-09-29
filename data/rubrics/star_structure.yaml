@@ -1,0 +1,21 @@
+id: star_structure
+name: Structured story
+question: Did the user tell a complete story with a situation, their task, their actions and the result?
+framework:
+  name: STAR behavioural interviewing (Situation, Task, Action, Result)
+  source: >-
+    Development Dimensions International (DDI), "STAR Method for Interviewing and Feedback",
+    part of the Targeted Selection interviewing system; Lyle M. Spencer and Signe M. Spencer,
+    "Competence at Work: Models for Superior Performance", John Wiley & Sons, 1993, on
+    behavioural event interviews.
+  applies: >-
+    Past behaviour predicts future behaviour, so a strong answer describes one real past
+    event: the situation, the user's task, what they did, and how it turned out.
+anchors:
+  1: No specific story. The user talks in general or hypothetical terms ("I usually...", "I would...").
+  2: A real situation, but two or more of task, action and result are missing or vague.
+  3: All four parts are present, but out of order, padded, or the result is vague ("it went well").
+  4: >-
+    One specific event, told in order, with the user's own actions and a concrete result
+    ("So I split the migration into two releases. We shipped on the original date.").
+evidence: Quote the sentence where the user describes what they themselves did.

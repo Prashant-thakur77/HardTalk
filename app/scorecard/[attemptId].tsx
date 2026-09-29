@@ -1,25 +1,25 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { StyleSheet, Text, View } from 'react-native';
 
+import { usePreferences } from '@/a11y/preferences';
 import { findAttempt, findPreviousAttempt, useAttempts } from '@/attempts/store';
-import { DIMENSIONS, type Dimension, type Grade } from '@/grading/rubric.schema';
+import { MAX_TOTAL, totalScore, type Dimension, type DimensionGrade, type Grade } from '@/grading/rubric.schema';
 import { rubrics } from '@/grading/rubrics';
 import { getScenario } from '@/scenarios';
+import { peopleIn, reactionMood } from '@/scenarios/people';
 import { difficultySchema, type Difficulty } from '@/scenarios/schema';
 import { startSession } from '@/session/start';
+import { getTrack } from '@/tracks';
+import type { Track } from '@/tracks/schema';
 import { Button } from '@/ui/Button';
+import { Celebration } from '@/ui/Celebration';
 import { MockBanner } from '@/ui/MockBanner';
 import { PurchaseNotice } from '@/ui/PurchaseNotice';
+import { Room } from '@/ui/Room';
 import { ScoreRing } from '@/ui/ScoreRing';
 import { Screen } from '@/ui/Screen';
 import { SkillBar } from '@/ui/SkillBar';
 import { colors, scoreColors, shadow, space, type } from '@/ui/theme';
-
-const MAX_TOTAL = DIMENSIONS.length * 4;
-
-function total(grade: Grade): number {
-  return DIMENSIONS.reduce((sum, dimension) => sum + grade.dimensions[dimension].score, 0);
-}
 
 /** A plain-words read of the total, calibrated to the rubric: most first tries land near 8. */
 function verdict(score: number): string {
@@ -41,6 +41,7 @@ function signed(delta: number): string {
 export default function Scorecard() {
   const { attemptId } = useLocalSearchParams<{ attemptId: string }>();
   const attempts = useAttempts();
+  const { reduceMotion } = usePreferences();
   const attempt = findAttempt(attempts, attemptId);
   const scenario = attempt && getScenario(attempt.scenarioId);
 
@@ -48,7 +49,9 @@ export default function Scorecard() {
 
   const previous = findPreviousAttempt(attempts, attempt);
   const { grade } = attempt;
-  const score = total(grade);
+  const score = totalScore(grade);
+  const previousScore = previous && totalScore(previous.grade);
+  const track = getTrack(scenario.track);
 
   const retry = () => void startSession(scenario.id, attempt.difficulty, attempt.mode, 'replace');
 
@@ -68,7 +71,8 @@ export default function Scorecard() {
         }
       />
       <PurchaseNotice />
-      <View style={styles.summary} accessible accessibilityLabel={summaryLabel(score, previous && total(previous.grade))}>
+      <View style={styles.summary} accessible accessibilityLabel={summaryLabel(score, previousScore)}>
+        {previousScore !== undefined && score > previousScore ? <Celebration reduceMotion={reduceMotion} /> : null}
         <View style={styles.totalRow}>
           <ScoreRing score={score} max={MAX_TOTAL} />
           <View style={styles.totalText}>
@@ -76,20 +80,29 @@ export default function Scorecard() {
               {scenario.title} · attempt {attempt.number} · {attempt.difficulty}
             </Text>
             <Text style={styles.verdict}>{verdict(score)}</Text>
-            {previous ? (
+            {previousScore !== undefined ? (
               <View style={styles.deltaRow}>
-                <Delta before={total(previous.grade)} after={score} large />
+                <Delta before={previousScore} after={score} large />
                 <Text style={type.caption}>vs your last try at {attempt.difficulty}</Text>
               </View>
             ) : null}
           </View>
         </View>
-        <Text style={type.body}>{askLine(grade)}</Text>
+        <View style={styles.reaction}>
+          <Room
+            people={peopleIn(scenario, attempt.difficulty)}
+            mood={reactionMood(score)}
+            size={40}
+            reduceMotion={reduceMotion}
+          />
+          <Text style={[type.body, styles.keyLine]}>{keyLine(grade, track)}</Text>
+        </View>
       </View>
 
       <NextStep
         score={score}
         grade={grade}
+        dimensions={track.rubrics}
         level={attempt.difficulty}
         personaName={scenario.persona.name}
         levelName={(level) => scenario.difficulty_levels[level].name}
@@ -97,14 +110,17 @@ export default function Scorecard() {
         onLevelUp={(level) => void startSession(scenario.id, level, attempt.mode, 'replace')}
       />
 
-      {DIMENSIONS.map((dimension) => (
-        <DimensionCard
-          key={dimension}
-          dimension={dimension}
-          grade={grade}
-          previousScore={previous?.grade.dimensions[dimension].score}
-        />
-      ))}
+      {track.rubrics.map((dimension) => {
+        const result = grade.dimensions[dimension];
+        return result ? (
+          <DimensionCard
+            key={dimension}
+            dimension={dimension}
+            result={result}
+            previousScore={previous?.grade.dimensions[dimension]?.score}
+          />
+        ) : null;
+      })}
 
       <Text style={type.heading} accessibilityRole="header">
         Full transcript
@@ -112,7 +128,9 @@ export default function Scorecard() {
       <View style={styles.transcript}>
         {attempt.turns.map((turn, index) => (
           <Text key={index} style={type.body}>
-            <Text style={styles.speaker}>{turn.speaker === 'persona' ? scenario.persona.name : 'You'}: </Text>
+            <Text style={styles.speaker}>
+              {turn.speaker === 'persona' ? (turn.name ?? scenario.persona.name) : 'You'}:{' '}
+            </Text>
             {turn.text}
           </Text>
         ))}
@@ -122,14 +140,15 @@ export default function Scorecard() {
 }
 
 /**
- * Agrees with the Ask made score: the ask itself, or the nearest thing to one. With no quote it
- * says only what is known; a missing quote can mean no ask, or one the evidence check threw out.
+ * The one line that matters most in this track (your ask, your close, your claim), or the
+ * nearest thing to it. With no quote it says only what is known; a missing quote can mean there
+ * was none, or one the evidence check threw out.
  */
-function askLine(grade: Grade): string {
-  if (grade.ask_made && grade.ask_text) return `Your ask: “${grade.ask_text}”`;
-  const closest = grade.dimensions.ask_made.evidence_quotes[0];
-  if (closest) return `Closest you came to an ask: “${closest}”`;
-  return 'No request the grader could quote from what you said.';
+function keyLine(grade: Grade, track: Track): string {
+  if (grade.key_line) return `${track.key_line.label}: “${grade.key_line}”`;
+  const closest = grade.dimensions[track.key_line.from]?.evidence_quotes[0];
+  if (closest) return `${track.key_line.closest}: “${closest}”`;
+  return track.key_line.none;
 }
 
 function summaryLabel(score: number, previousScore: number | undefined): string {
@@ -142,6 +161,7 @@ function summaryLabel(score: number, previousScore: number | undefined): string 
 function NextStep({
   score,
   grade,
+  dimensions,
   level,
   personaName,
   levelName,
@@ -150,6 +170,7 @@ function NextStep({
 }: {
   score: number;
   grade: Grade;
+  dimensions: Dimension[];
   level: Difficulty;
   personaName: string;
   levelName: (level: Difficulty) => string;
@@ -169,28 +190,30 @@ function NextStep({
       </View>
     );
   }
-  const weakest = [...DIMENSIONS].sort((a, b) => grade.dimensions[a].score - grade.dimensions[b].score)[0]!;
+  const scoreOf = (dimension: Dimension) => grade.dimensions[dimension]?.score ?? 0;
+  const weakest = [...dimensions].sort((a, b) => scoreOf(a) - scoreOf(b))[0];
+  const betterLine = weakest && grade.dimensions[weakest]?.better_line;
+  if (!weakest || !betterLine) return null;
   return (
     <View style={[styles.card, styles.next]}>
       <Text style={styles.nextLabel}>What next</Text>
       <Text style={type.body}>
         Your weakest area was {rubrics[weakest].name}. Next time, try:
       </Text>
-      <Text style={styles.nextLine}>“{grade.dimensions[weakest].better_line}”</Text>
+      <Text style={styles.nextLine}>“{betterLine}”</Text>
     </View>
   );
 }
 
 function DimensionCard({
   dimension,
-  grade,
+  result,
   previousScore,
 }: {
   dimension: Dimension;
-  grade: Grade;
+  result: DimensionGrade;
   previousScore: number | undefined;
 }) {
-  const result = grade.dimensions[dimension];
   const rubric = rubrics[dimension];
   const label = rubric.name;
   return (
@@ -260,6 +283,8 @@ const styles = StyleSheet.create({
   totalText: { flex: 1, gap: space.xs },
   verdict: { fontSize: 20, fontWeight: '700', color: colors.text },
   deltaRow: { flexDirection: 'row', alignItems: 'center', gap: space.sm, flexWrap: 'wrap' },
+  reaction: { flexDirection: 'row', alignItems: 'center', gap: space.md, flexWrap: 'wrap' },
+  keyLine: { flex: 1, minWidth: 180 },
   card: {
     backgroundColor: colors.surface,
     borderRadius: 16,

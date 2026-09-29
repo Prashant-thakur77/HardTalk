@@ -4,8 +4,9 @@ import { requestRecordingPermissionsAsync } from 'expo-audio';
 
 import { config } from '@/config';
 import { getScenario, scenarioRef } from '@/scenarios';
+import { getTrack } from '@/tracks';
 
-import { buildPersonaPrompt, isPersonaStopLine, personaConfigSchema } from './personaPrompt';
+import { buildPersonaPrompt, isPersonaStopLine, personaConfigSchema, splitPanelReply } from './personaPrompt';
 import type { EndReason, SessionConfig, SessionState, TranscriptEvent, VoiceProvider } from './VoiceProvider';
 
 const personaConfig = personaConfigSchema.parse(personaData);
@@ -34,6 +35,7 @@ export class ElevenLabsVoiceProvider implements VoiceProvider {
   private userTurns = 0;
   private maxUserTurns = Infinity;
   private textOnly = false;
+  private panelNames: string[] = [];
   private ending = false;
   private finished = false;
 
@@ -42,6 +44,7 @@ export class ElevenLabsVoiceProvider implements VoiceProvider {
     if (!scenario) throw new Error(`Unknown scenario "${session.scenarioId}"`);
     this.maxUserTurns = scenario.max_user_turns;
     this.textOnly = session.textOnly;
+    this.panelNames = scenario.panel.map((member) => member.name);
     this.emitState({ status: 'connecting' });
 
     if (!session.textOnly) {
@@ -69,7 +72,7 @@ export class ElevenLabsVoiceProvider implements VoiceProvider {
       textOnly: session.textOnly,
       overrides: {
         agent: {
-          prompt: { prompt: buildPersonaPrompt(personaConfig, scenario, session.difficulty) },
+          prompt: { prompt: buildPersonaPrompt(personaConfig, getTrack(scenario.track), scenario, session.difficulty) },
           firstMessage: scenario.opening_line,
         },
         tts: { speed: session.speechRate },
@@ -79,8 +82,13 @@ export class ElevenLabsVoiceProvider implements VoiceProvider {
         const speaker = role === 'user' ? 'user' : 'persona';
         // Typed lines are captioned the moment they are sent, in sendText.
         if (speaker === 'user' && this.textOnly) return;
-        this.emitTranscript({ id: `${speaker}-${event_id ?? Date.now()}`, speaker, text: message, final: true });
-        if (speaker === 'user') this.userTurns += 1;
+        const id = `${speaker}-${event_id ?? Date.now()}`;
+        if (speaker === 'user') {
+          this.emitTranscript({ id, speaker, text: message, final: true });
+          this.userTurns += 1;
+        } else {
+          this.emitPersonaReply(id, message);
+        }
         // The persona dropped the roleplay (stop word or distress): hang up now, unscored,
         // rather than trust the agent to end the call.
         if (speaker === 'persona' && isPersonaStopLine(personaConfig, message)) {
@@ -90,7 +98,7 @@ export class ElevenLabsVoiceProvider implements VoiceProvider {
         if (speaker === 'persona' && this.textOnly) this.afterPersonaTurn();
       },
       onAgentResponseCorrection: ({ corrected_agent_response, event_id }) => {
-        this.emitTranscript({ id: `persona-${event_id}`, speaker: 'persona', text: corrected_agent_response, final: true });
+        this.emitPersonaReply(`persona-${event_id}`, corrected_agent_response);
       },
       onModeChange: ({ mode }) => {
         if (mode === 'listening') this.afterPersonaTurn();
@@ -160,6 +168,13 @@ export class ElevenLabsVoiceProvider implements VoiceProvider {
     if (this.finished) return;
     this.finished = true;
     this.emitState({ status: 'ended', reason });
+  }
+
+  /** One reply can hold several people on a panel: one caption each, labelled with who spoke. */
+  private emitPersonaReply(id: string, text: string) {
+    splitPanelReply(text, this.panelNames).forEach((line, index) =>
+      this.emitTranscript({ id: `${id}-${index}`, speaker: 'persona', ...line, final: true }),
+    );
   }
 
   private emitTranscript(event: TranscriptEvent) {

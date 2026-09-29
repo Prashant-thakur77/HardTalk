@@ -1,13 +1,14 @@
-import { readFileSync } from 'node:fs';
+import { readdirSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import YAML from 'yaml';
 import { z } from 'zod';
 
 import { graderConfigSchema } from '../../src/grading/prompt';
-import { DIMENSIONS, rubricSchema } from '../../src/grading/rubric.schema';
+import { rubricSchema, type Rubric } from '../../src/grading/rubric.schema';
 import { safetyConfigSchema } from '../../src/safety/rules';
 import { scenarioSchema, type Scenario } from '../../src/scenarios/schema';
+import { TRACK_IDS, trackSchema, type Track, type TrackId } from '../../src/tracks/schema';
 
 const DATA = join(dirname(fileURLToPath(import.meta.url)), '../../data');
 
@@ -24,11 +25,22 @@ export const safetyClassifierConfig = z
   .strictObject({ instructions: z.string().min(1), request: z.string().includes('{{line}}') })
   .parse(load('prompts/safety-classifier.yaml'));
 
-export const rubrics = DIMENSIONS.map((dimension) => rubricSchema.parse(load(`rubrics/${dimension}.yaml`)));
+const tracks = new Map<TrackId, Track>(TRACK_IDS.map((id) => [id, trackSchema.parse(load(`tracks/${id}.yaml`))]));
 
-const SCENARIO_IDS = ['pr-blocking-release', 'decline-extra-project', 'mid-sprint-scope-change'];
+export function getTrack(id: TrackId): Track {
+  return tracks.get(id)!;
+}
+
+/** The four rubrics a track grades on, in its display order. */
+export function rubricsFor(track: Track): Rubric[] {
+  return track.rubrics.map((dimension) => rubricSchema.parse(load(`rubrics/${dimension}.yaml`)));
+}
+
 const scenarios = new Map<string, Scenario>(
-  SCENARIO_IDS.map((id) => [id, scenarioSchema.parse(load(`scenarios/${id}.yaml`))]),
+  readdirSync(join(DATA, 'scenarios'))
+    .filter((file) => file.endsWith('.yaml'))
+    .map((file) => scenarioSchema.parse(load(`scenarios/${file}`)))
+    .map((scenario) => [scenario.id, scenario]),
 );
 
 export function getScenario(id: string): Scenario | undefined {

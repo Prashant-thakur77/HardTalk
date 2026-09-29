@@ -33,9 +33,7 @@ attempts:
           evidence_quotes: ["I'll try my best."]
           rationale: "Alex asked for a Thursday commitment and \"I'll try\" was heard as yes."
           better_line: "I can't commit to Thursday without dropping the search fix."
-      ask_made: false
-      ask_text: null
-      boundary_held: false
+      key_line: null
       safety_flag: false
 
   - end_reason: stop_condition
@@ -73,7 +71,5 @@ attempts:
           evidence_quotes: ["Pushing means the search fix slips, and that one is a P1 for support."]
           rationale: "When Alex asked the team to \"push a bit\", you named the real cost instead of absorbing it."
           better_line: "If the team pushes, the search fix slips, and support needs that one this week."
-      ask_made: true
-      ask_text: "Can you confirm that with sales today?"
-      boundary_held: true
+      key_line: "Can you confirm that with sales today?"
       safety_flag: false

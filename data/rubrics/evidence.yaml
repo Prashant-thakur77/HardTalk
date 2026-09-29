@@ -1,0 +1,21 @@
+id: evidence
+name: Evidence
+question: Did the user back their claims with specific facts the listener could check, rather than adjectives?
+framework:
+  name: Made to Stick — Concrete and Credible
+  source: >-
+    Chip Heath and Dan Heath, "Made to Stick: Why Some Ideas Survive and Others Die", Random
+    House, 2007.
+  applies: >-
+    Ideas are believed when they are concrete and credible: a number, a named example or a
+    detail the listener can test, not an abstract claim of quality.
+anchors:
+  1: Claims only, with no facts behind them ("it's a great product", "I'm a strong leader").
+  2: >-
+    Some support, but vague or unnamed ("lots of users", "it went really well", "a big
+    client").
+  3: At least one specific, checkable fact, but the main claim is still left unsupported.
+  4: >-
+    The main claim rests on a specific number or named example the listener could check
+    ("340 paying teams, 6% monthly churn", "cut review time from 3 days to 1").
+evidence: Quote the most specific, checkable fact the user gave.

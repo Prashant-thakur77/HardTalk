@@ -2,14 +2,17 @@ import customDefaults from '@data/custom-scenario.yaml';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { z } from 'zod';
 
-import { scenarioSchema, type Scenario } from './schema';
+import { getTrack } from '../tracks';
+import { trackIdSchema } from '../tracks/schema';
+import { scenarioFieldsSchema, scenarioSchema, type Scenario } from './schema';
 
-const defaultsSchema = scenarioSchema
-  .pick({ difficulty_levels: true, opening_line: true, stop_condition: true, max_user_turns: true })
-  .extend({ persona: scenarioSchema.shape.persona.pick({ goal: true, tone: true }) });
+const defaultsSchema = scenarioFieldsSchema
+  .pick({ difficulty_levels: true, stop_condition: true, max_user_turns: true })
+  .extend({ persona: scenarioFieldsSchema.shape.persona.pick({ goal: true, tone: true }) });
 const defaults = defaultsSchema.parse(customDefaults);
 
 export const customScenarioFormSchema = z.object({
+  track: trackIdSchema,
   title: z.string().trim().min(3, 'Say what the conversation is about.'),
   personaName: z.string().trim().min(1, 'Who are you talking to?'),
   personaRole: z.string().trim().min(1, 'What is their role?'),
@@ -22,6 +25,7 @@ export function buildCustomScenario(form: CustomScenarioForm, now = Date.now()):
   const slug = form.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 40);
   return scenarioSchema.parse({
     id: `custom-${slug || 'scenario'}-${now}`,
+    track: form.track,
     title: form.title,
     summary: `${form.personaName} is likely to push back: ${form.pushback}`,
     user_goal: form.userGoal,
@@ -34,7 +38,7 @@ export function buildCustomScenario(form: CustomScenarioForm, now = Date.now()):
       context: [`The user needs this from ${form.personaName}: ${form.userGoal}`],
     },
     difficulty_levels: defaults.difficulty_levels,
-    opening_line: defaults.opening_line,
+    opening_line: getTrack(form.track).custom_opening_line,
     stop_condition: defaults.stop_condition,
     max_user_turns: defaults.max_user_turns,
   });

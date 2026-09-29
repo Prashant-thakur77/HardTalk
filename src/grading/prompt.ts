@@ -1,6 +1,7 @@
 import { z } from 'zod';
 
 import type { Scenario } from '../scenarios/schema';
+import type { Track } from '../tracks/schema';
 import { gradeSchema, type Rubric } from './rubric.schema';
 import { formatTranscript, turnSchema } from './transcript';
 
@@ -16,7 +17,7 @@ export const retryCopySchema = z.strictObject({
 export type RetryCopy = z.infer<typeof retryCopySchema>;
 
 export const graderConfigSchema = z.strictObject({
-  instructions: z.string().min(1),
+  instructions: z.string().includes('{{practising}}').includes('{{key_line}}'),
   request: z.string().includes('{{transcript}}'),
   calibration_header: z.string().min(1),
   retry: retryCopySchema,
@@ -40,6 +41,7 @@ function describeScenario(scenario: Scenario): string {
     `What the user is trying to do: ${scenario.user_goal}`,
     `The persona: ${persona.name}, ${persona.role}. Their goal: ${persona.goal}`,
     `The persona's hidden objection: ${persona.hidden_objection}`,
+    ...scenario.panel.map((member) => `Also in the room (persona): ${member.name}, ${member.role}. ${member.view.trim()}`),
     'Facts both sides know:',
     ...persona.context.map((fact) => `- ${fact}`),
   ].join('\n');
@@ -72,11 +74,13 @@ function describeExamples(config: GraderConfig): string {
 
 /**
  * The grader's system prompt, assembled entirely from data/: instructions and calibration
- * examples from prompts/grader.yaml, the scenario, and the four rubrics. It is identical for
- * every attempt at a scenario, so it caches well.
+ * examples from prompts/grader.yaml, the track, the scenario, and the track's four rubrics. It
+ * is identical for every attempt at a scenario, so it caches well.
  */
-export function buildSystemPrompt(config: GraderConfig, scenario: Scenario, rubrics: Rubric[]): string {
+export function buildSystemPrompt(config: GraderConfig, track: Track, scenario: Scenario, rubrics: Rubric[]): string {
   const instructions = config.instructions
+    .replace('{{practising}}', track.practising.trim())
+    .replace('{{key_line}}', track.key_line.instruction.trim())
     .replace('{{scenario}}', describeScenario(scenario))
     .replace('{{rubrics}}', rubrics.map(describeRubric).join('\n\n'));
   return [instructions.trim(), config.calibration_header, describeExamples(config)].join('\n\n');

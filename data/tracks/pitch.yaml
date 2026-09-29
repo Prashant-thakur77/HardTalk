@@ -1,0 +1,17 @@
+id: pitch
+name: Pitch Q&A
+tagline: Take the hard questions after your pitch.
+setting: >-
+  the question-and-answer part of a live, spoken pitch meeting, where the person in front
+  of you has just pitched you an idea and wants your backing
+practising: answering tough questions after a pitch
+rubrics: [answer_directness, evidence, objection_handling, ask_made]
+key_line:
+  label: Your close
+  instruction: >-
+    the user's request for a concrete next step, such as a follow-up meeting, a trial or an
+    introduction
+  closest: Closest you came to a close
+  none: No next step the grader could quote from what you said.
+  from: ask_made
+custom_opening_line: Thanks for that. I have a few questions before we go any further.

@@ -33,9 +33,7 @@ attempts:
           evidence_quotes: ["No pressure though."]
           rationale: "You removed the stakes before Sam pushed back at all."
           better_line: "I know it's a big change. The release still can't move without it, so we need a plan today."
-      ask_made: false
-      ask_text: null
-      boundary_held: false
+      key_line: null
       safety_flag: false
 
   - end_reason: stop_condition
@@ -73,7 +71,5 @@ attempts:
           evidence_quotes: ["No. Can you split out the token migration so the rest can merge today"]
           rationale: "When Sam reframed your request as ignoring the review, you corrected it in one word and kept the date. Offering to pair came before Sam asked for anything; a 4 holds the date first and offers help second."
           better_line: "The date stays at 4pm. If splitting it needs a second pair of hands, I can help."
-      ask_made: true
-      ask_text: "Can we agree the first part merges by 4pm?"
-      boundary_held: true
+      key_line: "Can we agree the first part merges by 4pm?"
       safety_flag: false

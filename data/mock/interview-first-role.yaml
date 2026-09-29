@@ -1,0 +1,89 @@
+# Recorded conversations replayed in mock mode. Attempt 1 is a typical first try;
+# attempt 2 is the retry. Every evidence quote is a verbatim substring of a user turn.
+scenario_id: interview-first-role
+attempts:
+  - end_reason: stop_condition
+    turns:
+      - { speaker: persona, text: "Thanks for coming in. Tell us about a time something you built didn't work." }
+      - { speaker: user, text: "Yeah, so, we had this project last year, an event app for the tech society. It was a pretty big project with lots of moving parts, and we learned a lot from it." }
+      - { speaker: persona, text: "What went wrong?" }
+      - { speaker: user, text: "On launch day a lot of people signed up at once and the app crashed. The hosting wasn't great, and honestly the front end guy hadn't really tested his part either." }
+      - { speaker: persona, name: Tom, text: "Launch-day crashes happen to everyone. What actually failed, technically? And how would you catch it earlier?" }
+      - { speaker: user, text: "I think the server just couldn't handle it. We fixed it after and it was fine." }
+      - { speaker: persona, text: "When you say you fixed it, what did you do yourself?" }
+      - { speaker: user, text: "We all kind of worked on it together, it was a team effort. It went much better after that." }
+      - { speaker: persona, name: Grace, text: "Thanks. Why this team in particular? And what do you want to learn here?" }
+      - { speaker: user, text: "Honestly, I just want experience at a good company and to keep growing as a developer." }
+      - { speaker: persona, text: "Okay. Thank you." }
+    grade:
+      dimensions:
+        answer_directness:
+          score: 2
+          evidence_quotes: ["On launch day a lot of people signed up at once and the app crashed."]
+          rationale: "You said what went wrong only when Priya asked, and your answer to Grace could have been about any company."
+          better_line: "The booking app I built crashed on launch day when 400 students signed up at once."
+        star_structure:
+          score: 2
+          evidence_quotes: ["We fixed it after and it was fine."]
+          rationale: "You set the scene, but the action and the result were one vague sentence each, so there was no story to follow."
+          better_line: "I hadn't load-tested it, so I added a queue and a load test, and we relaunched two days later."
+        evidence:
+          score: 1
+          evidence_quotes: ["It went much better after that."]
+          rationale: "Nothing in your answer could be checked: no number of users, no cause, no measured result."
+          better_line: "At the next event, 520 students booked with zero failures."
+        ownership:
+          score: 1
+          evidence_quotes: ["the front end guy hadn't really tested his part either"]
+          rationale: "You pointed at the hosting and a teammate, and when Priya asked what you did, you said \"we\" again."
+          better_line: "I wrote the backend and I hadn't load-tested it, so that part was on me."
+      key_line: "It went much better after that."
+      safety_flag: false
+
+  - end_reason: stop_condition
+    turns:
+      - { speaker: persona, text: "Thanks for coming in. Tell us about a time something you built didn't work." }
+      - { speaker: user, text: "The event-booking app I built for our campus tech society crashed on launch day. 400 students tried to book hackathon places in the first five minutes, and the booking page failed for most of them." }
+      - { speaker: persona, text: "Whose part failed?" }
+      - { speaker: user, text: "Mine. I wrote the booking backend, and I hadn't load-tested it, so every booking opened its own database connection and the server ran out of them within a minute." }
+      - { speaker: persona, name: Tom, text: "Nice, that's a classic. How did you fix it, and how would you catch it earlier?" }
+      - { speaker: user, text: "I added a queue so bookings are processed one at a time, and I wrote a load test that simulates 1,000 users. Next time I'd run that test before launch, not after." }
+      - { speaker: persona, name: Tom, text: "Good. A load test in the release checklist would have caught it." }
+      - { speaker: user, text: "Exactly, and it's in my checklist now. We relaunched two days later, and at the next event 520 students booked with zero failures." }
+      - { speaker: persona, text: "And what did you take from it personally?" }
+      - { speaker: user, text: "That I'd tested whether it worked, not whether it worked for 400 people at once. Now I ask how many users to expect on day one before I ship anything." }
+      - { speaker: persona, name: Grace, text: "That's useful to hear. So why this team, and what do you want to learn here?" }
+      - { speaker: user, text: "Because your ticketing platform has to cope with the minute a big show goes on sale, and that's the exact problem that broke my app. I want to learn how you plan capacity for those spikes." }
+      - { speaker: persona, text: "Thank you. That's a clear answer." }
+    grade:
+      dimensions:
+        answer_directness:
+          score: 4
+          evidence_quotes:
+            - "The event-booking app I built for our campus tech society crashed on launch day."
+            - "Mine. I wrote the booking backend"
+          rationale: "Your first sentence named what failed, and when Priya asked whose part it was, your first word was the answer."
+          better_line: "The booking app I built crashed on launch day, and the failure was in my part."
+        star_structure:
+          score: 3
+          evidence_quotes:
+            - "I added a queue so bookings are processed one at a time, and I wrote a load test that simulates 1,000 users."
+            - "We relaunched two days later, and at the next event 520 students booked with zero failures."
+          rationale: "Situation, action and result are all there and in order. You gave your own role only when Priya asked, so the task came late."
+          better_line: "I owned the booking backend, and on launch day it crashed when 400 students signed up at once."
+        evidence:
+          score: 4
+          evidence_quotes:
+            - "400 students tried to book hackathon places in the first five minutes"
+            - "at the next event 520 students booked with zero failures"
+          rationale: "Every part of the story had a number someone could check, from the load that broke it to the result after the fix."
+          better_line: "The load test now runs at 1,000 users before every release."
+        ownership:
+          score: 4
+          evidence_quotes:
+            - "Mine. I wrote the booking backend, and I hadn't load-tested it"
+            - "Now I ask how many users to expect on day one before I ship anything."
+          rationale: "You named your own mistake without blaming anyone, and said what you do differently because of it."
+          better_line: "I skipped the load test, and now I never ship without one."
+      key_line: "We relaunched two days later, and at the next event 520 students booked with zero failures."
+      safety_flag: false

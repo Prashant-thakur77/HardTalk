@@ -5,6 +5,7 @@ vi.mock('@react-native-async-storage/async-storage', () => ({ default: {} }));
 const { buildCustomScenario, customScenarioFormSchema, isCustomScenario } = await import('../custom');
 
 const form = {
+  track: 'workplace' as const,
   title: 'Ask my lead for a raise',
   personaName: 'Dana',
   personaRole: 'Engineering lead',
@@ -20,6 +21,12 @@ describe('custom scenarios', () => {
     expect(scenario.persona).toMatchObject({ name: 'Dana', hidden_objection: 'Budgets are frozen until next year' });
     expect(Object.keys(scenario.difficulty_levels)).toEqual(['L1', 'L2', 'L3']);
     expect(scenario.max_user_turns).toBe(6);
+  });
+
+  it("puts a custom scenario in the chosen track, opening the way that track's conversations open", () => {
+    const pitch = buildCustomScenario({ ...form, track: 'pitch' }, 1700000000000);
+    expect(pitch.track).toBe('pitch');
+    expect(pitch.opening_line).not.toBe(buildCustomScenario(form).opening_line);
   });
 
   it('explains what is missing instead of saving a half-empty scenario', () => {

@@ -1,0 +1,19 @@
+id: claim_clarity
+name: Clear claim
+question: Did the user state a clear claim, with a reason and evidence behind it?
+framework:
+  name: Toulmin model of argument — claim, grounds, warrant
+  source: Stephen E. Toulmin, "The Uses of Argument", Cambridge University Press, 1958.
+  applies: >-
+    An argument is a claim supported by grounds (the facts) and a warrant (why those facts
+    support the claim). Without all three, the listener has nothing to test.
+anchors:
+  1: No clear claim. The user describes the topic or asks questions without taking a side.
+  2: >-
+    A claim, but vague or hedged, with no reason behind it ("I just think it's better", "it
+    kind of depends").
+  3: A clear claim with a reason, but no evidence, or evidence with no link to the claim.
+  4: >-
+    A clear one-sentence claim, a reason, and evidence tied to it ("Remote work should stay,
+    because output went up: our tickets closed rose 12%.").
+evidence: Quote the sentence where the user states their main claim.

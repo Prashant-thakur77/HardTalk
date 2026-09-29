@@ -1,0 +1,21 @@
+id: steelman
+name: Fair to the other side
+question: Did the user restate the opponent's position fairly, before disagreeing with it?
+framework:
+  name: Rapoport's rules for criticism
+  source: >-
+    Daniel C. Dennett, "Intuition Pumps and Other Tools for Thinking", W. W. Norton, 2013,
+    setting out Anatol Rapoport's rules.
+  applies: >-
+    Before criticising a view, re-express it so fairly that its holder would accept the
+    summary, and say where you agree. Only then disagree.
+anchors:
+  1: No restatement, or a caricature of the opponent's view ("so you just want chaos").
+  2: A restatement that is thin or slanted, or used only to set up an attack.
+  3: >-
+    A fair restatement of the opponent's position, but the user moves straight to
+    disagreement without naming any common ground or checking it.
+  4: >-
+    A fair restatement the opponent would accept, plus a point of agreement, before the
+    disagreement ("You're saying X because Y, and I agree on Y. Where I differ is...").
+evidence: Quote the sentence where the user restates the opponent's position.

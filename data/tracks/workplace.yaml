@@ -1,0 +1,16 @@
+id: workplace
+name: Workplace
+tagline: Say the hard thing to a colleague, and get a yes.
+setting: >-
+  a live, spoken workplace conversation with a colleague who has come to raise something
+  difficult with you and needs something from you
+practising: difficult workplace conversations
+rubrics: [clarity, empathy, ask_made, boundary_held]
+key_line:
+  label: Your ask
+  instruction: >-
+    the user's specific request of the other person
+  closest: Closest you came to an ask
+  none: No request the grader could quote from what you said.
+  from: ask_made
+custom_opening_line: Hey, you wanted to talk?

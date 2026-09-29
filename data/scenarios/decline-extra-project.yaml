@@ -1,4 +1,5 @@
 id: decline-extra-project
+track: workplace
 title: Say no to your manager's extra project
 summary: >-
   Jordan wants you to lead the analytics migration on top of the billing launch.
@@ -17,6 +18,9 @@ persona:
     - You are the lead on the billing launch, which legal needs by the fifteenth.
     - The analytics migration is realistically a day a week for two months.
     - Priya, a mid-level engineer, has asked for more ownership.
+  asks_about: [How much time it really takes, Your career growth, Who else could lead it]
+  face: { skin: deep, hair: black, hair_style: short, top: blue }
+  voice: { pitch: 0.8 }
 
 difficulty_levels:
   L1:
@@ -24,18 +28,21 @@ difficulty_levels:
     summary: Warm, and open to a clear no.
     behaviour: >-
       Accepts a clear no once you name the trade-off. Thanks you for being direct.
+    mood: friendly
   L2:
     name: Defensive
     summary: Plays down the cost and appeals to your ambition.
     behaviour: >-
       Plays down the cost ("only a few hours a week") and appeals to your career once.
       Accepts the no only after you restate it with a reason.
+    mood: skeptical
   L3:
     name: Deflecting
     summary: Questions your commitment and brings in their boss.
     behaviour: >-
       Frames the no as a lack of ambition, invokes their director, and asks whether you
       are committed to the team. Accepts only a no that comes with an alternative owner.
+    mood: stern
 
 opening_line: Thanks for grabbing time. I've got something I think you'd be great for.
 

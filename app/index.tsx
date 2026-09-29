@@ -3,19 +3,23 @@ import { useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { deleteAllAttempts, getGradedSessionsUsed, useAttempts } from '@/attempts/store';
-import { DIMENSIONS } from '@/grading/rubric.schema';
+import { MAX_TOTAL, totalScore } from '@/grading/rubric.schema';
 import { restorePurchases, usePro } from '@/purchases';
 import { FREE_GRADED_SESSIONS } from '@/purchases/gates';
 import { safety } from '@/safety';
 import { scenarios, useCustomScenarios } from '@/scenarios';
+import { peopleIn } from '@/scenarios/people';
 import type { Scenario } from '@/scenarios/schema';
 import { openCustomScenario } from '@/session/start';
-import { Avatar } from '@/ui/Avatar';
+import { getTrack, tracks } from '@/tracks';
+import type { TrackId } from '@/tracks/schema';
 import { Button } from '@/ui/Button';
+import { Face } from '@/ui/Face';
 import { MockBanner } from '@/ui/MockBanner';
 import { PurchaseNotice } from '@/ui/PurchaseNotice';
 import { Screen } from '@/ui/Screen';
 import { colors, MIN_TARGET, shadow, space, type } from '@/ui/theme';
+import { TrackTabs } from '@/ui/TrackTabs';
 
 export default function ScenarioList() {
   const attempts = useAttempts();
@@ -23,6 +27,8 @@ export default function ScenarioList() {
   const pro = usePro();
   const [restoreMessage, setRestoreMessage] = useState<string | null>(null);
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [trackId, setTrackId] = useState<TrackId>('workplace');
+  const track = getTrack(trackId);
 
   const deleteHistory = async () => {
     if (!confirmDelete) {
@@ -43,11 +49,11 @@ export default function ScenarioList() {
   const card = (scenario: Scenario) => {
     const mine = attempts.filter((attempt) => attempt.scenarioId === scenario.id);
     const tries = mine.length;
-    const best = Math.max(
-      0,
-      ...mine.map((attempt) => DIMENSIONS.reduce((sum, d) => sum + attempt.grade.dimensions[d].score, 0)),
-    );
-    const personaLine = `With ${scenario.persona.name}, ${scenario.persona.role.toLowerCase()}`;
+    const best = Math.max(0, ...mine.map((attempt) => totalScore(attempt.grade)));
+    const [lead, ...panel] = peopleIn(scenario, 'L1');
+    const personaLine = `With ${scenario.persona.name}, ${scenario.persona.role.toLowerCase()}${
+      panel.length ? `, and ${panel.map((person) => person.name).join(' and ')}` : ''
+    }`;
     return (
       <Pressable
         key={scenario.id}
@@ -57,7 +63,14 @@ export default function ScenarioList() {
         onPress={() => router.push({ pathname: '/scenario/[id]', params: { id: scenario.id } })}
         style={({ pressed }) => [styles.card, pressed && styles.pressed]}>
         <View style={styles.cardHead}>
-          <Avatar name={scenario.persona.name} size={44} />
+          <View style={styles.faces}>
+            <Face face={lead.face} mood={lead.mood} size={48} />
+            {panel.map((person) => (
+              <View key={person.name} style={styles.panelFace}>
+                <Face face={person.face} mood={person.mood} size={34} />
+              </View>
+            ))}
+          </View>
           <View style={styles.cardTitle}>
             <Text style={type.heading}>{scenario.title}</Text>
             <Text style={type.caption}>{personaLine}</Text>
@@ -79,7 +92,9 @@ export default function ScenarioList() {
           ) : null}
           {tries > 0 ? (
             <View style={[styles.chip, styles.chipGood]}>
-              <Text style={[styles.chipText, styles.chipGoodText]}>Best {best}/16</Text>
+              <Text style={[styles.chipText, styles.chipGoodText]}>
+                Best {best}/{MAX_TOTAL}
+              </Text>
             </View>
           ) : null}
         </View>
@@ -106,16 +121,18 @@ export default function ScenarioList() {
       <PurchaseNotice />
       <MockBanner />
       <Text style={styles.section} accessibilityRole="header">
-        Conversations
+        What do you want to practise?
       </Text>
-      {scenarios.map(card)}
+      <TrackTabs tracks={tracks} selected={trackId} onSelect={setTrackId} />
+      <Text style={type.caption}>{track.tagline}</Text>
+      {scenarios.filter((scenario) => scenario.track === trackId).map(card)}
 
-      {custom.length > 0 ? (
+      {custom.some((scenario) => scenario.track === trackId) ? (
         <Text style={type.heading} accessibilityRole="header">
           Your scenarios
         </Text>
       ) : null}
-      {custom.map(card)}
+      {custom.filter((scenario) => scenario.track === trackId).map(card)}
 
       <View style={styles.actions}>
         <Button
@@ -183,6 +200,8 @@ const styles = StyleSheet.create({
     ...shadow,
   },
   cardHead: { flexDirection: 'row', alignItems: 'center', gap: space.sm },
+  faces: { flexDirection: 'row', alignItems: 'flex-end' },
+  panelFace: { marginLeft: -14 },
   cardTitle: { flex: 1, gap: 2 },
   summary: { color: colors.textMuted },
   pressed: { opacity: 0.75, transform: [{ scale: 0.99 }] },

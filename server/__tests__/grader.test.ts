@@ -1,10 +1,12 @@
 import { describe, expect, it, vi } from 'vitest';
 
 import { gradeTranscript } from '../../src/grading/grade';
-import { getScenario, graderConfig } from '../src/data';
+import { trackGradeSchema } from '../../src/grading/rubric.schema';
+import { getScenario, getTrack, graderConfig } from '../src/data';
 import { claudeGradeModel } from '../src/grader';
 
 const scenario = getScenario('pr-blocking-release')!;
+const schema = trackGradeSchema(getTrack('workplace').rubrics);
 const turns = [
   { speaker: 'persona' as const, text: "Hey, what's up?" },
   { speaker: 'user' as const, text: 'Your PR has blocked the release for three days.' },
@@ -13,9 +15,7 @@ const turns = [
 const dimension = { score: 3, evidence_quotes: ['Your PR has blocked the release for three days.'], rationale: 'r', better_line: 'b' };
 const valid = {
   dimensions: { clarity: dimension, empathy: dimension, ask_made: dimension, boundary_held: dimension },
-  ask_made: false,
-  ask_text: null,
-  boundary_held: false,
+  key_line: null,
   safety_flag: false,
 };
 
@@ -48,17 +48,30 @@ describe('claudeGradeModel', () => {
       JSON.stringify(valid),
     );
     const callModel = claudeGradeModel({ client, model: 'claude-opus-5', effort: 'medium' }, scenario);
-    const result = await gradeTranscript({ turns, callModel, retryCopy: graderConfig.retry });
+    const result = await gradeTranscript({ turns, callModel, schema, retryCopy: graderConfig.retry });
 
     expect(create).toHaveBeenCalledTimes(2);
     expect(create.mock.calls[1]![0].messages[0].content).toMatch(/did not match the required schema/);
-    expect(result.grade.dimensions.clarity.score).toBe(3);
+    expect(result.grade.dimensions.clarity?.score).toBe(3);
   });
 
   it('treats truncated JSON as a schema problem, not a crash', async () => {
     const { client } = fakeClient('{"dimensions": {"clarity"', JSON.stringify(valid));
     const callModel = claudeGradeModel({ client, model: 'claude-opus-5', effort: 'medium' }, scenario);
-    const result = await gradeTranscript({ turns, callModel, retryCopy: graderConfig.retry });
+    const result = await gradeTranscript({ turns, callModel, schema, retryCopy: graderConfig.retry });
     expect(result.modelCalls).toBe(2);
+  });
+
+  it("constrains output to the scenario's own track: a pitch is graded on pitch rubrics only", async () => {
+    const { client, create } = fakeClient(JSON.stringify(valid));
+    await claudeGradeModel({ client, model: 'claude-opus-5', effort: 'medium' }, getScenario('pitch-seed-round')!)({ turns });
+
+    const request = create.mock.calls[0]![0];
+    const dimensions = request.output_config.format.schema.properties.dimensions;
+    expect(Object.keys(dimensions.properties)).toEqual(getTrack('pitch').rubrics);
+    expect(dimensions.additionalProperties).toBe(false);
+    expect(request.system[0].text).toContain('The Pyramid Principle');
+    expect(request.system[0].text).not.toContain('Situation-Behavior-Impact (SBI)\nQuestion');
+    expect(request.system[0].text).toContain('Also in the room (persona): Leo');
   });
 });

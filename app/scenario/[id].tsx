@@ -7,15 +7,17 @@ import type { SessionMode } from '@/attempts/store';
 import { config } from '@/config';
 import { getScenario } from '@/scenarios';
 import { isCustomScenario } from '@/scenarios/custom';
+import { peopleIn, STANCE_LABEL } from '@/scenarios/people';
 import { difficultySchema, type Difficulty } from '@/scenarios/schema';
 import { startSession } from '@/session/start';
-import { Avatar } from '@/ui/Avatar';
+import { getTrack } from '@/tracks';
 import { Button } from '@/ui/Button';
 import { ChoiceGroup } from '@/ui/ChoiceGroup';
+import { Face } from '@/ui/Face';
 import { MockBanner } from '@/ui/MockBanner';
 import { PurchaseNotice } from '@/ui/PurchaseNotice';
 import { Screen } from '@/ui/Screen';
-import { colors, space, type } from '@/ui/theme';
+import { colors, shadow, space, type } from '@/ui/theme';
 
 const MODES = [
   { value: 'voice', label: 'Talk', description: 'Speak out loud. Live captions for both of you.' },
@@ -25,13 +27,15 @@ const MODES = [
 export default function ScenarioBrief() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const scenario = getScenario(id);
-  const { speechRate } = usePreferences();
+  const { speechRate, reduceMotion } = usePreferences();
   const [difficulty, setDifficulty] = useState<Difficulty>('L1');
   const [mode, setMode] = useState<SessionMode>('voice');
 
   if (!scenario) return <Text style={type.body}>Scenario not found.</Text>;
 
   const liveOnly = config.mock && isCustomScenario(scenario.id);
+  const people = peopleIn(scenario, difficulty);
+  const track = getTrack(scenario.track);
 
   return (
     <Screen
@@ -43,25 +47,47 @@ export default function ScenarioBrief() {
           disabled={liveOnly}
         />
       }>
+      <Text style={styles.track}>{track.name}</Text>
       <Text style={type.title} accessibilityRole="header">
         {scenario.title}
       </Text>
-      <View style={styles.persona}>
-        <Avatar name={scenario.persona.name} size={40} />
-        <Text style={[type.caption, styles.personaText]}>
-          With {scenario.persona.name}, {scenario.persona.role.toLowerCase()}
-        </Text>
-      </View>
       <Text style={type.body}>{scenario.summary}</Text>
+      <View style={styles.room}>
+        <Text style={styles.label} accessibilityRole="header">
+          Who’s in the room, and what they’ll ask
+        </Text>
+        {people.map((person) => (
+          <View key={person.name} style={styles.person}>
+            <Face face={person.face} mood={person.mood} size={52} reduceMotion={reduceMotion} />
+            <View style={styles.personText}>
+              <Text style={styles.personName}>{person.name}</Text>
+              <Text style={type.caption}>{person.role}</Text>
+              <Text style={[styles.stance, person.stance === 'agrees' && styles.agrees]}>{STANCE_LABEL[person.stance]}</Text>
+              {person.asksAbout.length > 0 ? (
+                <View
+                  style={styles.topics}
+                  accessible
+                  accessibilityLabel={`${person.name} will ask about: ${person.asksAbout.join(', ')}`}>
+                  {person.asksAbout.map((topic) => (
+                    <View key={topic} style={styles.topic}>
+                      <Text style={styles.topicText}>{topic}</Text>
+                    </View>
+                  ))}
+                </View>
+              ) : null}
+            </View>
+          </View>
+        ))}
+      </View>
       <View style={styles.goal}>
-        <Text style={styles.goalLabel}>Your goal</Text>
+        <Text style={styles.label}>Your goal</Text>
         <Text style={type.body}>{scenario.user_goal}</Text>
       </View>
       <MockBanner message="Mock mode replays one recorded conversation at every level. Live mode uses your microphone, and the persona behaves as the level you pick." />
       <PurchaseNotice />
       {liveOnly ? (
         <Text style={type.body}>
-          Your own scenarios run live, with your microphone and the persona. Mock mode only replays the three
+          Your own scenarios run live, with your microphone and the persona. Mock mode only replays the
           built-in conversations.
         </Text>
       ) : null}
@@ -91,8 +117,24 @@ export default function ScenarioBrief() {
 }
 
 const styles = StyleSheet.create({
-  persona: { flexDirection: 'row', alignItems: 'center', gap: space.sm },
-  personaText: { flex: 1 },
+  track: { fontSize: 13, fontWeight: '800', color: colors.primary, textTransform: 'uppercase', letterSpacing: 0.5 },
+  room: {
+    backgroundColor: colors.surface,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: colors.border,
+    padding: space.md,
+    gap: space.sm,
+    ...shadow,
+  },
+  person: { flexDirection: 'row', alignItems: 'flex-start', gap: space.sm },
+  topics: { flexDirection: 'row', flexWrap: 'wrap', gap: space.xs, marginTop: space.xs },
+  topic: { backgroundColor: colors.quote, borderRadius: 999, paddingHorizontal: 10, paddingVertical: 3 },
+  topicText: { fontSize: 13, fontWeight: '600', color: colors.primary },
+  personText: { flex: 1, gap: 1 },
+  personName: { fontSize: 17, fontWeight: '700', color: colors.text },
+  stance: { fontSize: 13, fontWeight: '700', color: colors.warning },
+  agrees: { color: colors.success },
   goal: { gap: 2 },
-  goalLabel: { fontSize: 13, fontWeight: '700', color: colors.primary, textTransform: 'uppercase' },
+  label: { fontSize: 13, fontWeight: '700', color: colors.primary, textTransform: 'uppercase' },
 });

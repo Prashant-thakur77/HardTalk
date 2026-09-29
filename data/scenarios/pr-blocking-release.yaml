@@ -1,4 +1,5 @@
 id: pr-blocking-release
+track: workplace
 title: Your teammate's PR is blocking the release
 summary: >-
   Sam's auth refactor has sat in review for three days and QA can't start regression
@@ -18,6 +19,9 @@ persona:
     - QA cannot start release regression until it merges.
     - The release is planned for Friday.
     - The token migration is the riskiest part and could be split into its own PR.
+  asks_about: [Review quality, Whose call this is, What the plan is]
+  face: { skin: light, hair: brown, hair_style: crop, top: charcoal, glasses: true, beard: true }
+  voice: { pitch: 0.9 }
 
 difficulty_levels:
   L1:
@@ -26,12 +30,14 @@ difficulty_levels:
     behaviour: >-
       Busy but reasonable. Mentions time pressure once. Agrees as soon as the problem
       and a concrete next step are both clear. Never questions your standing.
+    mood: friendly
   L2:
     name: Defensive
     summary: Defends the delay and pushes back more than once.
     behaviour: >-
       Justifies the delay ("it's a big change"), deflects blame once ("security review is
       the real hold-up"), and only agrees after a second, specific ask.
+    mood: skeptical
   L3:
     name: Deflecting
     summary: Deflects, and questions whether this is your call.
@@ -39,6 +45,7 @@ difficulty_levels:
       Changes the subject to your own late PR, asks whether this is really your call, and
       never volunteers agreement. Accepts only a concrete, time-boxed plan after two
       pushbacks.
+    mood: stern
 
 opening_line: Hey, what's up? I've only got a few minutes before standup.
 

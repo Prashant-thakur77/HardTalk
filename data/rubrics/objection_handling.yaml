@@ -1,0 +1,23 @@
+id: objection_handling
+name: Objections
+question: When challenged, did the user acknowledge the concern, answer it with substance and move forward?
+framework:
+  name: LAER — Listen, Acknowledge, Explore, Respond
+  source: >-
+    Carew International, "LAER: The Secret to Handling Objections Like a Pro" (white paper on
+    the LAER model).
+  applies: >-
+    An objection is handled by acknowledging it, exploring what sits behind it, and then
+    responding to that concern, not by brushing it aside or giving in.
+anchors:
+  1: >-
+    The user dismisses the objection, argues with the person, or drops their point ("that's
+    not really an issue", "fair, forget it then").
+  2: >-
+    A generic acknowledgement followed by a repeat of the pitch, with no answer to the
+    actual concern ("Good question. As I said...").
+  3: Acknowledges the specific concern and answers it with substance, but does not check or move on.
+  4: >-
+    Acknowledges the specific concern, asks or names what is behind it, answers it with
+    substance and checks it landed ("Does that cover the security worry?").
+evidence: Quote what the user said right after the other person raised an objection.

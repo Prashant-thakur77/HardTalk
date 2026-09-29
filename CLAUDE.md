@@ -11,27 +11,28 @@ as if a judge is reading it, because one is.
 
 ## 1. The product, frozen
 
-A user picks a difficult conversation, speaks it out loud with an AI persona who pushes back,
-then gets a scorecard with evidence quotes and retries to see the score improve.
+A user picks a high-stakes spoken conversation, practises it out loud with AI personas who push
+back, then gets a scorecard with evidence quotes and retries to see the score improve.
 
 ```
-Pick scenario
-  → pick difficulty (L1 cooperative / L2 defensive / L3 deflecting)
-  → live voice roleplay with live captions
-  → persona ends when: ask made + answered, OR 6 turns
-  → scorecard: Clarity / Empathy / Ask made / Boundary held
+Pick a track (Workplace / Pitch Q&A / Interview / Debate) and a scenario
+  → brief: who is in the room, what each person will ask about, difficulty (L1 / L2 / L3)
+  → live voice roleplay with live captions; a panel of up to three people, each with their
+    own face, voice and stance (one agrees, one keeps questioning)
+  → persona ends when: the stop condition is met, OR 6 turns
+  → scorecard: the track's four rubrics, each 1–4
        each with a verbatim evidence quote from the transcript
-       + one suggested better line
+       + one suggested better line, and the track's key line (ask, close, result, claim)
   → Retry → score delta shown side by side
 ```
 
-**Scenarios (exactly three, manager-framed):**
-1. Tell a teammate their PR has been blocking the release for three days.
-2. Say no to your manager's extra project without damaging the relationship.
-3. Push back on a scope change your PM added mid-sprint.
+**Tracks** (`data/tracks/*.yaml`, owner decision 2026-09-29): Workplace keeps the original three
+manager-framed conversations; Pitch Q&A, Interview and Debate each have one built-in scenario
+with a panel. Every track grades on exactly four framework-cited rubrics, so every total is
+out of 16.
 
-**Free:** 3 scenarios, 3 graded sessions.
-**Pro:** custom scenarios + progress history + unlimited grading.
+**Free:** every built-in scenario, 3 graded sessions.
+**Pro:** custom scenarios in any track + progress history + unlimited grading.
 
 ### Scope freeze — do not build these
 auth, cloud sync, accounts, streaks, social features, leaderboards, onboarding carousel,

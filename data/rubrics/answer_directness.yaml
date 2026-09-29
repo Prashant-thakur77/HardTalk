@@ -1,0 +1,21 @@
+id: answer_directness
+name: Answered first
+question: Did the user answer the question they were asked, up front, before any supporting detail?
+framework:
+  name: The Pyramid Principle — answer first
+  source: >-
+    Barbara Minto, "The Pyramid Principle: Logic in Writing and Thinking", 3rd ed., Financial
+    Times Prentice Hall, 2002.
+  applies: >-
+    Lead with the answer to the listener's question, then give the reasons under it. A
+    listener who has to wait for the point stops following the reasons.
+anchors:
+  1: The user never answers the question asked, or answers a different one.
+  2: >-
+    The answer is there but comes last, after background or a long warm-up ("So, to give
+    some context...", "It's a long story, but...").
+  3: The answer comes early in the turn but is hedged or split across several sentences.
+  4: >-
+    The first sentence answers the question directly, then the reasons follow ("Yes, by
+    March. Here's why.", "The main risk is churn.").
+evidence: Quote the sentence where the user first answers the question they were asked.

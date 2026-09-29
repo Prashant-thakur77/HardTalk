@@ -5,14 +5,15 @@ import { describe, expect, it, vi } from 'vitest';
 
 import { gradeTranscript, GradingError, type GradeModel } from '../grade';
 import { graderConfigSchema } from '../prompt';
-import type { Grade } from '../rubric.schema';
+import { trackGradeSchema, type Grade } from '../rubric.schema';
 import type { Turn } from '../transcript';
 
 const { retry: retryCopy } = graderConfigSchema.parse(
   YAML.parse(readFileSync(join(__dirname, '../../../data/prompts/grader.yaml'), 'utf8')),
 );
-/** Grades with the retry wording shipped in data/prompts/grader.yaml. */
-const run = (options: { turns: Turn[]; callModel: GradeModel }) => gradeTranscript({ ...options, retryCopy });
+const schema = trackGradeSchema(['clarity', 'empathy', 'ask_made', 'boundary_held']);
+/** Grades workplace rubrics with the retry wording shipped in data/prompts/grader.yaml. */
+const run = (options: { turns: Turn[]; callModel: GradeModel }) => gradeTranscript({ ...options, schema, retryCopy });
 
 const turns: Turn[] = [
   { speaker: 'persona', text: 'Hey, what is up?' },
@@ -32,9 +33,7 @@ const grounded: Grade = {
     ask_made: dimension(4, 'Can you split it so part one merges by 4pm?'),
     boundary_held: dimension(2, 'Can you split it'),
   },
-  ask_made: true,
-  ask_text: 'Can you split it so part one merges by 4pm?',
-  boundary_held: false,
+  key_line: 'Can you split it so part one merges by 4pm?',
   safety_flag: false,
 };
 
@@ -75,8 +74,8 @@ describe('gradeTranscript', () => {
 
     expect(callModel).toHaveBeenCalledTimes(2);
     expect(result.downgraded).toEqual(['empathy']);
-    expect(result.grade.dimensions.empathy.score).toBe(1);
-    expect(result.grade.dimensions.empathy.evidence_quotes).toEqual([]);
+    expect(result.grade.dimensions.empathy?.score).toBe(1);
+    expect(result.grade.dimensions.empathy?.evidence_quotes).toEqual([]);
     expect(result.grade.dimensions.clarity).toEqual(grounded.dimensions.clarity);
   });
 
