@@ -45,6 +45,14 @@ describe('attempt store', () => {
     expect(store.nextAttemptNumber('pr')).toBe(2);
   });
 
+  it('still loads attempts saved before tracks, keeping the ask as the key line', async () => {
+    const { key_line: _, ...grade } = attempt('old', 'pr', 'L1', 1).grade;
+    const saved = { ...attempt('old', 'pr', 'L1', 1), grade: { ...grade, ask_made: true, ask_text: 'Merge by 4pm?', boundary_held: true } };
+    storage.set('hardtalk.attempts.v1', JSON.stringify([saved]));
+    await store.loadAttempts();
+    expect(store.getAttempts()[0]?.grade.key_line).toBe('Merge by 4pm?');
+  });
+
   it('drops corrupt saved data instead of crashing', async () => {
     storage.set('hardtalk.attempts.v1', JSON.stringify([{ id: 'broken' }]));
     await store.loadAttempts();
