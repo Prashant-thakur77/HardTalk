@@ -5,17 +5,33 @@ import { findAttempt, findPreviousAttempt, useAttempts } from '@/attempts/store'
 import { DIMENSIONS, type Dimension, type Grade } from '@/grading/rubric.schema';
 import { rubrics } from '@/grading/rubrics';
 import { getScenario } from '@/scenarios';
+import { difficultySchema, type Difficulty } from '@/scenarios/schema';
 import { startSession } from '@/session/start';
 import { Button } from '@/ui/Button';
 import { MockBanner } from '@/ui/MockBanner';
 import { PurchaseNotice } from '@/ui/PurchaseNotice';
+import { ScoreRing } from '@/ui/ScoreRing';
 import { Screen } from '@/ui/Screen';
-import { colors, radius, scoreColors, space, type } from '@/ui/theme';
+import { SkillBar } from '@/ui/SkillBar';
+import { colors, scoreColors, shadow, space, type } from '@/ui/theme';
 
 const MAX_TOTAL = DIMENSIONS.length * 4;
 
 function total(grade: Grade): number {
   return DIMENSIONS.reduce((sum, dimension) => sum + grade.dimensions[dimension].score, 0);
+}
+
+/** A plain-words read of the total, calibrated to the rubric: most first tries land near 8. */
+function verdict(score: number): string {
+  if (score >= 14) return 'Strong. This would land.';
+  if (score >= 11) return 'Solid. One or two things to sharpen.';
+  if (score >= 8) return 'Getting there.';
+  return 'A typical first try.';
+}
+
+function nextLevel(level: Difficulty): Difficulty | null {
+  const levels = difficultySchema.options;
+  return levels[levels.indexOf(level) + 1] ?? null;
 }
 
 function signed(delta: number): string {
@@ -53,18 +69,33 @@ export default function Scorecard() {
       />
       <PurchaseNotice />
       <View style={styles.summary} accessible accessibilityLabel={summaryLabel(score, previous && total(previous.grade))}>
-        <Text style={type.caption}>
-          {scenario.title} · attempt {attempt.number} · {attempt.difficulty}
-        </Text>
         <View style={styles.totalRow}>
-          <Text style={styles.total}>
-            {score}
-            <Text style={styles.totalMax}>/{MAX_TOTAL}</Text>
-          </Text>
-          {previous ? <Delta before={total(previous.grade)} after={score} large /> : null}
+          <ScoreRing score={score} max={MAX_TOTAL} />
+          <View style={styles.totalText}>
+            <Text style={type.caption}>
+              {scenario.title} · attempt {attempt.number} · {attempt.difficulty}
+            </Text>
+            <Text style={styles.verdict}>{verdict(score)}</Text>
+            {previous ? (
+              <View style={styles.deltaRow}>
+                <Delta before={total(previous.grade)} after={score} large />
+                <Text style={type.caption}>vs your last try at {attempt.difficulty}</Text>
+              </View>
+            ) : null}
+          </View>
         </View>
         <Text style={type.body}>{askLine(grade)}</Text>
       </View>
+
+      <NextStep
+        score={score}
+        grade={grade}
+        level={attempt.difficulty}
+        personaName={scenario.persona.name}
+        levelName={(level) => scenario.difficulty_levels[level].name}
+        levelSummary={(level) => scenario.difficulty_levels[level].summary}
+        onLevelUp={(level) => void startSession(scenario.id, level, attempt.mode, 'replace')}
+      />
 
       {DIMENSIONS.map((dimension) => (
         <DimensionCard
@@ -107,6 +138,49 @@ function summaryLabel(score: number, previousScore: number | undefined): string 
   return `${base} Previous attempt ${previousScore}. Change ${signed(score - previousScore)}.`;
 }
 
+/** One concrete next step: level up after a strong try, otherwise the weakest skill's line. */
+function NextStep({
+  score,
+  grade,
+  level,
+  personaName,
+  levelName,
+  levelSummary,
+  onLevelUp,
+}: {
+  score: number;
+  grade: Grade;
+  level: Difficulty;
+  personaName: string;
+  levelName: (level: Difficulty) => string;
+  levelSummary: (level: Difficulty) => string;
+  onLevelUp: (level: Difficulty) => void;
+}) {
+  const up = nextLevel(level);
+  if (score >= 12 && up) {
+    return (
+      <View style={[styles.card, styles.next]}>
+        <Text style={styles.nextLabel}>What next</Text>
+        <Text style={type.body}>
+          Ready for more pushback? At {up}, {personaName}: {levelSummary(up).charAt(0).toLowerCase()}
+          {levelSummary(up).slice(1)}
+        </Text>
+        <Button label={`Try ${up} · ${levelName(up)}`} variant="secondary" onPress={() => onLevelUp(up)} />
+      </View>
+    );
+  }
+  const weakest = [...DIMENSIONS].sort((a, b) => grade.dimensions[a].score - grade.dimensions[b].score)[0]!;
+  return (
+    <View style={[styles.card, styles.next]}>
+      <Text style={styles.nextLabel}>What next</Text>
+      <Text style={type.body}>
+        Your weakest area was {rubrics[weakest].name}. Next time, try:
+      </Text>
+      <Text style={styles.nextLine}>“{grade.dimensions[weakest].better_line}”</Text>
+    </View>
+  );
+}
+
 function DimensionCard({
   dimension,
   grade,
@@ -146,6 +220,7 @@ function DimensionCard({
           {previousScore !== undefined ? <Delta before={previousScore} after={result.score} /> : null}
         </View>
       </View>
+      <SkillBar score={result.score} previous={previousScore} />
 
       {result.evidence_quotes.map((quote) => (
         <View key={quote} style={styles.quote} accessible accessibilityLabel={`You said: ${quote}`}>
@@ -174,23 +249,29 @@ function Delta({ before, after, large = false }: { before: number; after: number
 const styles = StyleSheet.create({
   summary: {
     backgroundColor: colors.surface,
-    borderRadius: radius,
+    borderRadius: 16,
     borderWidth: 1,
     borderColor: colors.border,
     padding: space.md,
-    gap: space.sm,
+    gap: space.md,
+    ...shadow,
   },
   totalRow: { flexDirection: 'row', alignItems: 'center', gap: space.md },
-  total: { fontSize: 48, fontWeight: '700', color: colors.text },
-  totalMax: { fontSize: 24, fontWeight: '500', color: colors.textMuted },
+  totalText: { flex: 1, gap: space.xs },
+  verdict: { fontSize: 20, fontWeight: '700', color: colors.text },
+  deltaRow: { flexDirection: 'row', alignItems: 'center', gap: space.sm, flexWrap: 'wrap' },
   card: {
     backgroundColor: colors.surface,
-    borderRadius: radius,
+    borderRadius: 16,
     borderWidth: 1,
     borderColor: colors.border,
     padding: space.md,
     gap: space.sm,
+    ...shadow,
   },
+  next: { backgroundColor: colors.quote, borderColor: colors.quote },
+  nextLabel: { fontSize: 13, fontWeight: '800', color: colors.primary, textTransform: 'uppercase', letterSpacing: 0.5 },
+  nextLine: { fontSize: 17, lineHeight: 24, fontWeight: '600', color: colors.text },
   cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   cardTitle: { flexShrink: 1, gap: 2 },
   framework: { fontSize: 13, color: colors.textMuted },
@@ -206,7 +287,7 @@ const styles = StyleSheet.create({
     padding: space.sm + 2,
   },
   quoteText: { fontSize: 16, lineHeight: 23, fontStyle: 'italic', color: colors.text },
-  better: { gap: 2 },
+  better: { gap: 4, backgroundColor: '#EAF5EF', borderRadius: 10, padding: space.sm + 4 },
   betterLabel: { fontSize: 13, fontWeight: '700', color: colors.success, textTransform: 'uppercase' },
   delta: { borderWidth: 1.5, borderRadius: 8, paddingHorizontal: 6, paddingVertical: 1, marginLeft: space.xs },
   deltaText: { fontSize: 15, fontWeight: '700' },

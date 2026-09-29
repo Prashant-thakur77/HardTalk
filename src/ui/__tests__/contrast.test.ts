@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { colors, scoreColors } from '../theme';
+import { colors, personaColors, scoreColors } from '../theme';
 
 /** WCAG 2.2 relative luminance and contrast ratio. */
 function luminance(hex: string): number {
@@ -30,6 +30,11 @@ const textPairs: [string, string, string][] = [
   ['mock banner', colors.onNotice, colors.notice],
   ['success text', colors.success, colors.surface],
   ['error text', colors.danger, colors.background],
+  ['hero title', colors.onHero, colors.hero],
+  ['hero body', colors.onHeroMuted, colors.hero],
+  ['"Best" chip', colors.success, '#E3F2EA'],
+  ['"Try saying" callout', colors.text, '#EAF5EF'],
+  ...personaColors.map((color) => [`avatar initial on ${color}`, colors.onPrimary, color] as [string, string, string]),
   ...Object.entries(scoreColors).map(
     ([score, color]) => [`score ${score} on card`, color, colors.surface] as [string, string, string],
   ),

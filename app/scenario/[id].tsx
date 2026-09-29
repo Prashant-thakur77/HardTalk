@@ -9,12 +9,13 @@ import { getScenario } from '@/scenarios';
 import { isCustomScenario } from '@/scenarios/custom';
 import { difficultySchema, type Difficulty } from '@/scenarios/schema';
 import { startSession } from '@/session/start';
+import { Avatar } from '@/ui/Avatar';
 import { Button } from '@/ui/Button';
 import { ChoiceGroup } from '@/ui/ChoiceGroup';
 import { MockBanner } from '@/ui/MockBanner';
 import { PurchaseNotice } from '@/ui/PurchaseNotice';
 import { Screen } from '@/ui/Screen';
-import { colors, type } from '@/ui/theme';
+import { colors, space, type } from '@/ui/theme';
 
 const MODES = [
   { value: 'voice', label: 'Talk', description: 'Speak out loud. Live captions for both of you.' },
@@ -45,9 +46,12 @@ export default function ScenarioBrief() {
       <Text style={type.title} accessibilityRole="header">
         {scenario.title}
       </Text>
-      <Text style={type.caption}>
-        With {scenario.persona.name}, {scenario.persona.role.toLowerCase()}
-      </Text>
+      <View style={styles.persona}>
+        <Avatar name={scenario.persona.name} size={40} />
+        <Text style={[type.caption, styles.personaText]}>
+          With {scenario.persona.name}, {scenario.persona.role.toLowerCase()}
+        </Text>
+      </View>
       <Text style={type.body}>{scenario.summary}</Text>
       <View style={styles.goal}>
         <Text style={styles.goalLabel}>Your goal</Text>
@@ -87,6 +91,8 @@ export default function ScenarioBrief() {
 }
 
 const styles = StyleSheet.create({
+  persona: { flexDirection: 'row', alignItems: 'center', gap: space.sm },
+  personaText: { flex: 1 },
   goal: { gap: 2 },
   goalLabel: { fontSize: 13, fontWeight: '700', color: colors.primary, textTransform: 'uppercase' },
 });

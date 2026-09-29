@@ -17,6 +17,23 @@ export const colors = {
   danger: '#B42318',
   notice: '#FFF4D6',
   onNotice: '#5C4300',
+  /** Hero band on the home screen; white text on it is 11:1. */
+  hero: '#1B2B7A',
+  onHero: '#FFFFFF',
+  onHeroMuted: '#C9D2F6',
+  track: '#E6E4DC',
+} as const;
+
+/** Persona avatar colours. White initials on each are at least 4.5:1. */
+export const personaColors = ['#2445C8', '#12703F', '#8A4B00', '#6B2FA3'] as const;
+
+/** Soft card elevation, identical on iOS, Android and web. */
+export const shadow = {
+  shadowColor: '#1B1B2F',
+  shadowOpacity: 0.07,
+  shadowRadius: 14,
+  shadowOffset: { width: 0, height: 4 },
+  elevation: 2,
 } as const;
 
 export const scoreColors: Record<number, string> = {

@@ -14,8 +14,10 @@ import { getScenario } from '@/scenarios';
 import { difficultySchema } from '@/scenarios/schema';
 import { startSession } from '@/session/start';
 import { useConversation } from '@/session/useConversation';
+import { Avatar } from '@/ui/Avatar';
 import { Button } from '@/ui/Button';
 import { MockBanner } from '@/ui/MockBanner';
+import { SpeakingIndicator } from '@/ui/SpeakingIndicator';
 import { colors, MIN_TARGET, radius, space, type } from '@/ui/theme';
 import type { EndReason, SessionState } from '@/voice';
 
@@ -149,13 +151,29 @@ export default function Session() {
   return (
     <SafeAreaView style={styles.safe} edges={['bottom']}>
       <View style={styles.header}>
-        <Text style={type.heading}>
-          {scenario.persona.name} · {difficulty}
-          {textOnly ? ' · typed' : ''}
-        </Text>
-        <Text style={styles.status} accessibilityLiveRegion="polite">
-          {grading ? 'Scoring your conversation…' : statusLabel(state, scenario.persona.name, textOnly)}
-        </Text>
+        <View style={styles.personaRow}>
+          <Avatar
+            name={scenario.persona.name}
+            size={52}
+            speaking={state.status === 'persona_speaking'}
+            reduceMotion={preferences.reduceMotion}
+          />
+          <View style={styles.personaText}>
+            <Text style={type.heading}>
+              {scenario.persona.name} · {difficulty}
+              {textOnly ? ' · typed' : ''}
+            </Text>
+            <View style={styles.statusRow}>
+              <SpeakingIndicator
+                active={state.status === 'persona_speaking' || (state.status === 'listening' && !textOnly)}
+                reduceMotion={preferences.reduceMotion}
+              />
+              <Text style={styles.status} accessibilityLiveRegion="polite">
+                {grading ? 'Scoring your conversation…' : statusLabel(state, scenario.persona.name, textOnly)}
+              </Text>
+            </View>
+          </View>
+        </View>
         <MockBanner />
         {safetyOffline ? (
           <Text style={type.caption} accessibilityLiveRegion="polite">
@@ -255,6 +273,9 @@ export default function Session() {
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.background },
   header: { padding: space.md, gap: space.sm },
+  personaRow: { flexDirection: 'row', alignItems: 'center', gap: space.sm },
+  personaText: { flex: 1, gap: 4 },
+  statusRow: { flexDirection: 'row', alignItems: 'center', gap: space.sm },
   status: { fontSize: 16, fontWeight: '600', color: colors.primary },
   captions: { flex: 1 },
   captionsContent: { padding: space.md, gap: space.sm },
