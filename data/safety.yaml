@@ -12,11 +12,20 @@ stop_words: [stop, pause]
 # with it ("stop im scared", "Stop right now."), unless the next word makes it a verb ("stop
 # blocking the release") or "you" ("stop you there").
 stop_always: stop
+# Words that may come before an opening "stop" and still make the sentence a stop request.
+stop_opener_lead_ins: (please|just|ok|okay|oh|no|now|hey|wait|seriously|god|oh god)
 # Words that may follow an opening "stop" and still make the sentence a stop request.
-stop_openers: (right )?(now|there|here|please|talking|immediately|already|seriously|it|this|that|thank you|i mean it|the (simulation|practice|roleplay|conversation|session|call))|(i'?m|im|i|you'?re|please)\b.*
+stop_openers: (right )?(now|there|here|please|talking|immediately|already|seriously|help|it|this|that|thank you|i mean it|the (simulation|practice|roleplay|conversation|session|call|exercise))|(i'?m|im|i|you'?re|please|this is|it hurts|that'?s enough)\b.*
+# Phrases that ask to stop in their own words.
+stop_phrases: \b(make it stop|i want this to stop|i need this to stop|i (said|told you to) stop)\b
+# "pause" typed without commas, followed by how the user feels.
+pause_openers: (please )?pause( please)? (i'?m|im) (scared|afraid|not okay|not ok|done|frightened).*
 stop_filler: [please, pls, plz, now, here, there, ok, okay, no, just, wait, sorry, actually, hey,
-  can, could, we, lets, i, want, need, to, the, id, like, for, a, bit, moment, second, minute,
-  thanks, roleplay, role, play, practice, conversation, session, yes, yeah, um, so]
+  can, could, would, will, we, lets, i, im, ive, want, need, have, going, think, really, said, told,
+  to, the, id, like, for, a, bit, moment, second, minute, thanks, roleplay, role, play, practice,
+  conversation, session, yes, yeah, um, so]
+# Words that count as filler only before the stop word: "Can you stop?", not "stop you there".
+stop_filler_before: [you]
 stop_objects: [it, this, that]
 pause_lead_ins: [no, hold, on, hang, wait, enough, sorry, ok, okay, look, please, hey, right,
   alright, stop, pause, just, actually]
@@ -68,13 +77,18 @@ distress_explicit:
   - \bfeel like dying\b
   - \b(nobody|no one|no-one) would (care|notice|miss me) if i (disappeared|was gone|were gone|died|wasn't here)\b
   - \bwant to (disappear forever|not wake up|stop existing)\b
-  - \b(want|going|planning|plan) to end (it|things)( tonight| today| this weekend| soon| now)?(?=\s*(,|$))
+  - \b(want|going|planning|plan) to end (it|things)( (tonight|today|tomorrow|this week|this weekend|soon|now|after work|on [a-z]+))?(?=\s*([,-]|$))
+  - \bwant it all to end\b
+  - \bcan't go on\b
   - \b(thinking|thought|think) (of|about) ending (it|things)(?=\s*(,|$))
   - \b(i've got|i have|i've saved|i've been saving|i bought|i've bought) (the|my|some|enough) pills\b
   - \b(nobody|no one|no-one) (will|would) (miss me|care if i'?m (gone|dead))\b
   - \b(take|taking|took|taken|swallow|swallowing|swallowed) (all )?(of )?(my|the|these|those|a bunch of|a lot of|too many|a handful of) pills\b
   - \boverdos(e|ed|ing)\b
-  - \b(jump|jumping|step|stepping|walk|walking|throw myself|throwing myself) (off|from|in front of|under) (the|a) (roof|bridge|building|balcony|window|train|bus|car|truck|lorry|platform|cliff)\b
+  - \b(jump|jumping|step|stepping|walk|walking|throw myself|throwing myself) (off|from|in front of|under) (the|a|this|my) (roof|bridge|building|balcony|window|train|bus|car|truck|lorry|platform|cliff)\b
+  - \b(jump|jumping) (off|from) (the|a|this|my) ([a-z]+ )?floor\b
+  - \b(swallowed|swallow|took|take|taken|taking)( just)? (a|the)( whole)? bottle of ([a-z]+ )?pills\b
+  - \bstockpil(e|es|ed|ing) (my |the )?pills\b
   - \bpanic attacks?\b
   - \bi can't breathe\b
   - \b(rape|raped|raping|rapist|molest|molested|molesting|groped|groping)\b
@@ -82,7 +96,15 @@ distress_explicit:
   - \b(sleep|have sex) with (him|her|them|me)\b
   - \b(attacked|punched|slapped|choked|strangled|assaulted|beaten|kicked|shoved|pinned|abused) me\b
   - \b(punch|punches|punching|slap|slaps|slapping|kick|kicks|kicking|choke|chokes|choking|strangle|strangles|strangling|attack|attacks|attacking|abuse|abuses|abusing) me\b
-  - \b(said|says|told me|swore) (he|she|they)('d| would| will|'ll)( [a-z]+)? (kill|hurt|rape|beat|hit) me\b
+  - \b(said|says|told me|swore) (he|she|they)('d| would| will|'ll)( [a-z]+)? (kill|hurt|rape|beat|hit|stab|shoot) me\b(?! (to it|to the punch))
+  - \b(he|she|they)('d| would| will|'ll) (kill|stab|hurt|rape|beat|shoot) me\b(?! (to it|to the punch))
+  - \b(stabbed|stab|stabs|stabbing|burned|burnt|burns|burning) me\b
+  - \b(tried|tries|trying|threatened|threatens|threatening) to (kill|stab|hurt|rape|strangle|choke|beat|shoot) me\b
+  - \b(threatened|threatens|threatening) me with (a )?(knife|gun|weapon|bat)\b
+  - \bthrew me (against|into|down|on|onto)\b
+  - \bforced (himself|herself|themselves) on me\b
+  - \bgrabbed my (breast|breasts|butt|crotch)\b
+  - \b(hits|hit|hurts|beats|beat) my (kids|children|son|daughter|wife|husband|partner|baby)\b
   - \b(he's|she's|they're|he is|she is|they are) (going to|gonna) (kill|hurt|rape|beat) me\b
   - \b(beat|beats|beating) me\b(?! (to it|to the punch))
   - \bthreaten(ed|s|ing)? to (kill|hurt|hit|rape|beat) me\b

@@ -95,6 +95,24 @@ describe('isStopRequest', () => {
     "Hold on, pause, I'm scared.",
     "Stop now I mean it",
     "Stop thank you",
+    // Round 11 probes (D-080).
+    "Would you stop?",
+    "Will you stop?",
+    "I said stop!",
+    "I told you to stop.",
+    "Make it stop.",
+    "stop this is too much",
+    "stop it hurts",
+    "stop that's enough",
+    "stop help",
+    "Seriously stop",
+    "I think I need to stop.",
+    "I really need to stop.",
+    "I have to stop.",
+    "I'm going to stop here.",
+    "I want this to stop.",
+    "Stop the exercise.",
+    "pause im scared",
   ])('stops on %j', (line) => expect(isStopRequest(line, config, ['Sam', 'Jordan', 'Alex'])).toBe(true));
 
   it('treats the persona’s name, including a two-word custom name, as addressing them', () => {
@@ -108,7 +126,6 @@ describe('isStopRequest', () => {
     'No, stop adding scope.',
     'Can we pause it?',
     'Can we pause this?',
-    'I need this to stop.',
     'We need to stop adding scope mid-sprint.',
     "Don't stop now, we're close.",
     'Can we pause the migration until billing ships?',
@@ -372,6 +389,33 @@ describe('detectDistress', () => {
     "I'm going to end it tonight, I've got the pills.",
     "I'm planning to end it, nobody will miss me.",
     "I'm thinking of ending it, I can't cope.",
+    // Round 11 probes (D-079): plain disclosures one word from an existing pattern.
+    "He stabbed me.",
+    "He tried to kill me.",
+    "He tried to stab me.",
+    "He threatened to stab me.",
+    "He said he'd stab me.",
+    "He burned me with a cigarette.",
+    "He threw me against the wall.",
+    "He threatened me with a knife.",
+    "He'll kill me if I leave him.",
+    "He will kill me if he finds out.",
+    "He forced himself on me.",
+    "He grabbed my breast.",
+    "My husband hits my kids.",
+    "I'm going to end it tomorrow.",
+    "I'm going to end it on Friday.",
+    "I'm going to end it after work.",
+    "I'm planning to end things this week.",
+    "I'm going to end it - nobody will care.",
+    "I'm going to jump off this bridge.",
+    "I'm going to jump off my balcony.",
+    "I'm going to jump from the tenth floor.",
+    "I swallowed a bottle of pills.",
+    "I just took a whole bottle of sleeping pills.",
+    "I've been stockpiling my pills.",
+    "I can't go on.",
+    "I want it all to end.",
   ])('flags %j', (line) => expect(detectDistress(line, config)).toBe(true));
 
   it.each([
@@ -447,13 +491,23 @@ describe('detectDistress', () => {
     'I got hit with three bug reports from QA this morning.',
     "I'm being pushed to take this on.",
     "I've been pushed by QA all week about this.",
+    // Round 11 (D-081): the 'beat me to it' exception holds in reported speech.
+    "She said she'd beat me to it.",
+    "He said he'd beat me to the punch.",
   ])('does not flag the workplace idiom %j', (line) => expect(detectDistress(line, config)).toBe(false));
 });
 
 // Lines that pause the practice even though they are workplace idioms. Each one shares its exact
 // wording with a real disclosure ("… and it hit me hard"), so the filter accepts the pause.
 describe('accepted false stops', () => {
-  it.each(["No, stop, that's not what I said.", 'Wait, stop, let me finish.', 'Sam, stop, hear me out.'])('stops on %j, because a bare "stop" always stops', (line) =>
+  it.each([
+    "No, stop, that's not what I said.",
+    'Wait, stop, let me finish.',
+    'Sam, stop, hear me out.',
+    'I need this to stop.',
+    'Stop I never agreed to Thursday.',
+    "Stop please listen to what I'm asking.",
+  ])('stops on %j, because a bare "stop" always stops', (line) =>
     expect(isStopRequest(line, config, ['Sam'])).toBe(true),
   );
 });
@@ -488,6 +542,24 @@ describe('accepted false positives', () => {
     "Alex, you hit me with a new requirement on day six, and that's not how we agreed to work.",
     "You pushed me to take on billing last quarter, and I can't do both.",
     "My lead pushed me to sort this out today, so\u2026",
+    // Round 11 (D-081): workplace lines the tier-1 additions pause on.
+    "Please don't attack me for raising this.",
+    "You keep attacking me in standup.",
+    "Slack keeps kicking me out.",
+    "The VPN kicks me off every hour.",
+    "Can you kick me the build link?",
+    "Don't punch me, but the release is late.",
+    "I'm walking from the train, give me a second.",
+    "I was stepping off the bus when you called.",
+    "I'll walk from the car park to the office.",
+    "They're going to kill me if we miss Friday.",
+    "She's going to kill me when she sees the burndown.",
+    "He's hurting me with these deadlines.",
+    "I've got my pills in my bag.",
+    "Suicide run of a sprint.",
+    "I'm going to end it, the meeting I mean.",
+    "We're going to end it, this sprint is dead.",
+    "I'm thinking of ending it, the on-call rota.",
   ])(
     'pauses on %j',
     (line) => expect(detectDistress(line, config)).toBe(true),

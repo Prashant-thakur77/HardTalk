@@ -22,6 +22,7 @@ export default function MockPaywall() {
     scoreLine: params.scoreLine || null,
   });
   const [plan, setPlan] = useState(copy.plans[0]?.id);
+  const chosen = copy.plans.find((option) => option.id === plan);
   const resolved = useRef(false);
 
   const close = (outcome: PaywallOutcome) => {
@@ -41,7 +42,10 @@ export default function MockPaywall() {
     <Screen
       footer={
         <>
-          <Button label="Start Pro (mock purchase)" onPress={() => close('purchased')} />
+          <Button
+            label={`Start Pro, ${chosen?.label.toLowerCase() ?? 'annual'} (mock purchase)`}
+            onPress={() => close('purchased')}
+          />
           <Button label="Not now" variant="secondary" onPress={() => close('cancelled')} />
         </>
       }>

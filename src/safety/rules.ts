@@ -5,7 +5,11 @@ export const safetyConfigSchema = z.strictObject({
   disclaimer: z.string().min(1),
   stop_words: z.array(z.string().min(1)).min(1),
   stop_always: z.string().min(1),
+  stop_opener_lead_ins: z.string().min(1),
   stop_openers: z.string().min(1),
+  stop_phrases: z.string().min(1),
+  pause_openers: z.string().min(1),
+  stop_filler_before: z.array(z.string().min(1)),
   stop_filler: z.array(z.string().min(1)),
   stop_objects: z.array(z.string().min(1)),
   pause_lead_ins: z.array(z.string().min(1)),
@@ -63,7 +67,17 @@ function words(clause: string, names: Set<string>): string[] {
 
 type StopConfig = Pick<
   SafetyConfig,
-  'stop_words' | 'stop_always' | 'stop_openers' | 'stop_filler' | 'stop_objects' | 'pause_lead_ins' | 'pause_trailers'
+  | 'stop_words'
+  | 'stop_always'
+  | 'stop_opener_lead_ins'
+  | 'stop_openers'
+  | 'stop_phrases'
+  | 'pause_openers'
+  | 'stop_filler'
+  | 'stop_filler_before'
+  | 'stop_objects'
+  | 'pause_lead_ins'
+  | 'pause_trailers'
 >;
 
 /**
@@ -83,7 +97,7 @@ function isStopClause(tokens: string[], config: StopConfig): boolean {
         stops.has(word) ||
         filler.has(word) ||
         (objects.has(word) && tokens[i - 1] === config.stop_always) ||
-        (word === 'you' && i < firstStop),
+        (config.stop_filler_before.includes(word) && i < firstStop),
     )
   );
 }
@@ -101,8 +115,10 @@ export function isStopRequest(text: string, config: StopConfig, personaNames: st
 
   const always = config.stop_always;
   const opener = new RegExp(
-    `^(?:(?:please|just|ok|okay|oh|no|now|hey|wait)[, ]+)*${always}(?: (?:${config.stop_openers}))*$`,
+    `^(?:${config.stop_opener_lead_ins}[, ]+)*${always}(?: (?:${config.stop_openers}))*$`,
   );
+  const phrases = new RegExp(config.stop_phrases);
+  const pauseOpener = new RegExp(`^(?:${config.pause_openers})$`);
 
   return sentences(text).some((sentence) => {
     const plain = sentence.replace(/[^a-z' ]+/g, ' ').replace(/\s+/g, ' ').trim();
@@ -110,7 +126,7 @@ export function isStopRequest(text: string, config: StopConfig, personaNames: st
       .split(' ')
       .filter((word) => !names.has(word))
       .join(' ');
-    if (opener.test(withoutNames)) return true;
+    if (opener.test(withoutNames) || phrases.test(withoutNames) || pauseOpener.test(withoutNames)) return true;
     const clauses = sentence.split(/\s*,\s*/);
     const tokens = clauses.map((clause) => words(clause, names));
     if (tokens.some((clause) => clause.includes(always) && isStopClause(clause, config))) return true;
