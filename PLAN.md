@@ -3,22 +3,19 @@
 Live plan for HardTalk. Rewritten from SCORECARD.md at the end of every round, not from the
 previous plan. Every item names the criterion it moves (CLAUDE.md §3).
 
-**Round 10 score: 12/20** (C1 2 · C2 4 · C3 3 · C4 3), flat for the sixth round: 6, 9, 12, 13, 12,
-12, 12, 12, 12, 12. The first round since round 4 with no regression of any previously logged safety
-line. The loop has converged; this is the hand-over state.
+**Round 11 score: 12/20** (C1 2 · C2 4 · C3 3 · C4 3), flat for the seventh round. 150993c was the
+first safety fix that lost nothing in either direction; every round-11 finding is an addition, not
+a regression. Deadline day: the reviewer is explicit that further safety rounds will not move the
+score. Only the owner-side session in Next can.
 
-**Exit condition, honestly:** converged, yes. Every criterion ≥ 4 and zero P0: no, and not
-reachable from this machine. C1 and C3 need the owner's phone session with keys, and C4's last
-point needs a real grader number and a real user quote. See Next.
+## Now (round 12)
 
-## Now (hand-over)
-
-1. **Round 10 fixes, then stop** [C4] — D-074 (jump pattern restored whole; no next-word carve-out
-   left), D-075 (present tense assault, "hurting me", abuse, reported threats, a plan followed by a
-   comma), D-076 (a sentence that opens with "stop" stops; "Can you stop?"; frightened pause
-   trailers), D-078 (the always-stop word in data; the pausing premises listed as accepted false
-   positives). These fixes come after the last review and are verified by tests and the browser
-   suites only.
+1. **Round 11 additions** [C4] [C3] — D-079 (stabbing, burning, tried/threatened to, future-tense
+   threats, plans with a time, bridges, floors, bottles of pills, stockpiling, "I can't go on"),
+   D-080 (would/will you stop, I said/told you to stop, make it stop, "stop this is too much",
+   "pause im scared"), D-081 (the "beat me to it" exception holds in reported speech; the other
+   workplace lines are listed as accepted false positives), D-082 (the plan picker drives the
+   purchase button), D-078 (the last hardcoded stop words moved to data).
 
 ## Next
 
