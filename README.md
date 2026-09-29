@@ -11,7 +11,7 @@ You say it out loud to a room of AI personas who push back, each with their own 
 - **A panel, not a chatbot.** An investor who likes you, one who doubts the model, an advisor who asks what stops a copycat. The brief tells you what each will ask about.
 - **The whole loop works with a screen reader and no audio**, and saying "stop" ends it at once, unscored.
 
-![HardTalk in mock mode: a first try scores 7/16, the retry scores 14/16](docs/demo.gif)
+![HardTalk in mock mode: an interview panel of Priya, Tom and Grace; a first try scores 6/16, the retry scores 15/16](docs/demo.gif)
 
 ## See it in 60 seconds
 
@@ -54,7 +54,7 @@ flowchart LR
 
 The app never holds a provider key. `/server` mints a short-lived ElevenLabs conversation token and runs the grader. The persona and the grader are deliberately different model families (Gemini inside ElevenLabs, Claude for grading), so the grader never marks its own roleplay.
 
-Scores have to be grounded. `src/grading/evidence.ts` checks that every quote behind a score above 1 appears in one of the user's own turns as whole words, and is either a full sentence or at least three words long. The grader gets one retry with the bad quotes named; anything still ungrounded is lowered to 1 and the scorecard says why. Mock mode runs its recorded grades through the same check. You can watch it in typed mode: rewrite a prefilled line and any score that depended on it drops to 1, because a recorded grade has no evidence for words it never saw. Only live mode can grade a better line.
+Scores have to be grounded. `src/grading/evidence.ts` checks that every quote behind a score above 1 appears in one of the user's own turns as whole words, and is either a full sentence or at least three words long. The grader gets one retry with the bad quotes named; anything still ungrounded is lowered to 1 and the scorecard says why. Mock mode runs its recorded grades through the same check. You can watch it in typed mode: rewrite a prefilled line and its quotes disappear from the scorecard; a score left with no quote you actually said drops to 1, because a recorded grade has no evidence for words it never saw. A score that still has another real quote keeps it. Only live mode can grade a better line.
 
 ## Where to look
 
@@ -69,7 +69,7 @@ Scores have to be grounded. `src/grading/evidence.ts` checks that every quote be
 | `src/ui/Face.tsx` | The drawn persona faces: SVG, no image assets, blinking and talking, stilled by Reduce Motion |
 | `src/purchases/` | RevenueCat entitlement, paywall with scenario-aware custom variables, restore, and the two paywall gates |
 | `src/safety/`, `data/safety.yaml` | Stop word, distress exit, crisis resources, disclaimer |
-| `server/` | Token minting, grading, safety refusal and a per-client rate limit, about 250 lines |
+| `server/` | Token minting, grading, safety refusal and a per-client rate limit, about 330 lines |
 | `evals/` | 30 hand-labelled workplace conversations and `pnpm eval`, which measures the grader against them ([EVALS.md](EVALS.md)); the other tracks have no gold set yet |
 | `app/` | Screens: scenarios, brief, live session, scorecard, paywall (mock mode), progress history, your own scenario |
 

@@ -20,7 +20,7 @@ import { Screen } from '@/ui/Screen';
 import { colors, shadow, space, type } from '@/ui/theme';
 
 const MODES = [
-  { value: 'voice', label: 'Talk', description: 'Speak out loud. Live captions for both of you.' },
+  { value: 'voice', label: 'Talk', description: 'Speak out loud. Live captions for everyone.' },
   { value: 'text', label: 'Type', description: 'No microphone or audio. Same persona, same scorecard.' },
 ] as const;
 
@@ -105,7 +105,7 @@ export default function ScenarioBrief() {
       <ChoiceGroup label="How do you want to practise?" choices={MODES} selected={mode} onSelect={setMode} horizontal />
       {mode === 'voice' ? (
         <ChoiceGroup
-          label={`${scenario.persona.name}'s speaking pace`}
+          label={people.length > 1 ? 'How fast they speak' : `${scenario.persona.name}'s speaking pace`}
           choices={SPEECH_RATES.map((rate) => ({ value: rate.value, label: rate.label }))}
           selected={speechRate}
           onSelect={(rate) => void setSpeechRate(rate)}

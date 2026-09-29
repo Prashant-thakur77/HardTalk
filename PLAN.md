@@ -3,10 +3,11 @@
 Live plan for HardTalk. Rewritten from SCORECARD.md at the end of every round, not from the
 previous plan. Every item names the criterion it moves (CLAUDE.md §3).
 
-**Round 11 score: 12/20** (C1 2 · C2 4 · C3 3 · C4 3), flat for the seventh round. 150993c was the
-first safety fix that lost nothing in either direction; every round-11 finding is an addition, not
-a regression. Deadline day: the reviewer is explicit that further safety rounds will not move the
-score. Only the owner-side session in Next can.
+**Round 12 score: 12/20** (C1 2 · C2 4 · C3 3 · C4 3), flat for the eighth round. The reviewer
+confirmed the tracks rewrite held: 1,235 tests pass, all four tracks run in mock mode with zero page
+errors, old saved attempts load. Its fixable findings (D-087, D-090 to D-092) are fixed; D-086 is
+fixed by pushing. The score is capped by C1 and C3, which only the owner-side phone session in Next
+can move.
 
 ## Now (round 12): practice tracks, panels and faces
 

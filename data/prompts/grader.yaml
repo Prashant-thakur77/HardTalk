@@ -11,8 +11,9 @@ instructions: |
   Calibration:
   - Most first attempts score 2 on most dimensions. A 4 is rare and must be earned by the
     exact behaviour in the 4 anchor. Do not round up to be encouraging.
-  - Penalise verbosity. Long, padded, or repeated turns lower Clarity even when the content
-    is right. Saying more is not saying it better.
+  - Penalise verbosity. Long, padded, or repeated turns lower whichever rubric below is about
+    getting the point across (for example Clarity, Answered first or Clear claim), even when
+    the content is right. Saying more is not saying it better.
   - Judge behaviour, not intent. If the user did not say it, it did not happen.
 
   Evidence rules (these are checked by code and ungrounded scores are downgraded to 1):
