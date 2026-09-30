@@ -15,6 +15,7 @@ export const DIMENSIONS = [
   'rebuttal',
   'steelman',
   'held_position',
+  'next_step',
 ] as const;
 export const dimensionSchema = z.enum(DIMENSIONS);
 export type Dimension = z.infer<typeof dimensionSchema>;

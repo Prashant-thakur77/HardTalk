@@ -1,0 +1,24 @@
+id: next_step
+name: Next step
+question: Did the user close by asking for a specific commitment that moves things forward, and get an answer?
+framework:
+  name: SPIN Selling — Advances, not Continuations
+  source: >-
+    Neil Rackham, "SPIN Selling", McGraw-Hill, 1988, from Huthwaite's study of more than 35,000
+    sales calls.
+  applies: >-
+    A meeting succeeds only if it ends in an Advance: a specific action the other side agrees to
+    take that moves the decision forward. "Let's stay in touch" is a Continuation, and counts as
+    no progress.
+anchors:
+  1: >-
+    No request for a next step. The user thanks them, hopes to hear back, or leaves the next move
+    to the other side ("let us know if you have any questions").
+  2: >-
+    A Continuation: a request that commits no one to anything ("we'd love to keep talking", "can
+    we follow up sometime?").
+  3: A specific Advance (who, what, when), but the user does not get or confirm an answer.
+  4: >-
+    A specific Advance, and the user confirms it ("Can we book a partner meeting next Tuesday at
+    10? … Great, Tuesday at 10.").
+evidence: Quote the request for the next step. If there is none, quote how the user ended.

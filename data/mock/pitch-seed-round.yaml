@@ -35,7 +35,7 @@ attempts:
             - "New students come in every year, so it kind of balances out."
           rationale: "You waved off both worries. Kenji's copying question got \"too slow\" and Maya's retention question got \"kind of balances out\", with no fact behind either."
           better_line: "A university could copy the form, but not fourteen months of data on which groups keep meeting."
-        ask_made:
+        next_step:
           score: 1
           evidence_quotes: ["let us know if you have any other questions!"]
           rationale: "You left the next step to Maya, so the meeting ended with nothing booked."
@@ -82,7 +82,7 @@ attempts:
             - "That's a fair worry."
           rationale: "You agreed with the fair part of each concern, answered it with a fact, and checked with Kenji that his question was covered."
           better_line: "That's fair. Per semester, 38% stay active, and each fall brings a new first-year class."
-        ask_made:
+        next_step:
           score: 4
           evidence_quotes: ["Can we book a partner meeting next Tuesday at 10 to walk through it?"]
           rationale: "You asked for a specific meeting at a specific time, tied it to what Maya wanted to see, and got a yes with a condition."

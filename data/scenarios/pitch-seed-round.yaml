@@ -44,7 +44,7 @@ panel:
       answer makes him go quiet.
     tone: Warm, informal, speaks from experience.
     asks_about: [The founding team, Going full-time after May]
-    cares_about: [answer_directness, ask_made]
+    cares_about: [answer_directness, next_step]
     face: { skin: porcelain, hair: auburn, hair_style: crop, top: green, glasses: false, beard: true, earrings: false }
     voice: { pitch: 0.9 }
   - name: Kenji

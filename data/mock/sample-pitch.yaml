@@ -34,7 +34,7 @@ attempts:
           evidence_quotes: ["I don't think that's likely, they really like working with us."]
           rationale: "Marta's worry about the catering managers was her biggest one, and you waved it away. Selma's cost question got a guess instead of a number."
           better_line: "Fair worry: both caterers renewed in September, and at the first campus last-hour waste is down about a third."
-        ask_made:
+        next_step:
           score: 2
           evidence_quotes: ["it would be great to hear back whenever you can"]
           rationale: "You left the next step to the fund, with no meeting and no date, so \"we'll be in touch\" is all you can expect."
@@ -78,7 +78,7 @@ attempts:
             - "Does that answer the supply worry?"
           rationale: "You took the supply worry seriously, answered it with the renewals and the waste figure, and checked it landed. You didn't name what sits behind it, which is one lost caterer emptying a campus."
           better_line: "If one caterer leaves, that campus goes quiet, so we'd sign the next campus before we need it."
-        ask_made:
+        next_step:
           score: 3
           evidence_quotes: ["Could we come back with the campus numbers for a second meeting with you and Selma in the week of the 12th of October?"]
           rationale: "You asked for a specific meeting with a week and the right people in it. When Marta said yes, you didn't confirm who sends the times, or by when."

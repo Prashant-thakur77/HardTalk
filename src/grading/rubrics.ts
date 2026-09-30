@@ -6,6 +6,7 @@ import clarity from '@data/rubrics/clarity.yaml';
 import empathy from '@data/rubrics/empathy.yaml';
 import evidence from '@data/rubrics/evidence.yaml';
 import heldPosition from '@data/rubrics/held_position.yaml';
+import nextStep from '@data/rubrics/next_step.yaml';
 import objectionHandling from '@data/rubrics/objection_handling.yaml';
 import ownership from '@data/rubrics/ownership.yaml';
 import rebuttal from '@data/rubrics/rebuttal.yaml';
@@ -28,6 +29,7 @@ const loaded = [
   rebuttal,
   steelman,
   heldPosition,
+  nextStep,
 ].map((raw) => rubricSchema.parse(raw));
 
 export const rubrics = Object.fromEntries(loaded.map((rubric) => [rubric.id, rubric])) as Record<

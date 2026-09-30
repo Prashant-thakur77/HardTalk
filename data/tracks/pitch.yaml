@@ -5,7 +5,7 @@ setting: >-
   the question-and-answer part of a live, spoken pitch meeting, where the person in front
   of you has just pitched you an idea and wants your backing
 practising: answering tough questions after a pitch
-rubrics: [answer_directness, evidence, objection_handling, ask_made]
+rubrics: [answer_directness, evidence, objection_handling, next_step]
 key_line:
   label: Your close
   instruction: >-
@@ -13,6 +13,6 @@ key_line:
     introduction
   closest: Closest you came to a close
   none: No next step the grader could quote from what you said.
-  from: ask_made
+  from: next_step
 custom_opening_line: Thanks for that. I have a few questions before we go any further.
 paste_label: "Paste your pitch summary: what you do, your traction, and what you're asking for."

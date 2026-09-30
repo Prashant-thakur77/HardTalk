@@ -182,7 +182,7 @@ samples:
             launch and how many meals a week it needs to pay its way.
           tone: Quiet, exact, one number at a time.
           asks_about: [Revenue per meal, Cost of each new campus]
-          cares_about: [ask_made]
+          cares_about: [next_step]
       difficulty_levels:
         L1:
           name: Curious
