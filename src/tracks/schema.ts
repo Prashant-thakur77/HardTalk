@@ -29,6 +29,8 @@ export const trackSchema = z
       from: dimensionSchema,
     }),
     custom_opening_line: z.string().min(1),
+    /** One practical tip shown on the brief, for habits of this kind of conversation. */
+    tip: z.string().min(1).optional(),
   })
   .refine((track) => new Set(track.rubrics).size === track.rubrics.length, 'A rubric is listed twice.')
   .refine((track) => track.rubrics.includes(track.key_line.from), 'key_line.from must be one of the rubrics.');

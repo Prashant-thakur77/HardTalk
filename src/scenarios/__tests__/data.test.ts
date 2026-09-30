@@ -5,6 +5,7 @@ import { describe, expect, it } from 'vitest';
 
 import { DIMENSIONS, rubricSchema } from '@/grading/rubric.schema';
 import { rubrics } from '@/grading/rubrics';
+import { isStopLine } from '@/safety';
 import { scenarios } from '@/scenarios';
 import { scenarioSchema } from '@/scenarios/schema';
 import { tracks } from '@/tracks';
@@ -148,6 +149,15 @@ describe('data/tracks', () => {
     for (const track of tracks) {
       expect(scenarios.some((scenario) => scenario.track === track.id), track.id).toBe(true);
     }
+  });
+
+  it("keeps the debate tip true: the ways it suggests to cut in don't stop, the one it warns about does", () => {
+    const tip = tracks.find((track) => track.id === 'debate')!.tip!;
+    const quoted = [...tip.matchAll(/"([^"]+)"/g)].map(([, phrase]) => phrase!);
+    expect(quoted).toEqual(['hang on', 'let me answer that', 'Stop', "Stop, you're twisting it"]);
+    expect(isStopLine('Hang on, that is not what I said.')).toBe(false);
+    expect(isStopLine('Let me answer that.')).toBe(false);
+    expect(isStopLine("Stop, you're twisting it.")).toBe(true);
   });
 
   it('rejects a track that lists a rubric twice', () => {

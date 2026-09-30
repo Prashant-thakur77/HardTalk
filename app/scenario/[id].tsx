@@ -83,6 +83,12 @@ export default function ScenarioBrief() {
         <Text style={styles.label}>Your goal</Text>
         <Text style={type.body}>{scenario.user_goal}</Text>
       </View>
+      {track.tip ? (
+        <View style={styles.goal}>
+          <Text style={styles.label}>Tip</Text>
+          <Text style={type.body}>{track.tip}</Text>
+        </View>
+      ) : null}
       <MockBanner message="Mock mode replays one recorded conversation at every level. Live mode uses your microphone, and the persona behaves as the level you pick." />
       <PurchaseNotice />
       {liveOnly ? (
