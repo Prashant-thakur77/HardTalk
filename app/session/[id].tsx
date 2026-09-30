@@ -1,7 +1,7 @@
-import { router, useLocalSearchParams } from 'expo-router';
+import { router, Stack, useLocalSearchParams } from 'expo-router';
 import { useRef, useState } from 'react';
-import { ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { announce, turnHaptic } from '@/a11y/announce';
 import { getPreferences } from '@/a11y/preferences';
@@ -18,10 +18,17 @@ import { useConversation } from '@/session/useConversation';
 import { Button } from '@/ui/Button';
 import { Face } from '@/ui/Face';
 import { MockBanner } from '@/ui/MockBanner';
+import { SendIcon } from '@/ui/icons';
 import { Room } from '@/ui/Room';
-import { SpeakingIndicator } from '@/ui/SpeakingIndicator';
 import { colors, MIN_TARGET, radius, space, type } from '@/ui/theme';
+import { TurnBar } from '@/ui/TurnBar';
 import type { EndReason, SessionState } from '@/voice';
+
+/** iOS's standard navigation bar height: the keyboard offset under the stack header. */
+const IOS_NAV_BAR = 44;
+
+const TYPED_MOCK_MESSAGE =
+  'Mock mode, typed: your reply is prefilled with the recorded line, and the persona and the grade are recorded, so a line you change scores lower here. Live mode answers and grades your own words. Type “stop” to end without a score.';
 
 /** `speakerName` is whoever in the room holds the floor: the lead persona or a panelist. */
 function statusLabel(state: SessionState, speakerName: string, textOnly: boolean): string {
@@ -32,8 +39,8 @@ function statusLabel(state: SessionState, speakerName: string, textOnly: boolean
     case 'persona_speaking':
       return textOnly ? `${speakerName} is replying` : `${speakerName} is speaking`;
     case 'listening':
-      if (config.mock && !textOnly) return 'Replaying your recorded line';
-      return textOnly ? 'Your turn. Type your reply.' : 'Your turn';
+      if (config.mock && !textOnly) return 'Your turn: replaying your recorded line';
+      return textOnly ? 'Your turn. Type your reply.' : 'Your turn. Speak now';
     case 'ended':
       return 'Conversation over';
     case 'error':
@@ -49,6 +56,7 @@ export default function Session() {
   const textOnly = mode === 'text';
   const [attempt] = useState(() => nextAttemptNumber(params.id));
   const [preferences] = useState(getPreferences);
+  const insets = useSafeAreaInsets();
   const [grading, setGrading] = useState(false);
   const [gradeError, setGradeError] = useState<string | null>(null);
   const [draft, setDraft] = useState('');
@@ -156,141 +164,174 @@ export default function Session() {
     setDraft('');
   };
 
+  const userTurns = turns.filter((turn) => turn.speaker === 'user' && turn.final).length;
+  const turn = grading ? 'waiting' : state.status === 'listening' ? 'you' : state.status === 'persona_speaking' ? 'them' : 'waiting';
+  const status = grading ? 'Scoring your conversation…' : statusLabel(state, speaker, textOnly);
+
   return (
     <SafeAreaView style={styles.safe} edges={['bottom']}>
-      <View style={styles.header}>
-        <View style={styles.personaRow}>
+      <Stack.Screen options={{ title: scenario.title }} />
+      <KeyboardAvoidingView
+        style={styles.safe}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        keyboardVerticalOffset={insets.top + IOS_NAV_BAR}>
+        <View style={styles.header}>
           <Room
             people={people}
             speaking={state.status === 'persona_speaking' ? speaker : null}
-            size={52}
+            size={48}
             reduceMotion={preferences.reduceMotion}
           />
-          <View style={styles.personaText}>
-            <Text style={type.heading}>
-              {people.map((person) => person.name).join(' & ')} · {difficulty}
-              {textOnly ? ' · typed' : ''}
+          <View style={styles.meta}>
+            <Text style={styles.chip}>
+              {difficulty} · {scenario.difficulty_levels[difficulty].name}
             </Text>
-            <View style={styles.statusRow}>
-              <SpeakingIndicator
-                active={state.status === 'persona_speaking' || (state.status === 'listening' && !textOnly)}
-                reduceMotion={preferences.reduceMotion}
-              />
-              <Text style={styles.status} accessibilityLiveRegion="polite">
-                {grading ? 'Scoring your conversation…' : statusLabel(state, speaker, textOnly)}
-              </Text>
+            {textOnly ? <Text style={styles.chip}>Typing</Text> : null}
+            <MockBanner compact message={textOnly ? TYPED_MOCK_MESSAGE : undefined} />
+            <View
+              style={styles.dots}
+              accessible
+              accessibilityLabel={`You have spoken ${userTurns} of ${scenario.max_user_turns} turns`}>
+              {Array.from({ length: scenario.max_user_turns }, (_, index) => (
+                <View key={index} style={[styles.dot, index < userTurns && styles.dotDone]} />
+              ))}
             </View>
           </View>
+          {safetyOffline ? (
+            <Text style={type.caption} accessibilityLiveRegion="polite">
+              The extra safety check on the server is offline. The on-device checks are still on.
+            </Text>
+          ) : null}
         </View>
-        <MockBanner
-          message={
-            textOnly ? 'Mock mode: replaying recorded replies, with no audio. No microphone, no network, no keys.' : undefined
-          }
-        />
-        {safetyOffline ? (
-          <Text style={type.caption} accessibilityLiveRegion="polite">
-            The extra safety check on the server is offline. The on-device checks are still on.
-          </Text>
-        ) : null}
-      </View>
 
-      <ScrollView
-        ref={scroll}
-        style={styles.captions}
-        contentContainerStyle={styles.captionsContent}
-        onContentSizeChange={() => scroll.current?.scrollToEnd({ animated: false })}
-        accessibilityLabel="Live captions">
-        {turns.map((turn) => {
-          const persona = turn.speaker === 'persona';
-          const who = persona ? (turn.name ?? scenario.persona.name) : 'You';
-          const face = faces.get(who);
-          return (
-            <View key={turn.id} style={[styles.line, !persona && styles.userLine]}>
-              {persona && face ? <Face face={face.face} mood={face.mood} size={30} reduceMotion /> : null}
-              <View
-                style={[styles.bubble, persona ? styles.personaBubble : styles.userBubble]}
-                accessible
-                accessibilityLabel={`${who}: ${turn.text}`}>
-                <Text style={[styles.speaker, !persona && styles.userText]}>{who}</Text>
-                <Text style={[type.body, !persona && styles.userText]}>{turn.text}</Text>
+        <ScrollView
+          ref={scroll}
+          style={styles.captions}
+          contentContainerStyle={styles.captionsContent}
+          onContentSizeChange={() => scroll.current?.scrollToEnd({ animated: false })}
+          accessibilityLabel="Live captions">
+          {turns.map((line) => {
+            const persona = line.speaker === 'persona';
+            const who = persona ? (line.name ?? scenario.persona.name) : 'You';
+            const face = faces.get(who);
+            return (
+              <View key={line.id} style={[styles.line, !persona && styles.userLine]}>
+                {persona && face ? <Face face={face.face} mood={face.mood} size={30} reduceMotion /> : null}
+                <View
+                  style={[styles.bubble, persona ? styles.personaBubble : styles.userBubble]}
+                  accessible
+                  accessibilityLabel={`${who}: ${line.text}`}>
+                  <Text style={[styles.speaker, !persona && styles.userText]}>{who}</Text>
+                  <Text style={[type.body, !persona && styles.userText]}>{line.text}</Text>
+                </View>
               </View>
-            </View>
-          );
-        })}
-      </ScrollView>
+            );
+          })}
+        </ScrollView>
 
-      <View style={styles.footer}>
-        {state.status === 'error' ? (
-          <>
-            <Text style={type.body} accessibilityLiveRegion="assertive">
-              The conversation couldn’t continue: {state.message}
-            </Text>
-            <Button label="Try again" onPress={() => void startSession(scenario.id, difficulty, mode, 'replace')} />
-            <Button label="Back to conversations" variant="secondary" onPress={() => router.dismissTo('/')} />
-          </>
-        ) : gradeError ? (
-          <>
-            <Text style={type.body} accessibilityLiveRegion="assertive">
-              Couldn’t score this conversation: {gradeError}
-            </Text>
-            <Button label="Try scoring again" onPress={score} />
-            <Button label="Back to conversations" variant="secondary" onPress={() => router.dismissTo('/')} />
-          </>
-        ) : stoppedEarly ? (
-          <>
-            <Text style={type.body} accessibilityLiveRegion="polite">
-              Stopped. Nothing from this conversation was scored.
-            </Text>
-            <Button label="Try again" onPress={() => void startSession(scenario.id, difficulty, mode, 'replace')} />
-            <Button label="Back to conversations" variant="secondary" onPress={() => router.dismissTo('/')} />
-            <Button label="Talk to someone" variant="secondary" onPress={() => router.replace('/support')} hint="Free, confidential support lines" />
-          </>
-        ) : (
-          <>
-            {textOnly ? (
-              <View style={styles.composer}>
-                {config.mock ? (
-                  <Text style={type.caption}>
-                    Prefilled with the recorded line. Mock mode replays recorded replies and a recorded grade, so the
-                    persona won’t react to changes and any line you change scores lower here: the grade keeps only
-                    evidence you actually typed. Live mode answers and grades your own words. Type “stop” to end
-                    without a score.
+        <View style={styles.footer}>
+          {state.status === 'error' ? (
+            <>
+              <Text style={type.body} accessibilityLiveRegion="assertive">
+                The conversation couldn’t continue: {state.message}
+              </Text>
+              <Button label="Try again" onPress={() => void startSession(scenario.id, difficulty, mode, 'replace')} />
+              <Button label="Back to conversations" variant="secondary" onPress={() => router.dismissTo('/')} />
+            </>
+          ) : gradeError ? (
+            <>
+              <Text style={type.body} accessibilityLiveRegion="assertive">
+                Couldn’t score this conversation: {gradeError}
+              </Text>
+              <Button label="Try scoring again" onPress={score} />
+              <Button label="Back to conversations" variant="secondary" onPress={() => router.dismissTo('/')} />
+            </>
+          ) : stoppedEarly ? (
+            <>
+              <Text style={type.body} accessibilityLiveRegion="polite">
+                Stopped. Nothing from this conversation was scored.
+              </Text>
+              <Button label="Try again" onPress={() => void startSession(scenario.id, difficulty, mode, 'replace')} />
+              <Button label="Back to conversations" variant="secondary" onPress={() => router.dismissTo('/')} />
+              <Button
+                label="Talk to someone"
+                variant="secondary"
+                onPress={() => router.replace({ pathname: '/support', params: { reason: 'chosen' } })}
+                hint="Free, confidential support lines"
+              />
+            </>
+          ) : (
+            <>
+              {textOnly ? (
+                <>
+                  <Text style={styles.typedStatus} accessibilityLiveRegion="polite">
+                    {status}
                   </Text>
-                ) : null}
-                <TextInput
-                  accessibilityLabel="Your reply"
-                  value={draft}
-                  onChangeText={setDraft}
-                  placeholder={state.status === 'listening' ? 'Type your reply' : 'Wait for your turn'}
-                  placeholderTextColor={colors.textMuted}
-                  editable={state.status === 'listening'}
-                  multiline
-                  style={styles.input}
+                  <View style={styles.composer}>
+                    <TextInput
+                      accessibilityLabel="Your reply"
+                      value={draft}
+                      onChangeText={setDraft}
+                      placeholder={state.status === 'listening' ? 'Type your reply' : 'Wait for your turn'}
+                      placeholderTextColor={colors.textMuted}
+                      editable={state.status === 'listening'}
+                      multiline
+                      style={styles.input}
+                    />
+                    <Pressable
+                      accessibilityRole="button"
+                      accessibilityLabel="Send"
+                      accessibilityState={{ disabled: !canSend }}
+                      disabled={!canSend}
+                      onPress={send}
+                      style={({ pressed }) => [styles.send, (!canSend || pressed) && styles.sendDimmed]}>
+                      <SendIcon color={colors.onPrimary} />
+                    </Pressable>
+                  </View>
+                </>
+              ) : (
+                <TurnBar
+                  turn={turn}
+                  label={status}
+                  speaker={faces.get(speaker)}
+                  reduceMotion={preferences.reduceMotion}
                 />
-                <Button label="Send" onPress={send} disabled={!canSend} />
-              </View>
-            ) : null}
-            <Button
-              label="End conversation"
-              variant="secondary"
-              onPress={stop}
-              disabled={state.status === 'ended'}
-              hint="Stops the roleplay without scoring it"
-            />
-          </>
-        )}
-      </View>
+              )}
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel="End conversation"
+                accessibilityHint="Stops the roleplay without scoring it"
+                accessibilityState={{ disabled: state.status === 'ended' }}
+                disabled={state.status === 'ended'}
+                onPress={stop}
+                style={styles.end}>
+                <Text style={styles.endText}>End conversation</Text>
+              </Pressable>
+            </>
+          )}
+        </View>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.background },
-  header: { padding: space.md, gap: space.sm },
-  personaRow: { flexDirection: 'row', alignItems: 'center', gap: space.sm, flexWrap: 'wrap' },
-  personaText: { flex: 1, minWidth: 160, gap: 4 },
-  statusRow: { flexDirection: 'row', alignItems: 'center', gap: space.sm },
-  status: { fontSize: 16, fontWeight: '600', color: colors.primary },
+  header: { paddingHorizontal: space.md, paddingTop: space.sm, gap: space.sm },
+  meta: { flexDirection: 'row', alignItems: 'center', gap: space.sm, flexWrap: 'wrap' },
+  chip: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: colors.primary,
+    backgroundColor: colors.quote,
+    borderRadius: 999,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    overflow: 'hidden',
+  },
+  dots: { flexDirection: 'row', gap: 5, marginLeft: 'auto', paddingVertical: space.xs },
+  dot: { width: 9, height: 9, borderRadius: 5, backgroundColor: colors.track },
+  dotDone: { backgroundColor: colors.primary },
   captions: { flex: 1 },
   captionsContent: { padding: space.md, gap: space.sm },
   line: { flexDirection: 'row', alignItems: 'flex-end', gap: space.xs, maxWidth: '92%' },
@@ -300,22 +341,36 @@ const styles = StyleSheet.create({
   userBubble: { backgroundColor: colors.userBubble, borderBottomRightRadius: 4 },
   speaker: { fontSize: 13, fontWeight: '700', color: colors.textMuted },
   userText: { color: colors.onPrimary },
-  composer: { gap: space.sm },
+  typedStatus: { fontSize: 15, fontWeight: '700', color: colors.primary },
+  composer: { flexDirection: 'row', alignItems: 'flex-end', gap: space.sm },
   input: {
-    minHeight: MIN_TARGET * 1.5,
-    maxHeight: 140,
+    flex: 1,
+    minHeight: MIN_TARGET,
+    maxHeight: 96,
     borderWidth: 1.5,
     borderColor: colors.borderStrong,
     borderRadius: radius,
     backgroundColor: colors.surface,
     paddingHorizontal: space.md,
-    paddingVertical: space.sm,
+    paddingVertical: space.sm + 2,
     fontSize: 16,
     color: colors.text,
   },
+  send: {
+    width: MIN_TARGET,
+    height: MIN_TARGET,
+    borderRadius: MIN_TARGET / 2,
+    backgroundColor: colors.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  sendDimmed: { opacity: 0.5 },
+  end: { minHeight: MIN_TARGET, alignItems: 'center', justifyContent: 'center' },
+  endText: { color: colors.danger, fontSize: 16, fontWeight: '700' },
   footer: {
-    padding: space.md,
-    gap: space.sm,
+    paddingHorizontal: space.md,
+    paddingTop: space.sm,
+    gap: space.xs,
     borderTopWidth: StyleSheet.hairlineWidth,
     borderTopColor: colors.border,
   },

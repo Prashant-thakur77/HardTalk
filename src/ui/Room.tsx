@@ -21,7 +21,7 @@ export function Room({ people, speaking = null, mood, size = 56, reduceMotion = 
   return (
     <View style={styles.row}>
       {people.map((person, index) => (
-        <View key={person.name} style={styles.person}>
+        <View key={person.name} style={[styles.person, speaking && speaking !== person.name && styles.quiet]}>
           <Face
             face={person.face}
             mood={mood ?? person.mood}
@@ -41,6 +41,7 @@ export function Room({ people, speaking = null, mood, size = 56, reduceMotion = 
 const styles = StyleSheet.create({
   row: { flexDirection: 'row', alignItems: 'flex-end', gap: space.sm },
   person: { alignItems: 'center', gap: 2 },
+  quiet: { opacity: 0.55 },
   name: { fontSize: 13, fontWeight: '600', color: colors.textMuted },
   speaking: { color: colors.primary, fontWeight: '800' },
 });
