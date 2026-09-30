@@ -3,6 +3,7 @@ import { StyleSheet, Text, View } from 'react-native';
 
 import { usePreferences } from '@/a11y/preferences';
 import { findAttempt, findPreviousAttempt, useAttempts } from '@/attempts/store';
+import { biggestJump, type Jump } from '@/grading/compare';
 import { MAX_TOTAL, totalScore, type Dimension, type DimensionGrade, type Grade } from '@/grading/rubric.schema';
 import { rubrics } from '@/grading/rubrics';
 import { getScenario } from '@/scenarios';
@@ -98,6 +99,8 @@ export default function Scorecard() {
           <Text style={[type.body, styles.keyLine]}>{keyLine(grade, track)}</Text>
         </View>
       </View>
+
+      {previous ? <WhatChanged jump={biggestJump(previous.grade, grade)} /> : null}
 
       <NextStep
         score={score}
@@ -205,6 +208,33 @@ function NextStep({
   );
 }
 
+/** The retry's proof: the skill that moved most, and what you said differently to move it. */
+function WhatChanged({ jump }: { jump: Jump | null }) {
+  if (!jump) return null;
+  const name = rubrics[jump.dimension].name;
+  const lastTime = jump.beforeQuote ? `“${jump.beforeQuote}”` : 'Nothing the grader could quote.';
+  const thisTime = jump.afterQuote ? `“${jump.afterQuote}”` : 'Nothing the grader could quote.';
+  return (
+    <View
+      style={[styles.card, styles.changed]}
+      accessible
+      accessibilityLabel={`Biggest jump: ${name}, ${jump.before} to ${jump.after}. Last time you said: ${lastTime} This time you said: ${thisTime}`}>
+      <Text style={styles.nextLabel}>What changed</Text>
+      <Text style={type.heading}>
+        {name}: {jump.before} → {jump.after}
+      </Text>
+      <View style={styles.compare}>
+        <Text style={styles.compareLabel}>Last time</Text>
+        <Text style={[type.body, styles.muted]}>{lastTime}</Text>
+      </View>
+      <View style={[styles.compare, styles.compareNow]}>
+        <Text style={[styles.compareLabel, styles.nowLabel]}>This time</Text>
+        <Text style={styles.nowText}>{thisTime}</Text>
+      </View>
+    </View>
+  );
+}
+
 function DimensionCard({
   dimension,
   result,
@@ -295,6 +325,13 @@ const styles = StyleSheet.create({
     ...shadow,
   },
   next: { backgroundColor: colors.quote, borderColor: colors.quote },
+  changed: { borderColor: colors.success, borderWidth: 1.5 },
+  compare: { gap: 2, borderRadius: 10, padding: space.sm + 2, backgroundColor: colors.background },
+  compareNow: { backgroundColor: '#EAF5EF' },
+  compareLabel: { fontSize: 13, fontWeight: '700', color: colors.textMuted, textTransform: 'uppercase' },
+  nowLabel: { color: colors.success },
+  muted: { color: colors.textMuted },
+  nowText: { fontSize: 17, lineHeight: 24, fontWeight: '600', color: colors.text },
   nextLabel: { fontSize: 13, fontWeight: '800', color: colors.primary, textTransform: 'uppercase', letterSpacing: 0.5 },
   nextLine: { fontSize: 17, lineHeight: 24, fontWeight: '600', color: colors.text },
   cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
