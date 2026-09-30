@@ -429,6 +429,19 @@ describe('detectDistress', () => {
     "I've stockpiled my sleeping pills.",
     "I just don't see any way out, honestly.",
     "There's no point going on with life.",
+    // Round 21 (D-133): lines the clause-end version let through. Tier 1 only grows.
+    "I'm tired of living like this.",
+    "I'm sick of living like this.",
+    'I just want it all to be over tonight.',
+    'I want everything to be over soon.',
+    "There's no point going on like this.",
+    'I started cutting again last week.',
+    "I've been cutting again lately.",
+    'I wrote a goodbye note.',
+    "I've written my goodbye letter.",
+    'I left a farewell note on the table.',
+    "I'm tired of living and I want it to stop.",
+    "Honestly I'm sick of being alive most days.",
   ])('flags %j', (line) => expect(detectDistress(line, config)).toBe(true));
 
   it.each([

@@ -8,14 +8,16 @@ interface ButtonProps {
   variant?: 'primary' | 'secondary';
   hint?: string;
   disabled?: boolean;
+  /** What a screen reader says when it differs from the visible label, such as a phone number digit by digit. */
+  spokenLabel?: string;
 }
 
-export function Button({ label, onPress, variant = 'primary', hint, disabled = false }: ButtonProps) {
+export function Button({ label, onPress, variant = 'primary', hint, disabled = false, spokenLabel }: ButtonProps) {
   const primary = variant === 'primary';
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityLabel={label}
+      accessibilityLabel={spokenLabel ?? label}
       accessibilityHint={hint}
       accessibilityState={{ disabled }}
       disabled={disabled}

@@ -3,7 +3,7 @@
 Live plan for HardTalk. Rewritten from SCORECARD.md at the end of every round, not from the
 previous plan. Every item names the criterion it moves (CLAUDE.md §3).
 
-**Round 20 score: 12/20** (C1 2 · C2 4 · C3 3 · C4 3), flat since round 6: mock mode and the code
+**Round 21 score: 12/20** (C1 2 · C2 4 · C3 3 · C4 3), flat since round 6: mock mode and the code
 hold (1,360+ tests, browser flows with zero page errors). The cap is C1 and C3, which only the
 owner's phone session moves. The round-20 UX judge scored the UI and the product 7/10 each; that round's layout fixes (shorter footers and hero, the weakest skill's line on the scorecard, the choices line on the brief, dialable helplines) are in.
 

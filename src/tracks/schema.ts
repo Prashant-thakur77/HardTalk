@@ -31,6 +31,11 @@ export const trackSchema = z
     custom_opening_line: z.string().min(1),
     /** What to paste to have a panel drafted for it: the prompt above the text box. */
     paste_label: z.string().min(1),
+    /**
+     * True when the pasted text is the user's own account of their situation (Workplace), not a
+     * third-party text such as a job posting. A safety hold on it then has no "It's a topic" way on.
+     */
+    paste_is_own_words: z.boolean().default(false),
     /** Placeholder examples for the five-answer "Describe it" form, in this track's terms. */
     describe_examples: z.strictObject({
       title: z.string().min(1),

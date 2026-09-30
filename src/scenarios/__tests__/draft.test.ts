@@ -59,6 +59,11 @@ describe('drafted scenarios', () => {
     await expect(draftScenario('workplace', pasted)).rejects.toBeInstanceOf(NotScoredForSafety);
   });
 
+  it('never takes the topic override on a track where the paste is your own account', async () => {
+    const pasted = `${sampleFor('workplace').source} I've been planning to kill myself after the review.`;
+    await expect(draftScenario('workplace', pasted, true)).rejects.toBeInstanceOf(NotScoredForSafety);
+  });
+
   it('holds a nursing posting too, and drafts it once the user says it is a topic, not about them', async () => {
     const posting = `${sampleFor('interview').source} You will care for patients at risk of suicide and self-harm.`;
     await expect(draftScenario('interview', posting)).rejects.toBeInstanceOf(NotScoredForSafety);

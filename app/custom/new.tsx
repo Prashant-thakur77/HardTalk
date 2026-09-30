@@ -125,20 +125,22 @@ export default function NewCustomScenario() {
   const sourceLength = source.trim().length;
   const missing = FIELDS.filter((field) => errors[field.key]).length;
 
+  // Only a third-party text (a posting, a pitch, a motion) can be a topic; your own account cannot.
+  const topicAllowed = mode === 'paste' && !getTrack(track).paste_is_own_words;
   const hold = safetyHold ? (
     <View style={styles.hold}>
       <Text style={styles.holdTitle}>This wasn’t turned into a practice</Text>
       <Text style={type.caption}>
-        {mode === 'paste'
+        {topicAllowed
           ? 'It mentions things like suicide or harm, so nothing was built or saved yet. If it’s about you, support is one tap away. If it’s a topic you’re pitching, interviewing for or debating, you can still build it.'
-          : 'It mentions things like suicide or harm, so nothing was saved. These answers describe your own conversation, so if any of it is about you, support is one tap away. For a topic, such as a wellbeing pitch, use Paste it instead.'}
+          : 'It mentions things like suicide or harm, so nothing was built or saved. What you wrote here is about your own situation, so if any of it is about you, support is one tap away. A topic you are pitching, interviewing for or debating can be pasted in that track.'}
       </Text>
       <Button
         label="Talk to someone"
         onPress={() => router.push({ pathname: '/support', params: { reason: 'pasted' } })}
         hint="Free, confidential support lines"
       />
-      {mode === 'describe' ? null : confirmingTopic ? (
+      {!topicAllowed ? null : confirmingTopic ? (
         <>
           <Text style={type.caption} accessibilityLiveRegion="polite">
             Only if none of it is about you. The brief will keep a support link, and if a line you say sounds

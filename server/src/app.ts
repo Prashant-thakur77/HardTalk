@@ -131,7 +131,9 @@ export function createApp(services: Services) {
     }
     // Pasted text that sounds like distress is not turned into a roleplay unless the user has said
     // it is a topic (a nursing posting, a wellbeing pitch), not about them.
-    if (!body.data.aboutTopic && (await soundsLikeDistress(body.data.source))) {
+    // A track whose paste is the user's own account never takes the topic override.
+    const aboutTopic = body.data.aboutTopic && !getTrack(body.data.track).paste_is_own_words;
+    if (!aboutTopic && (await soundsLikeDistress(body.data.source))) {
       return c.json({ error: 'This text was not drafted.', safety: true }, 422);
     }
     try {

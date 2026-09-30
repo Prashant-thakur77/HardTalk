@@ -271,6 +271,14 @@ describe('POST /scenario/draft', () => {
     expect((await post(app, { track: 'interview', source: posting, aboutTopic: true }, '/scenario/draft')).status).toBe(200);
   });
 
+  it('ignores the topic override on Workplace, where the paste is the user\'s own account', async () => {
+    const draftScenario = vi.fn();
+    const own = `${source} I've been planning to kill myself after the review.`;
+    const { status } = await post(createApp({ draftScenario }), { track: 'workplace', source: own, aboutTopic: true }, '/scenario/draft');
+    expect(status).toBe(422);
+    expect(draftScenario).not.toHaveBeenCalled();
+  });
+
   it('asks the model about pasted text the rules pass, as it does for spoken lines', async () => {
     const draftScenario = vi.fn().mockResolvedValue({ id: 'custom-x-1' });
     const checkDistress = vi.fn().mockResolvedValue(true);

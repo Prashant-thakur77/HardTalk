@@ -3,6 +3,7 @@ import { z } from 'zod';
 
 import { config } from '@/config';
 import { isDistressLine, NotScoredForSafety } from '@/safety';
+import { getTrack } from '@/tracks';
 import { trackIdSchema, type TrackId } from '@/tracks/schema';
 
 import { draftSchema, scenarioFromDraft } from './draft';
@@ -48,19 +49,20 @@ export const sampleScenarioId = (track: TrackId) => `custom-sample-${track}`;
 export async function draftScenario(track: TrackId, source: string, aboutTopic = false): Promise<Scenario> {
   // The same check as every spoken line. Pasted text that sounds like distress is held until the
   // user says it is a topic in the posting or pitch, not about them; nothing weakens the check.
-  if (!aboutTopic && isDistressLine(source)) throw new NotScoredForSafety();
+  const topic = aboutTopic && !getTrack(track).paste_is_own_words;
+  if (!topic && isDistressLine(source)) throw new NotScoredForSafety();
   if (config.mock) {
     const sample = scenarioFromDraft(sampleFor(track).draft, track, Date.now(), sampleScenarioId(track));
-    return { ...sample, sensitive_topic: aboutTopic };
+    return { ...sample, sensitive_topic: topic };
   }
 
   const response = await fetch(`${config.serverUrl}/scenario/draft`, {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({ track, source, aboutTopic }),
+    body: JSON.stringify({ track, source, aboutTopic: topic }),
   });
   const body = (await response.json()) as { scenario?: unknown; error?: string; safety?: boolean };
   if (body.safety) throw new NotScoredForSafety();
   if (!response.ok) throw new Error(body.error ?? `Drafting failed (${response.status}).`);
-  return scenarioSchema.parse({ ...(body.scenario as object), sensitive_topic: aboutTopic });
+  return scenarioSchema.parse({ ...(body.scenario as object), sensitive_topic: topic });
 }

@@ -48,9 +48,10 @@ export default function Support() {
           {resource.phone ? (
             <Button
               label={`Call ${resource.phone}`}
+              spokenLabel={`Call ${resource.phone.replace(/\s/g, '').split('').join(' ')}`}
               hint={`Calls ${resource.name}`}
               variant="secondary"
-              onPress={() => void Linking.openURL(`tel:${resource.phone}`)}
+              onPress={() => void Linking.openURL(`tel:${resource.phone!.replace(/\s/g, '')}`)}
             />
           ) : null}
           {resource.url ? (

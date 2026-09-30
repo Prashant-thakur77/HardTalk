@@ -68,7 +68,7 @@ export default function Scorecard() {
   const retry = () => void startSession(scenario.id, attempt.difficulty, attempt.mode, 'replace');
   // After a strong try the next step is more pushback, so that becomes the main button.
   const up = score >= 12 ? nextLevel(attempt.difficulty) : null;
-  // Only the weakest skill opens by default: that is where the next try should go.
+  // The weakest skill is where the next try should go.
   const weakest = [...track.rubrics].sort(
     (a, b) => (grade.dimensions[a]?.score ?? 0) - (grade.dimensions[b]?.score ?? 0),
   )[0];
@@ -159,7 +159,9 @@ export default function Scorecard() {
             dimension={dimension}
             result={result}
             previousScore={previous?.grade.dimensions[dimension]?.score}
-            startOpen={dimension === weakest}
+            weakest={dimension === weakest}
+            // After a weaker try its better line is already in "Next time, try" above.
+            startOpen={dimension === weakest && Boolean(up)}
           />
         ) : null;
       })}
@@ -288,17 +290,19 @@ function WhatChanged({ jump }: { jump: Jump | null }) {
 }
 
 /** One skill: score and bar always shown; the quote, the why and a better line on a tap. The
- * weakest one starts open and says so: that is where the next try should go. */
+ * weakest one says so, and starts open unless "Next time, try" already shows its better line. */
 function DimensionCard({
   dimension,
   result,
   previousScore,
   startOpen,
+  weakest,
 }: {
   dimension: Dimension;
   result: DimensionGrade;
   previousScore: number | undefined;
   startOpen: boolean;
+  weakest: boolean;
 }) {
   const [open, setOpen] = useState(startOpen);
   const rubric = rubrics[dimension];
@@ -317,7 +321,7 @@ function DimensionCard({
             ? `${label}: ${result.score} out of 4`
             : `${label}: ${result.score} out of 4, was ${previousScore}`
         }>
-        {startOpen ? <Text style={styles.startHere}>Start here</Text> : null}
+        {weakest ? <Text style={styles.startHere}>Start here</Text> : null}
         <View style={styles.cardHeader}>
           <Text style={[type.heading, styles.cardTitle]}>{label}</Text>
           <View style={styles.scoreRow}>

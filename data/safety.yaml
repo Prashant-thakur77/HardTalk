@@ -89,16 +89,16 @@ distress_explicit:
   - \b(jump|jumping) (off|from) (the|a|this|my) ([a-z]+ )?floor\b
   - \b(swallowed|swallow|took|take|taken|taking)( just)? (a|the)( whole)? bottle of ([a-z]+ )?pills\b
   # Phrases that are also ordinary work talk ("over by Friday", "no point going on until QA
-  # signs off") count only where the clause ends, so the work versions never match.
+  # signs off") match anywhere, except before the few words that make them work talk.
   - \bstockpil(e|es|ed|ing) (my |the |all my )?([a-z]+ )?(pills|meds|medication|tablets|painkillers)\b
-  - \b(sick|tired) of (living|being alive)( any ?more)?(?=\s*(,|$))
-  - \bwant (it all|everything) to be over(?=\s*(,|$))
-  - \bno point (in )?going on( with (life|living))?( any ?more)?(?=\s*(,|$))
+  - \b(sick|tired) of (living|being alive)\b(?! (in|out of|on|off) )
+  - \bwant (it all|everything) to be over\b(?! (by|before|so|with)\b)
+  - \bno point (in )?going on\b(?! (with (the|this|that|our|it)|until|till|unless|without|if)\b)
   - \b(given|giving|gave) away (all )?my (things|stuff|belongings)\b
   - \b(given|giving|gave) (all )?my (things|stuff|belongings) away\b
-  - \b(i've been|i'm|i started|i keep) cutting (myself )?again(?=\s*(,|$| and i\b))
-  - \b(don't|can't) see (a|any) way out( any ?more)?(?=\s*(,|$))
-  - \b(writing|wrote|written|leaving|left) (a|my) suicide (note|letter)\b
+  - \b(i've been|i'm|i started|i keep|started) cutting (myself )?again\b(?! (at|on|into|the|our|and again|back|costs|scope)\b)
+  - \b(don't|can't) see (a|any) way out\b(?! of (this|the|that|our) (deadline|project|sprint|release|budget|contract|meeting|backlog)\b)
+  - \b(wrote|written|writing|left|leaving|leave) (a|my) (goodbye|farewell|suicide) (note|letter)\b(?! (to|for) (the|my|our) (team|colleagues|manager|lead|boss|company|office|coworkers|clients|customers)\b)
   - \b(goodbye|farewell) (note|letter) (for|to) my (family|parents|mum|mom|dad|kids|children|partner|wife|husband)\b
   - \bpanic attacks?\b
   - \bi can't breathe\b
@@ -168,7 +168,7 @@ resources:
     url: https://988lifeline.org
   - name: Samaritans (UK and Ireland)
     detail: Call 116 123, free, any time.
-    phone: '116123'
+    phone: '116 123'
     url: https://www.samaritans.org
   - name: Tele-MANAS (India)
     detail: Call 14416, free, any time.

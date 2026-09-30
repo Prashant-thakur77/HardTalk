@@ -22,8 +22,8 @@ export const safetyConfigSchema = z.strictObject({
       z.strictObject({
         name: z.string(),
         detail: z.string(),
-        /** Digits only: the support screen dials it with one tap. */
-        phone: z.string().regex(/^\d+$/).optional(),
+        /** As it is written ("116 123"): the support screen dials it with one tap. */
+        phone: z.string().regex(/^\d[\d ]*$/).optional(),
         url: z.url().optional(),
       }),
     )

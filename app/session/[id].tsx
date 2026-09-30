@@ -94,6 +94,7 @@ export default function Session() {
   const asking = useRef(false);
   const topicConfirmed = useRef(false);
   const scoring = useRef(false);
+  const shown = useRef(false);
   const stopForSupport = useRef<() => void>(() => undefined);
   const personaName = scenario?.persona.name ?? 'The persona';
 
@@ -137,7 +138,9 @@ export default function Session() {
   };
 
   const showScorecard = () => {
-    if (savedId.current) router.replace({ pathname: '/scorecard/[attemptId]', params: { attemptId: savedId.current } });
+    if (!savedId.current) return;
+    shown.current = true;
+    router.replace({ pathname: '/scorecard/[attemptId]', params: { attemptId: savedId.current } });
   };
 
   const carryOn = () => {
@@ -176,7 +179,8 @@ export default function Session() {
         router.replace('/support');
       };
       const flag = () => {
-        if (!scenario?.sensitive_topic) return stopForSupport.current();
+        // Once the scorecard is on screen there is no one here to ask, so it is treated as a flag.
+        if (!scenario?.sensitive_topic || shown.current) return stopForSupport.current();
         asking.current = true;
         setAskingIfPersonal(true);
         AccessibilityInfo.announceForAccessibility('That sounded like it might be about you. Is it?');
@@ -307,14 +311,6 @@ export default function Session() {
               <Button label="Try again" onPress={() => void startSession(scenario.id, difficulty, mode, 'replace')} />
               <Button label="Back to conversations" variant="secondary" onPress={() => router.dismissTo('/')} />
             </>
-          ) : gradeError ? (
-            <>
-              <Text style={type.body} accessibilityLiveRegion="assertive">
-                Couldn’t score this conversation: {gradeError}
-              </Text>
-              <Button label="Try scoring again" onPress={score} />
-              <Button label="Back to conversations" variant="secondary" onPress={() => router.dismissTo('/')} />
-            </>
           ) : askingIfPersonal ? (
             <>
               <Text style={type.body} accessibilityLiveRegion="assertive">
@@ -326,6 +322,14 @@ export default function Session() {
                 variant="secondary"
                 onPress={carryOn}
               />
+            </>
+          ) : gradeError ? (
+            <>
+              <Text style={type.body} accessibilityLiveRegion="assertive">
+                Couldn’t score this conversation: {gradeError}
+              </Text>
+              <Button label="Try scoring again" onPress={score} />
+              <Button label="Back to conversations" variant="secondary" onPress={() => router.dismissTo('/')} />
             </>
           ) : ungradable ? (
             <>

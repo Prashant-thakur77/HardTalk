@@ -34,8 +34,8 @@ move when you try again.
   </tr>
   <tr>
     <td align="center"><img src="docs/screens/4-scorecard.jpg" alt="Scorecard: 6 to 14 out of 16 on the retry, and all three investors won over" width="240" /><br /><sub><b>4. See the score move</b></sub></td>
-    <td align="center"><img src="docs/screens/5-paywall.jpg" alt="Paywall with copy for the moment it opens, and a sample drafted panel" width="240" /><br /><sub><b>5. Pro, through RevenueCat</b></sub></td>
-    <td align="center"><img src="docs/screens/6-bring.jpg" alt="A panel drafted from a pasted job posting" width="240" /><br /><sub><b>6. Bring the real one</b></sub></td>
+    <td align="center"><img src="docs/screens/5-paywall.jpg" alt="The mock paywall: the copy RevenueCat's paywall receives, a sample drafted panel and the plans" width="240" /><br /><sub><b>5. The Pro paywall (mock)</b></sub></td>
+    <td align="center"><img src="docs/screens/6-bring.jpg" alt="Mock mode's recorded sample of a panel drafted from a pasted text" width="240" /><br /><sub><b>6. Bring the real one (sample)</b></sub></td>
   </tr>
 </table>
 
@@ -52,7 +52,7 @@ You say it out loud to a room of AI personas who push back, each with their own 
 - **Bring the real one (Pro).** Paste the job posting you are applying to, your pitch, or the motion, and HardTalk drafts a panel for that exact moment: who is in the room, what each will push on, and what you need to leave with.
 - **The whole loop works with a screen reader and no audio**, and saying "stop" ends it at once, unscored.
 
-![HardTalk in mock mode: a pitch panel of Maya, Leo and Kenji; the retry goes from 6 to 14 and wins over all three; then a pasted pitch becomes a new panel](docs/demo.gif)
+![HardTalk in mock mode: the brief for a three-investor pitch panel, the replayed conversation, a retry from 6 to 14 that wins over all three, the Pro paywall, and a panel drafted from the sample pitch](docs/demo.gif)
 
 ## At a glance
 
@@ -71,7 +71,7 @@ You say it out loud to a room of AI personas who push back, each with their own 
 
 **The pain.** Hiring now takes about 20 interviews per hire, up from 14 in 2021 ([Gem, 2025](https://www.gem.com/blog/10-takeaways-from-the-2025-recruiting-benchmarks-report)). Interview anxiety goes with lower interview performance (r = −.19 across studies; [Powell, Stanley & Brown, 2018](https://psycnet.apa.org/fulltext/2018-44232-001.pdf)), and a third of Americans fear public speaking ([Chapman, 2025](https://www.chapman.edu/wilkinson/research-centers/babbie-center/_files/2025/Key-Findings-Survey-of-America-Fears-2025.pdf)).
 
-**What people use today.** A career coach (about $207 an hour, [Career Sidekick](https://careersidekick.com/career-coach-cost/)), paid mock interviews, a friend, or nothing. Google's free Interview Warmup was retired in April 2026 ([reported by Four Leaf](https://four-leaf.ai/blog/google-interview-warmup)), and Poised is shutting down on 8 October 2026 ([notice on its site](https://www.poised.com/)).
+**What people use today.** A career coach (about $207 an hour, [Career Sidekick](https://careersidekick.com/career-coach-cost/)), paid mock interviews, a friend, or nothing. Google's free Interview Warmup was retired in 2026 ([reported by Four Leaf](https://four-leaf.ai/blog/google-interview-warmup)), and Poised is shutting down on 8 October 2026 ([notice on its site](https://www.poised.com/)).
 
 | | Focus | Price (Sept 2026) | Where HardTalk differs |
 | --- | --- | --- | --- |
