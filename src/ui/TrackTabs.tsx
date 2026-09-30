@@ -10,7 +10,7 @@ interface TrackTabsProps {
   onSelect: (id: TrackId) => void;
 }
 
-/** One tab per practice track. Wraps onto a second row on narrow screens, so no tab is hidden. */
+/** One tab per practice track, as an even two-by-two grid so no tab is ever off-screen. */
 export function TrackTabs({ tracks, selected, onSelect }: TrackTabsProps) {
   return (
     <View style={styles.row} accessibilityRole="tablist" accessibilityLabel="Practice tracks">
@@ -36,10 +36,13 @@ export function TrackTabs({ tracks, selected, onSelect }: TrackTabsProps) {
 const styles = StyleSheet.create({
   row: { flexDirection: 'row', flexWrap: 'wrap', gap: space.sm },
   tab: {
+    flexBasis: '46%',
+    flexGrow: 1,
     minHeight: MIN_TARGET,
+    alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: space.md,
-    borderRadius: 999,
+    borderRadius: 14,
     borderWidth: 1.5,
     borderColor: colors.borderStrong,
     backgroundColor: colors.surface,

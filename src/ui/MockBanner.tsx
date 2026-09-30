@@ -25,8 +25,8 @@ export function MockBanner({ message = DEFAULT_MESSAGE, compact = false }: MockB
     return (
       <Pressable
         accessibilityRole="button"
-        accessibilityLabel={message}
-        accessibilityHint="Shows what mock mode means"
+        accessibilityLabel="Mock replay: what this means"
+        accessibilityHint="Shows how this replay differs from live mode"
         onPress={() => setOpen(true)}
         hitSlop={(MIN_TARGET - PILL) / 2}
         style={styles.pill}>

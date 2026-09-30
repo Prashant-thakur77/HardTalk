@@ -7,10 +7,10 @@ import { MAX_TOTAL, totalScore } from '@/grading/rubric.schema';
 import { restorePurchases, usePro } from '@/purchases';
 import { FREE_GRADED_SESSIONS } from '@/purchases/gates';
 import { safety } from '@/safety';
-import { scenarios, useCustomScenarios } from '@/scenarios';
+import { getScenario, scenarios, useCustomScenarios } from '@/scenarios';
 import { peopleIn } from '@/scenarios/people';
 import type { Scenario } from '@/scenarios/schema';
-import { openCustomScenario } from '@/session/start';
+import { openCustomScenario, startSession } from '@/session/start';
 import { getTrack, tracks } from '@/tracks';
 import type { TrackId } from '@/tracks/schema';
 import { Button } from '@/ui/Button';
@@ -27,7 +27,10 @@ export default function ScenarioList() {
   const pro = usePro();
   const [restoreMessage, setRestoreMessage] = useState<string | null>(null);
   const [confirmDelete, setConfirmDelete] = useState(false);
-  const [trackId, setTrackId] = useState<TrackId>('workplace');
+  // Returning users land on the track they last practised.
+  const [trackId, setTrackId] = useState<TrackId>(
+    () => getScenario(attempts.at(-1)?.scenarioId ?? '')?.track ?? 'workplace',
+  );
   const track = getTrack(trackId);
 
   const deleteHistory = async () => {
@@ -45,15 +48,19 @@ export default function ScenarioList() {
   };
 
   const freeLeft = Math.max(0, FREE_GRADED_SESSIONS - getGradedSessionsUsed());
+  const last = attempts.at(-1);
+  const lastScenario = last && getScenario(last.scenarioId);
 
   const card = (scenario: Scenario) => {
     const mine = attempts.filter((attempt) => attempt.scenarioId === scenario.id);
     const tries = mine.length;
     const best = Math.max(0, ...mine.map((attempt) => totalScore(attempt.grade)));
-    const [lead, ...panel] = peopleIn(scenario, 'L1');
-    const personaLine = `With ${scenario.persona.name}, ${scenario.persona.role.toLowerCase()}${
-      panel.length ? `, and ${panel.map((person) => person.name).join(' and ')}` : ''
-    }`;
+    const people = peopleIn(scenario, 'L1');
+    const names = people.map((person) => person.name);
+    const personaLine =
+      names.length === 1
+        ? `With ${scenario.persona.name}, ${scenario.persona.role.toLowerCase()}`
+        : `With ${names.slice(0, -1).join(', ')} and ${names.at(-1)}`;
     return (
       <Pressable
         key={scenario.id}
@@ -62,27 +69,21 @@ export default function ScenarioList() {
         accessibilityHint="Opens the brief and difficulty choice"
         onPress={() => router.push({ pathname: '/scenario/[id]', params: { id: scenario.id } })}
         style={({ pressed }) => [styles.card, pressed && styles.pressed]}>
-        <View style={styles.cardHead}>
-          <View style={styles.faces}>
-            <Face face={lead.face} mood={lead.mood} size={48} />
-            {panel.map((person) => (
-              <View key={person.name} style={styles.panelFace}>
-                <Face face={person.face} mood={person.mood} size={34} />
-              </View>
-            ))}
-          </View>
-          <View style={styles.cardTitle}>
-            <Text style={type.heading}>{scenario.title}</Text>
-            <Text style={type.caption}>{personaLine}</Text>
-          </View>
+        <View style={styles.faces}>
+          {people.map((person, index) => (
+            <View key={person.name} style={index > 0 && styles.panelFace}>
+              <Face face={person.face} mood={person.mood} size={44} />
+            </View>
+          ))}
+          <Text style={[type.caption, styles.personaLine]} numberOfLines={2}>
+            {personaLine}
+          </Text>
         </View>
-        <Text style={[type.body, styles.summary]} numberOfLines={3}>
+        <Text style={type.heading}>{scenario.title}</Text>
+        <Text style={[type.body, styles.summary]} numberOfLines={2}>
           {scenario.summary}
         </Text>
         <View style={styles.chips}>
-          <View style={styles.chip}>
-            <Text style={styles.chipText}>L1 · L2 · L3</Text>
-          </View>
           {tries > 0 ? (
             <View style={styles.chip}>
               <Text style={styles.chipText}>
@@ -105,13 +106,10 @@ export default function ScenarioList() {
   return (
     <Screen>
       <View style={styles.hero}>
-        <Text style={styles.brand}>HardTalk</Text>
         <Text style={styles.tagline} accessibilityRole="header">
           Practise the conversation before you have it.
         </Text>
-        <Text style={styles.heroBody}>
-          Say it out loud to someone who pushes back. Get a scorecard that quotes you. Try again.
-        </Text>
+        <Text style={styles.heroBody}>Say it out loud. Get a scorecard that quotes you. Try again.</Text>
         <View style={styles.heroPill}>
           <Text style={styles.heroPillText}>
             {pro ? 'Pro · unlimited practice' : `${freeLeft} of ${FREE_GRADED_SESSIONS} free graded sessions left`}
@@ -119,7 +117,32 @@ export default function ScenarioList() {
         </View>
       </View>
       <PurchaseNotice />
-      <MockBanner />
+      <MockBanner compact />
+      {last && lastScenario ? (
+        <View style={styles.continue}>
+          <Text style={styles.continueLabel}>Pick up where you left off</Text>
+          <View style={styles.faces}>
+            {peopleIn(lastScenario, last.difficulty).map((person, index) => (
+              <View key={person.name} style={index > 0 && styles.panelFace}>
+                <Face face={person.face} mood={person.mood} size={36} />
+              </View>
+            ))}
+            <View style={styles.personaLine}>
+              <Text style={styles.continueTitle} numberOfLines={2}>
+                {lastScenario.title}
+              </Text>
+              <Text style={type.caption}>
+                Last try {totalScore(last.grade)}/{MAX_TOTAL} at {last.difficulty}
+              </Text>
+            </View>
+          </View>
+          <Button
+            label="Practise it again"
+            hint={lastScenario.title}
+            onPress={() => void startSession(lastScenario.id, last.difficulty, last.mode, 'push')}
+          />
+        </View>
+      ) : null}
       <Text style={styles.section} accessibilityRole="header">
         What do you want to practise?
       </Text>
@@ -176,9 +199,8 @@ export default function ScenarioList() {
 }
 
 const styles = StyleSheet.create({
-  hero: { backgroundColor: colors.hero, borderRadius: 20, padding: space.lg, gap: space.sm, ...shadow },
-  brand: { color: colors.onHeroMuted, fontSize: 14, fontWeight: '700', letterSpacing: 1, textTransform: 'uppercase' },
-  tagline: { fontSize: 26, lineHeight: 32, fontWeight: '800', color: colors.onHero },
+  hero: { backgroundColor: colors.hero, borderRadius: 20, padding: space.md + 4, gap: space.sm, ...shadow },
+  tagline: { fontSize: 24, lineHeight: 30, fontWeight: '800', color: colors.onHero },
   heroBody: { fontSize: 16, lineHeight: 23, color: colors.onHeroMuted },
   heroPill: {
     alignSelf: 'flex-start',
@@ -199,10 +221,20 @@ const styles = StyleSheet.create({
     gap: space.sm + 2,
     ...shadow,
   },
-  cardHead: { flexDirection: 'row', alignItems: 'center', gap: space.sm },
-  faces: { flexDirection: 'row', alignItems: 'flex-end' },
+  faces: { flexDirection: 'row', alignItems: 'center' },
   panelFace: { marginLeft: -14 },
-  cardTitle: { flex: 1, gap: 2 },
+  personaLine: { flex: 1, marginLeft: space.sm, gap: 2 },
+  continue: {
+    backgroundColor: colors.surface,
+    borderRadius: 16,
+    borderWidth: 1.5,
+    borderColor: colors.primary,
+    padding: space.md,
+    gap: space.sm,
+    ...shadow,
+  },
+  continueLabel: { fontSize: 13, fontWeight: '800', color: colors.primary, textTransform: 'uppercase', letterSpacing: 0.5 },
+  continueTitle: { fontSize: 17, fontWeight: '700', color: colors.text },
   summary: { color: colors.textMuted },
   pressed: { opacity: 0.75, transform: [{ scale: 0.99 }] },
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: space.xs + 2 },

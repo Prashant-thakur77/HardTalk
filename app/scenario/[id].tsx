@@ -16,6 +16,7 @@ import { ChoiceGroup } from '@/ui/ChoiceGroup';
 import { Face } from '@/ui/Face';
 import { MockBanner } from '@/ui/MockBanner';
 import { PurchaseNotice } from '@/ui/PurchaseNotice';
+import { Segmented } from '@/ui/Segmented';
 import { Screen } from '@/ui/Screen';
 import { colors, shadow, space, type } from '@/ui/theme';
 
@@ -40,18 +41,44 @@ export default function ScenarioBrief() {
   return (
     <Screen
       footer={
-        <Button
-          label="Start conversation"
-          onPress={() => void startSession(scenario.id, difficulty, mode, 'push')}
-          hint="Starts the roleplay"
-          disabled={liveOnly}
-        />
+        <>
+          {liveOnly ? (
+            <Text style={type.caption}>
+              Your own scenarios run live, with your microphone. Mock mode replays only the built-in conversations.
+            </Text>
+          ) : null}
+          <Button
+            label="Start conversation"
+            onPress={() => void startSession(scenario.id, difficulty, mode, 'push')}
+            hint="Starts the roleplay"
+            disabled={liveOnly}
+          />
+        </>
       }>
       <Text style={styles.track}>{track.name}</Text>
       <Text style={type.title} accessibilityRole="header">
         {scenario.title}
       </Text>
       <Text style={type.body}>{scenario.summary}</Text>
+      <View style={styles.goalCard}>
+        <Text style={styles.label}>Your goal</Text>
+        <Text style={styles.goalText}>{scenario.user_goal}</Text>
+      </View>
+      <PurchaseNotice />
+
+      <Segmented
+        label={`How hard should ${scenario.persona.name} push back?`}
+        segments={difficultySchema.options.map((option) => ({
+          value: option,
+          label: option,
+          name: scenario.difficulty_levels[option].name,
+          description: scenario.difficulty_levels[option].summary,
+        }))}
+        selected={difficulty}
+        onSelect={setDifficulty}
+      />
+      <ChoiceGroup label="How do you want to practise?" choices={MODES} selected={mode} onSelect={setMode} horizontal />
+
       <View style={styles.room}>
         <Text style={styles.label} accessibilityRole="header">
           Who’s in the room, and what they’ll ask
@@ -79,36 +106,12 @@ export default function ScenarioBrief() {
           </View>
         ))}
       </View>
-      <View style={styles.goal}>
-        <Text style={styles.label}>Your goal</Text>
-        <Text style={type.body}>{scenario.user_goal}</Text>
-      </View>
       {track.tip ? (
         <View style={styles.goal}>
           <Text style={styles.label}>Tip</Text>
           <Text style={type.body}>{track.tip}</Text>
         </View>
       ) : null}
-      <MockBanner message="Mock mode replays one recorded conversation at every level. Live mode uses your microphone, and the persona behaves as the level you pick." />
-      <PurchaseNotice />
-      {liveOnly ? (
-        <Text style={type.body}>
-          Your own scenarios run live, with your microphone and the persona. Mock mode only replays the
-          built-in conversations.
-        </Text>
-      ) : null}
-
-      <ChoiceGroup
-        label={`How hard should ${scenario.persona.name} push back?`}
-        choices={difficultySchema.options.map((level) => ({
-          value: level,
-          label: `${level} · ${scenario.difficulty_levels[level].name}`,
-          description: scenario.difficulty_levels[level].summary,
-        }))}
-        selected={difficulty}
-        onSelect={setDifficulty}
-      />
-      <ChoiceGroup label="How do you want to practise?" choices={MODES} selected={mode} onSelect={setMode} horizontal />
       {mode === 'voice' ? (
         <ChoiceGroup
           label={people.length > 1 ? 'How fast they speak' : `${scenario.persona.name}'s speaking pace`}
@@ -118,6 +121,10 @@ export default function ScenarioBrief() {
           horizontal
         />
       ) : null}
+      <MockBanner
+        compact
+        message="Mock mode replays one recorded conversation at every level. Live mode uses your microphone, and the persona behaves as the level you pick."
+      />
     </Screen>
   );
 }
@@ -142,5 +149,7 @@ const styles = StyleSheet.create({
   stance: { fontSize: 13, fontWeight: '700', color: colors.warning },
   agrees: { color: colors.success },
   goal: { gap: 2 },
+  goalCard: { gap: 2, backgroundColor: colors.quote, borderRadius: 14, padding: space.md },
+  goalText: { fontSize: 17, lineHeight: 24, fontWeight: '600', color: colors.text },
   label: { fontSize: 13, fontWeight: '700', color: colors.primary, textTransform: 'uppercase' },
 });
