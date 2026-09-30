@@ -13,7 +13,7 @@ You say it out loud to a room of AI personas who push back, each with their own 
 - **Bring the real one (Pro).** Paste the job posting you are applying to, your pitch, or the motion, and HardTalk drafts a panel for that exact moment: who is in the room, what each will push on, and what you need to leave with.
 - **The whole loop works with a screen reader and no audio**, and saying "stop" ends it at once, unscored.
 
-![HardTalk in mock mode: an interview panel of Priya, Tom and Grace; a first try scores 6/16, the retry scores 15/16](docs/demo.gif)
+![HardTalk in mock mode: a pitch panel of Maya, Leo and Kenji; the retry goes from 6 to 15 and wins over all three; then a pasted job posting becomes a new panel](docs/demo.gif)
 
 ## Who it is for, and why it matters
 
