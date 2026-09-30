@@ -120,6 +120,11 @@ export default function NewCustomScenario() {
             {draftError}
           </Text>
         ) : null}
+        {config.mock ? (
+          <Text style={styles.mockNote}>
+            Mock mode builds the sample panel for this track, whatever you paste. Live mode builds it from your text.
+          </Text>
+        ) : null}
         <Button
           label={drafting ? 'Building your panel…' : 'Build my panel'}
           onPress={() => void build()}
@@ -239,6 +244,7 @@ const styles = StyleSheet.create({
   invalid: { borderColor: colors.danger, borderWidth: 2 },
   fieldError: { color: colors.danger, fontSize: 14, fontWeight: '600' },
   error: { ...type.body, color: colors.danger, fontWeight: '600' },
+  mockNote: { fontSize: 14, lineHeight: 19, fontWeight: '600', color: colors.onNotice, backgroundColor: colors.notice, borderRadius: radius, padding: space.sm },
   link: { minHeight: MIN_TARGET, justifyContent: 'center', alignItems: 'center' },
   linkText: { color: colors.primary, fontSize: 16, fontWeight: '700' },
 });

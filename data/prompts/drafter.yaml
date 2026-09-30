@@ -17,6 +17,8 @@ instructions: |
     (stance "agrees") and at least one must keep questioning (stance "questions").
   - asks_about: one to three short topics (at most 40 characters each) that tell the user what
     to prepare, without revealing the lead's hidden objection.
+  - face: a drawn face for each person that suits the name you chose (for example hair style,
+    beard and earrings), with the three people looking clearly different from each other.
   - hidden_objection: a plausible private worry the lead will only admit if the user makes it
     safe or asks the right question. Grounded in the text; never about the user's identity.
 

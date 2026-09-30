@@ -64,6 +64,7 @@ export default function Session() {
   const [gradeError, setGradeError] = useState<string | null>(null);
   const [draft, setDraft] = useState('');
   const [suggestion, setSuggestion] = useState<string | null>(null);
+  const [inputHeight, setInputHeight] = useState(2 * LINE);
   const ended = useRef<{ reason: Exclude<EndReason, 'user_stopped'>; transcript: Turn[] } | null>(null);
   const scroll = useRef<ScrollView>(null);
   // Set when the server's distress check flags a line, possibly after the session has ended.
@@ -285,7 +286,7 @@ export default function Session() {
                       accessibilityHint={suggestion}
                       onPress={() => setDraft(suggestion)}
                       style={styles.suggestion}>
-                      <Text style={styles.suggestionText} numberOfLines={1}>
+                      <Text style={styles.suggestionText} numberOfLines={2}>
                         Use the recorded line: “{suggestion}”
                       </Text>
                     </Pressable>
@@ -300,7 +301,8 @@ export default function Session() {
                         placeholderTextColor={colors.textMuted}
                         editable={state.status === 'listening'}
                         multiline
-                        style={styles.input}
+                        onContentSizeChange={(event) => setInputHeight(event.nativeEvent.contentSize.height)}
+                        style={[styles.input, { height: Math.min(4 * LINE, Math.max(2 * LINE, inputHeight)) }]}
                       />
                     </View>
                     <Pressable
@@ -342,7 +344,13 @@ export default function Session() {
 
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.background },
-  header: { paddingHorizontal: space.md, paddingTop: space.sm, gap: space.sm },
+  header: {
+    paddingHorizontal: space.md,
+    paddingVertical: space.sm,
+    gap: space.sm,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: colors.border,
+  },
   headRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: space.sm },
   meta: { flexDirection: 'row', alignItems: 'center', gap: space.sm, flexWrap: 'wrap' },
   chip: {

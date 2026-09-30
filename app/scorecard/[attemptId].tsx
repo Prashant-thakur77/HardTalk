@@ -123,8 +123,6 @@ export default function Scorecard() {
 
       <NextStep
         score={score}
-        grade={grade}
-        dimensions={track.rubrics}
         level={attempt.difficulty}
         personaName={scenario.persona.name}
         levelSummary={(level) => scenario.difficulty_levels[level].summary}
@@ -198,15 +196,11 @@ function summaryLabel(score: number, previousScore: number | undefined): string 
 /** One concrete next step: level up after a strong try, otherwise the weakest skill's line. */
 function NextStep({
   score,
-  grade,
-  dimensions,
   level,
   personaName,
   levelSummary,
 }: {
   score: number;
-  grade: Grade;
-  dimensions: Dimension[];
   level: Difficulty;
   personaName: string;
   levelSummary: (level: Difficulty) => string;
@@ -222,19 +216,8 @@ function NextStep({
       </View>
     );
   }
-  const scoreOf = (dimension: Dimension) => grade.dimensions[dimension]?.score ?? 0;
-  const weakest = [...dimensions].sort((a, b) => scoreOf(a) - scoreOf(b))[0];
-  const betterLine = weakest && grade.dimensions[weakest]?.better_line;
-  if (!weakest || !betterLine) return null;
-  return (
-    <View style={[styles.card, styles.next]}>
-      <Text style={styles.nextLabel}>What next</Text>
-      <Text style={type.body}>
-        Your weakest area was {rubrics[weakest].name}. Next time, try:
-      </Text>
-      <Text style={styles.nextLine}>“{betterLine}”</Text>
-    </View>
-  );
+  // After a weaker try the open skill card below already says where to start.
+  return null;
 }
 
 /** A text button. `text` is a shorter visible form of the label, and always part of it (WCAG 2.5.3). */
@@ -273,7 +256,8 @@ function WhatChanged({ jump }: { jump: Jump | null }) {
   );
 }
 
-/** One skill: score and bar always shown; the quote, the why and a better line on a tap. */
+/** One skill: score and bar always shown; the quote, the why and a better line on a tap. The
+ * weakest one starts open and says so: that is where the next try should go. */
 function DimensionCard({
   dimension,
   result,
@@ -302,6 +286,7 @@ function DimensionCard({
             : `${label}: ${result.score} out of 4, was ${previousScore}`
         }>
         <View style={styles.cardTitle}>
+          {startOpen ? <Text style={styles.startHere}>Start here</Text> : null}
           <Text style={type.heading}>{label}</Text>
           <Text style={styles.framework}>{rubric.framework.name}</Text>
         </View>
@@ -387,13 +372,13 @@ const styles = StyleSheet.create({
   muted: { color: colors.textMuted },
   nowText: { fontSize: 17, lineHeight: 24, fontWeight: '600', color: colors.text },
   nextLabel: { fontSize: 13, fontWeight: '800', color: colors.primary, textTransform: 'uppercase', letterSpacing: 0.5 },
-  nextLine: { fontSize: 17, lineHeight: 24, fontWeight: '600', color: colors.text },
   cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   cardTitle: { flexShrink: 1, gap: 2 },
   framework: { fontSize: 13, color: colors.textMuted },
   scoreRow: { flexDirection: 'row', alignItems: 'center', gap: space.xs },
   score: { fontSize: 26, fontWeight: '700' },
   scoreMax: { fontSize: 16, color: colors.textMuted },
+  startHere: { fontSize: 12, fontWeight: '800', color: colors.primary, textTransform: 'uppercase', letterSpacing: 0.5 },
   chevron: { fontSize: 20, fontWeight: '700', color: colors.textMuted, marginLeft: space.xs },
   arrow: { fontSize: 18, color: colors.textMuted },
   quote: {

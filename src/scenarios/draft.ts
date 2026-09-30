@@ -2,13 +2,16 @@ import { z } from 'zod';
 
 import type { TrackId } from '../tracks/schema';
 import { customScenarioId } from './ids';
-import { moodSchema, scenarioSchema, type Scenario } from './schema';
+import { faceSchema, moodSchema, scenarioSchema, type Scenario } from './schema';
 
 /** Longest pasted text the drafter accepts: a full job posting or a one-page pitch. */
 export const MAX_SOURCE_CHARS = 6000;
 export const MIN_SOURCE_CHARS = 80;
 
 const asksAbout = z.array(z.string().min(1).max(40)).min(1).max(3);
+const { skin, hair, hair_style, top } = faceSchema.shape;
+/** Every feature required, so the model always picks one: a face that suits the name it chose. */
+const face = z.object({ skin, hair, hair_style, top, glasses: z.boolean(), beard: z.boolean(), earrings: z.boolean() });
 const level = z.object({
   name: z.string().min(1),
   summary: z.string().min(1),
@@ -33,6 +36,7 @@ export const draftSchema = z.object({
     tone: z.string().min(1),
     context: z.array(z.string().min(1)).min(1).max(8),
     asks_about: asksAbout,
+    face,
   }),
   panel: z
     .array(
@@ -43,6 +47,7 @@ export const draftSchema = z.object({
         view: z.string().min(1),
         tone: z.string().min(1),
         asks_about: asksAbout,
+        face,
       }),
     )
     .max(2),

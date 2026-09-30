@@ -31,6 +31,7 @@ samples:
       user_goal: Leave with the November weekends split evenly across the six engineers.
       persona:
         name: Hugo
+        face: { skin: light, hair: brown, hair_style: short, top: charcoal, glasses: false, beard: true, earrings: false }
         role: Your team lead, who builds the monthly on-call rota
         goal: Keep the payments service covered at weekends with as little risk as possible.
         hidden_objection: >-
@@ -54,6 +55,7 @@ samples:
         asks_about: [How weekends have been assigned, What you are asking for]
       panel:
         - name: Talia
+          face: { skin: tan, hair: black, hair_style: long, top: teal, glasses: false, beard: false, earrings: true }
           role: Engineer on the payments team who has never covered settlement
           stance: agrees
           view: >-
@@ -63,6 +65,7 @@ samples:
           tone: Warm, direct, keen to help.
           asks_about: [The training plan, When others could start]
         - name: Owen
+          face: { skin: porcelain, hair: auburn, hair_style: crop, top: blue, glasses: true, beard: false, earrings: false }
           role: Engineering manager for the payments team
           stance: questions
           view: >-
@@ -131,6 +134,7 @@ samples:
       user_goal: Leave with a clear next step from the fund, such as a second meeting with a date.
       persona:
         name: Marta
+        face: { skin: olive, hair: dark_brown, hair_style: bun, top: purple, glasses: true, beard: false, earrings: true }
         role: Partner at the Northgate Launch Fund
         goal: Decide whether Pantry Loop can grow from two campuses to eight in twelve months.
         hidden_objection: >-
@@ -154,6 +158,7 @@ samples:
         asks_about: [How you make money, Why dining halls say yes]
       panel:
         - name: Idris
+          face: { skin: deep, hair: black, hair_style: short, top: green, glasses: false, beard: true, earrings: false }
           role: Mentor at the fund and former student founder
           stance: agrees
           view: >-
@@ -163,6 +168,7 @@ samples:
           tone: Warm, informal, speaks from experience.
           asks_about: [The founding team, Plans after June]
         - name: Selma
+          face: { skin: light, hair: blonde, hair_style: bob, top: red, glasses: false, beard: false, earrings: true }
           role: Finance lead at the fund
           stance: questions
           view: >-
@@ -237,6 +243,7 @@ samples:
       user_goal: Show one real project, the part you built yourself, and how you would grow on this team.
       persona:
         name: Farah
+        face: { skin: brown, hair: black, hair_style: long, top: teal, glasses: true, beard: false, earrings: true }
         role: Engineering manager of the Bookings team at Harbourline Health
         goal: Find out whether the candidate has built something real and works well with a team.
         hidden_objection: >-
@@ -259,6 +266,7 @@ samples:
         asks_about: [A project you built, Working in a team]
       panel:
         - name: Jonas
+          face: { skin: porcelain, hair: blonde, hair_style: crop, top: charcoal, glasses: false, beard: true, earrings: false }
           role: Senior engineer on the Bookings team, and the new graduate's mentor
           stance: agrees
           view: >-
@@ -268,6 +276,7 @@ samples:
           tone: Warm, patient, curious.
           asks_about: [How you learn new things, What you want from a mentor]
         - name: Lucia
+          face: { skin: olive, hair: dark_brown, hair_style: ponytail, top: amber, glasses: false, beard: false, earrings: true }
           role: Staff engineer who leads testing across Harbourline
           stance: questions
           view: >-
@@ -337,6 +346,7 @@ samples:
       user_goal: Make your claim clearly, answer Elena's strongest point, and hold your position.
       persona:
         name: Elena
+        face: { skin: light, hair: auburn, hair_style: bob, top: blue, glasses: true, beard: false, earrings: false }
         role: Opposing speaker, arguing against the motion
         goal: Win the round by showing that a ban would leave students with fewer opportunities.
         hidden_objection: >-
@@ -357,6 +367,7 @@ samples:
         asks_about: [Fewer opportunities, Small charities and the arts]
       panel:
         - name: Beatrix
+          face: { skin: deep, hair: grey, hair_style: afro, top: purple, glasses: true, beard: false, earrings: true }
           role: Chair of the debate
           stance: questions
           view: >-
@@ -367,6 +378,7 @@ samples:
           tone: Crisp, fair, keeps turns short.
           asks_about: [How a ban would work, Evidence for your claim]
         - name: Rohan
+          face: { skin: brown, hair: black, hair_style: curly, top: green, glasses: false, beard: true, earrings: false }
           role: Society member speaking from the floor
           stance: agrees
           view: >-

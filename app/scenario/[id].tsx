@@ -1,6 +1,6 @@
 import { useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { setSpeechRate, SPEECH_RATES, usePreferences } from '@/a11y/preferences';
 import type { SessionMode } from '@/attempts/store';
@@ -19,7 +19,7 @@ import { PurchaseNotice } from '@/ui/PurchaseNotice';
 import { RoomCard } from '@/ui/RoomCard';
 import { Segmented } from '@/ui/Segmented';
 import { Screen } from '@/ui/Screen';
-import { colors, space, type } from '@/ui/theme';
+import { colors, MIN_TARGET, space, type } from '@/ui/theme';
 
 const MODES = [
   { value: 'voice', label: 'Talk', description: 'Speak out loud. Live captions for everyone.' },
@@ -32,6 +32,8 @@ export default function ScenarioBrief() {
   const { speechRate, reduceMotion } = usePreferences();
   const [difficulty, setDifficulty] = useState<Difficulty>('L1');
   const [mode, setMode] = useState<SessionMode>('voice');
+  // In an interview these facts are your own story, so they start open.
+  const [showFacts, setShowFacts] = useState(() => getScenario(id)?.track === 'interview');
 
   if (!scenario) return <Text style={type.body}>Scenario not found.</Text>;
 
@@ -64,6 +66,24 @@ export default function ScenarioBrief() {
       <View style={styles.goalCard}>
         <Text style={styles.label}>Your goal</Text>
         <Text style={styles.goalText}>{scenario.user_goal}</Text>
+      </View>
+      <View style={styles.facts}>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityState={{ expanded: showFacts }}
+          accessibilityLabel={`What you both know, ${scenario.persona.context.length} facts`}
+          onPress={() => setShowFacts((open) => !open)}
+          style={styles.factsHead}>
+          <Text style={styles.label}>What you both know</Text>
+          <Text style={styles.chevron}>{showFacts ? '⌃' : `${scenario.persona.context.length} facts ⌄`}</Text>
+        </Pressable>
+        {showFacts
+          ? scenario.persona.context.map((fact) => (
+              <Text key={fact} style={type.body}>
+                • {fact}
+              </Text>
+            ))
+          : null}
       </View>
       <PurchaseNotice />
 
@@ -108,6 +128,9 @@ const styles = StyleSheet.create({
   track: { fontSize: 13, fontWeight: '800', color: colors.primary, textTransform: 'uppercase', letterSpacing: 0.5 },
   goal: { gap: 2 },
   goalCard: { gap: 2, backgroundColor: colors.quote, borderRadius: 14, padding: space.md },
+  facts: { borderRadius: 14, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface, padding: space.md, gap: space.xs },
+  factsHead: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', minHeight: MIN_TARGET },
+  chevron: { fontSize: 14, fontWeight: '700', color: colors.textMuted },
   goalText: { fontSize: 17, lineHeight: 24, fontWeight: '600', color: colors.text },
   label: { fontSize: 13, fontWeight: '700', color: colors.primary, textTransform: 'uppercase' },
 });
