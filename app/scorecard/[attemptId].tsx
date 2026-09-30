@@ -3,7 +3,9 @@ import { useState } from 'react';
 import { Pressable, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 
 import { usePreferences } from '@/a11y/preferences';
-import { findAttempt, findPreviousAttempt, useAttempts } from '@/attempts/store';
+import { findAttempt, findPreviousAttempt, getGradedSessionsUsed, useAttempts } from '@/attempts/store';
+import { usePro } from '@/purchases';
+import { FREE_GRADED_SESSIONS } from '@/purchases/gates';
 import { biggestJump, type Jump } from '@/grading/compare';
 import { MAX_TOTAL, totalScore, type Dimension, type DimensionGrade, type Grade } from '@/grading/rubric.schema';
 import { rubrics } from '@/grading/rubrics';
@@ -20,7 +22,8 @@ import { PurchaseNotice } from '@/ui/PurchaseNotice';
 import { RoomVerdicts } from '@/ui/RoomVerdicts';
 import { ScoreRing } from '@/ui/ScoreRing';
 import { Screen } from '@/ui/Screen';
-import { SkillBar, skillKey } from '@/ui/SkillBar';
+import { SkillBar } from '@/ui/SkillBar';
+import { skillKey } from '@/ui/skillSteps';
 import { colors, MIN_TARGET, scoreColors, shadow, space, type } from '@/ui/theme';
 
 /**
@@ -48,6 +51,7 @@ export default function Scorecard() {
   const { attemptId } = useLocalSearchParams<{ attemptId: string }>();
   const attempts = useAttempts();
   const { reduceMotion } = usePreferences();
+  const pro = usePro();
   const { width } = useWindowDimensions();
   const [showTranscript, setShowTranscript] = useState(false);
   const attempt = findAttempt(attempts, attemptId);
@@ -69,10 +73,21 @@ export default function Scorecard() {
     (a, b) => (grade.dimensions[a]?.score ?? 0) - (grade.dimensions[b]?.score ?? 0),
   )[0];
 
+  const outOfFree = !pro && getGradedSessionsUsed() >= FREE_GRADED_SESSIONS;
+  const lastFree = outOfFree && attempt.id === attempts.at(-1)?.id && attempts.length === FREE_GRADED_SESSIONS;
+
   return (
     <Screen
       footer={
-        up ? (
+        <>
+        {outOfFree ? (
+          <Text style={[type.caption, styles.centred]}>
+            {lastFree
+              ? 'That was your last free graded session. The next one opens Pro.'
+              : 'Your free graded sessions are used, so the next one opens Pro.'}
+          </Text>
+        ) : null}
+        {up ? (
           <>
             <Button
               label={`Try ${up} · ${scenario.difficulty_levels[up].name}`}
@@ -89,7 +104,8 @@ export default function Scorecard() {
             <Button label="Retry this conversation" onPress={retry} hint="Runs the same scenario again" />
             <Link label="Pick another conversation" onPress={() => router.dismissTo('/')} />
           </>
-        )
+        )}
+        </>
       }>
       <Stack.Screen options={{ title: `Attempt ${attempt.number} · ${attempt.difficulty}` }} />
       <PurchaseNotice />
@@ -358,6 +374,7 @@ const styles = StyleSheet.create({
   fromTo: { fontSize: 26, fontWeight: '800', color: colors.text },
   stacked: { flexDirection: 'column', alignItems: 'flex-start' },
   footerRow: { flexDirection: 'row', justifyContent: 'space-around' },
+  centred: { textAlign: 'center' },
   link: { minHeight: MIN_TARGET, justifyContent: 'center', alignItems: 'center', paddingHorizontal: space.sm },
   linkText: { color: colors.primary, fontSize: 16, fontWeight: '700' },
   card: {

@@ -53,6 +53,21 @@ export function createApp(services: Services) {
     return c.json({ error: 'The service is unavailable. Try again in a moment.' }, 502);
   });
 
+  /**
+   * The shared rules, then the model for the paraphrases no list will cover. If the model cannot
+   * answer, the rules alone decide, as they do for spoken lines.
+   */
+  const soundsLikeDistress = async (text: string) => {
+    if (detectDistress(text, safetyConfig)) return true;
+    if (!services.checkDistress) return false;
+    try {
+      return await services.checkDistress(text);
+    } catch (error) {
+      console.error(error);
+      return false;
+    }
+  };
+
   const limited = rateLimit(services.limit ?? DEFAULT_LIMIT);
   app.use('/grade', limited);
   app.use('/voice/token', limited);
@@ -113,7 +128,7 @@ export function createApp(services: Services) {
     }
     // Pasted text that sounds like distress is not turned into a roleplay unless the user has said
     // it is a topic (a nursing posting, a wellbeing pitch), not about them.
-    if (!body.data.aboutTopic && detectDistress(body.data.source, safetyConfig)) {
+    if (!body.data.aboutTopic && (await soundsLikeDistress(body.data.source))) {
       return c.json({ error: 'This text was not drafted.', safety: true }, 422);
     }
     try {

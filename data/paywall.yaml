@@ -12,14 +12,14 @@ session_limit_new:
   score: ""
 custom_scenario:
   headline: Rehearse the one you’re actually dreading
-  body: Paste the real job posting, pitch or motion, and HardTalk builds the panel for it, with the questions they'll ask and the same scorecard.
+  body: Paste or describe the real one, and HardTalk builds the panel for it, with the questions they'll ask and the same scorecard.
   # A past score is not what this gate sells; the paywall shows a drafted panel instead.
   score: ""
 # Shown the moment the purchase (or a restore from the paywall) lands.
 unlocked: "Pro is on: unlimited grading, your own scenarios and your progress history."
 features:
   - Unlimited graded sessions and retries
-  - A panel built from your real job posting, pitch or motion
+  - A panel built from your real situation, posting, pitch or motion
   - Progress history across every attempt
 # Practice comes in bursts ("my interview is Friday"), so the week plan is for one real
 # conversation coming up; annual is for people who keep practising.

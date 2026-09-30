@@ -1,6 +1,7 @@
 import { router, Stack, useLocalSearchParams } from 'expo-router';
 import { useRef, useState } from 'react';
 import {
+  AccessibilityInfo,
   KeyboardAvoidingView,
   Platform,
   Pressable,
@@ -20,7 +21,7 @@ import { config } from '@/config';
 import { gradeConversation } from '@/grading';
 import type { Turn } from '@/grading/transcript';
 import { checkDistressRemotely, isDistressLine, isStopLine, NotScoredForSafety } from '@/safety';
-import { matchesRecording } from '@/mock/recordings';
+import { matchesRecording, plainLine } from '@/mock/recordings';
 import { getScenario } from '@/scenarios';
 import { peopleIn } from '@/scenarios/people';
 import { difficultySchema } from '@/scenarios/schema';
@@ -87,10 +88,15 @@ export default function Session() {
   const flagged = useRef(false);
   const savedId = useRef<string | null>(null);
   const [safetyOffline, setSafetyOffline] = useState(false);
+  // A practice built as a topic (D-124): a flagged line asks whether it is about the user instead
+  // of ending the practice. Scoring waits for the answer.
+  const [askingIfPersonal, setAskingIfPersonal] = useState(false);
+  const asking = useRef(false);
+  const stopForSupport = useRef<() => void>(() => undefined);
   const personaName = scenario?.persona.name ?? 'The persona';
 
   const score = () => {
-    if (!ended.current || !scenario) return;
+    if (!ended.current || !scenario || asking.current) return;
     if (flagged.current) {
       router.replace('/support');
       return;
@@ -146,21 +152,28 @@ export default function Session() {
       score();
     },
     onUserLine: (text, stopNow) => {
-      if (isDistressLine(text)) {
+      stopForSupport.current = () => {
+        flagged.current = true;
         stopNow();
+        // A flag that lands after scoring withdraws the saved attempt and its free session.
+        if (savedId.current) void withdrawAttempt(savedId.current);
         router.replace('/support');
+      };
+      const flag = () => {
+        if (!scenario?.sensitive_topic) return stopForSupport.current();
+        asking.current = true;
+        setAskingIfPersonal(true);
+        AccessibilityInfo.announceForAccessibility('That sounded like it might be about you. Is it?');
+      };
+      if (isDistressLine(text)) {
+        flag();
       } else if (isStopLine(text, [personaName])) {
         stopNow();
       } else {
         // Live mode: the server double-checks every line with a model, in the background.
         void checkDistressRemotely(text).then(({ distress, checked }) => {
           if (!checked && !config.mock) setSafetyOffline(true);
-          if (!distress || flagged.current) return;
-          flagged.current = true;
-          stopNow();
-          // A flag that lands after scoring withdraws the saved attempt and its free session.
-          if (savedId.current) void withdrawAttempt(savedId.current);
-          router.replace('/support');
+          if (distress && !flagged.current) flag();
         });
       }
     },
@@ -187,7 +200,7 @@ export default function Session() {
   const canSend = textOnly && state.status === 'listening' && draft.trim().length > 0;
   const send = () => {
     if (!canSend) return;
-    if (config.mock && suggestion && draft.trim() !== suggestion.trim()) setOffScript(true);
+    if (config.mock && suggestion && plainLine(draft) !== plainLine(suggestion)) setOffScript(true);
     sendText(draft.trim());
     setDraft('');
     setInputHeight(2 * LINE);
@@ -295,6 +308,22 @@ export default function Session() {
               <Button label="Try again" onPress={() => void startSession(scenario.id, difficulty, mode, 'replace')} />
               <Button label="Back to conversations" variant="secondary" onPress={() => router.dismissTo('/')} />
             </>
+          ) : askingIfPersonal ? (
+            <>
+              <Text style={type.body} accessibilityLiveRegion="assertive">
+                That sounded like it might be about you, not the topic. Is it?
+              </Text>
+              <Button label="It’s about me, stop here" onPress={() => stopForSupport.current()} />
+              <Button
+                label="It’s the topic, carry on"
+                variant="secondary"
+                onPress={() => {
+                  asking.current = false;
+                  setAskingIfPersonal(false);
+                  score();
+                }}
+              />
+            </>
           ) : stoppedEarly ? (
             <>
               <Text style={type.body} accessibilityLiveRegion="polite">
@@ -330,11 +359,22 @@ export default function Session() {
                       </Text>
                     </Pressable>
                   ) : null}
-                  {config.mock ? (
-                    <Text style={[type.caption, offScript && styles.offScript]} accessibilityLiveRegion="polite">
-                      {offScript
-                        ? 'That line isn’t the recorded one, so this mock run won’t be scored or counted. Restart to use the recorded lines.'
-                        : 'In mock mode the replies follow the recording, and only the recorded lines are scored.'}
+                  {config.mock && offScript ? (
+                    <View style={styles.offScript} accessibilityLiveRegion="polite">
+                      <Text style={styles.offScriptText}>
+                        That line isn’t the recorded one, so this mock run won’t be scored or counted.
+                      </Text>
+                      <Pressable
+                        accessibilityRole="button"
+                        accessibilityLabel="Restart with the recorded lines"
+                        onPress={() => void startSession(scenario.id, difficulty, mode, 'replace')}
+                        hitSlop={8}>
+                        <Text style={styles.restart}>Restart with the recorded lines</Text>
+                      </Pressable>
+                    </View>
+                  ) : config.mock ? (
+                    <Text style={type.caption}>
+                      In mock mode the replies follow the recording, and only the recorded lines are scored.
                     </Text>
                   ) : null}
                   <View style={styles.composer}>
@@ -431,7 +471,9 @@ const styles = StyleSheet.create({
     backgroundColor: colors.quote,
   },
   suggestionText: { fontSize: 14, fontWeight: '600', color: colors.primary },
-  offScript: { color: colors.onNotice, backgroundColor: colors.notice, borderRadius: radius, padding: space.sm, overflow: 'hidden' },
+  offScript: { gap: space.xs, backgroundColor: colors.notice, borderRadius: radius, padding: space.sm },
+  offScriptText: { fontSize: 14, lineHeight: 19, color: colors.onNotice },
+  restart: { fontSize: 14, fontWeight: '800', color: colors.primary },
   typedStatus: { fontSize: 15, fontWeight: '700', color: colors.primary },
   composer: { flexDirection: 'row', alignItems: 'flex-end', gap: space.sm },
   // The border and padding sit on the box, so the text area clips at whole lines: two when

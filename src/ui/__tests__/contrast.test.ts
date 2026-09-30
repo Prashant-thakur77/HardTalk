@@ -57,6 +57,8 @@ describe('colour contrast (WCAG 2.2)', () => {
     ['unselected control border on card', colors.borderStrong, colors.surface],
     ['selected control border', colors.primary, colors.quote],
     ['track tab border', colors.borderStrong, colors.background],
+    ['kept skill step on the empty track', colors.kept, colors.track],
+    ['kept skill step on card', colors.kept, colors.surface],
     ...Object.entries(scoreStrokes).map(
       ([score, color]) => [`score ${score} ring and bar stroke on card`, color, colors.surface] as [string, string, string],
     ),

@@ -49,7 +49,10 @@ export async function draftScenario(track: TrackId, source: string, aboutTopic =
   // The same check as every spoken line. Pasted text that sounds like distress is held until the
   // user says it is a topic in the posting or pitch, not about them; nothing weakens the check.
   if (!aboutTopic && isDistressLine(source)) throw new NotScoredForSafety();
-  if (config.mock) return scenarioFromDraft(sampleFor(track).draft, track, Date.now(), sampleScenarioId(track));
+  if (config.mock) {
+    const sample = scenarioFromDraft(sampleFor(track).draft, track, Date.now(), sampleScenarioId(track));
+    return { ...sample, sensitive_topic: aboutTopic };
+  }
 
   const response = await fetch(`${config.serverUrl}/scenario/draft`, {
     method: 'POST',
@@ -59,5 +62,5 @@ export async function draftScenario(track: TrackId, source: string, aboutTopic =
   const body = (await response.json()) as { scenario?: unknown; error?: string; safety?: boolean };
   if (body.safety) throw new NotScoredForSafety();
   if (!response.ok) throw new Error(body.error ?? `Drafting failed (${response.status}).`);
-  return scenarioSchema.parse(body.scenario);
+  return scenarioSchema.parse({ ...(body.scenario as object), sensitive_topic: aboutTopic });
 }

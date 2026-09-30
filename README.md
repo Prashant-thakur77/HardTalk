@@ -44,7 +44,7 @@ pnpm install
 pnpm dev        # then press w for the browser, or scan the QR code with Expo Go
 ```
 
-That is mock mode, and it needs no API keys, no microphone and no network. It replays recorded conversations through the same screens, captions and scorecard as the live app, reads each persona's lines aloud with the device's own speech engine at their own pitch, and a yellow banner says so on every screen. Node 20 and pnpm 10 are the only requirements.
+That is mock mode, and it needs no API keys, no microphone and no network. It replays recorded conversations through the same screens, captions and scorecard as the live app, reads each persona's lines aloud with the device's own speech engine at their own pitch, and a “Mock replay” label says so on every screen. Node 20 and pnpm 10 are the only requirements.
 
 ## What happens in a session
 

@@ -40,6 +40,9 @@ const files = [
   sampleDebate,
 ].map((raw) => recordingFileSchema.parse(raw));
 
+/** A typed line as the recording compares it: inner runs of spaces count as one. */
+export const plainLine = (text: string) => text.trim().replace(/\s+/g, ' ');
+
 /**
  * Mock mode's grade was recorded for the recorded user lines. If a typed conversation says
  * anything else, that grade says nothing about it, so it is not shown or counted.
@@ -47,8 +50,7 @@ const files = [
 export function matchesRecording(scenarioId: string, attempt: number, turns: { speaker: string; text: string }[]): boolean {
   const recorded = getRecording(scenarioId, attempt).turns.filter((turn) => turn.speaker === 'user');
   const said = turns.filter((turn) => turn.speaker === 'user');
-  const plain = (text: string) => text.trim().replace(/\s+/g, ' ');
-  return said.length === recorded.length && said.every((turn, index) => plain(turn.text) === plain(recorded[index]!.text));
+  return said.length === recorded.length && said.every((turn, index) => plainLine(turn.text) === plainLine(recorded[index]!.text));
 }
 
 /** Whether mock mode can replay this scenario: every built-in, and the drafted samples. */

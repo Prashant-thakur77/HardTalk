@@ -82,6 +82,12 @@ export const scenarioFieldsSchema = z.strictObject({
   opening_line: z.string().min(1),
   stop_condition: z.string().min(1),
   max_user_turns: z.number().int().min(1).max(10),
+  /**
+   * The user confirmed that distress-like words in their text are the topic (a nursing posting, a
+   * wellbeing pitch), not about them. The brief keeps a support link, and a flagged line pauses
+   * the practice to ask rather than ending it.
+   */
+  sensitive_topic: z.boolean().default(false),
 });
 
 export const scenarioSchema = scenarioFieldsSchema.refine(

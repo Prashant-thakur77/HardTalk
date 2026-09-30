@@ -24,6 +24,8 @@ export const colors = {
   onHero: '#FFFFFF',
   onHeroMuted: '#C9D2F6',
   track: '#E6E4DC',
+  /** Skill steps kept from an earlier try: 3:1 against the empty track (1.4.11). */
+  kept: '#7A786F',
 } as const;
 
 /** Soft card elevation, identical on iOS, Android and web. */

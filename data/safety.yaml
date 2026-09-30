@@ -88,7 +88,15 @@ distress_explicit:
   - \b(jump|jumping|step|stepping|walk|walking|throw myself|throwing myself) (off|from|in front of|under) (the|a|this|my) (roof|bridge|building|balcony|window|train|bus|car|truck|lorry|platform|cliff)\b
   - \b(jump|jumping) (off|from) (the|a|this|my) ([a-z]+ )?floor\b
   - \b(swallowed|swallow|took|take|taken|taking)( just)? (a|the)( whole)? bottle of ([a-z]+ )?pills\b
-  - \bstockpil(e|es|ed|ing) (my |the )?pills\b
+  - \bstockpil(e|es|ed|ing) (my |the )?(pills|meds|medication|tablets|painkillers)\b
+  - \b(sick|tired) of (living|being alive)\b
+  - \bwant (it all|everything) to be over\b
+  - \bno point (in )?going on\b(?! with)
+  - \b(given|giving|gave) away (all )?my (things|stuff|belongings)\b
+  - \b(given|giving|gave) (all )?my (things|stuff|belongings) away\b
+  - \b(i've been|i'm|i started|i keep) cutting again\b(?! and again)
+  - \b(don't|can't) see (a|any) way out$
+  - \b(writing|wrote|written|leaving|left) (a|my) (goodbye|farewell|suicide) (note|letter)\b
   - \bpanic attacks?\b
   - \bi can't breathe\b
   - \b(rape|raped|raping|rapist|molest|molested|molesting|groped|groping)\b

@@ -14,13 +14,25 @@ export default function Support() {
   const { reason } = useLocalSearchParams<{ reason?: string }>();
   const chosen = reason === 'chosen';
   const pasted = reason === 'pasted';
+  // From the support link on a practice built as a topic: the practice is still there.
+  const topic = reason === 'topic';
   return (
-    <Screen footer={<Button label="Back to home" variant="secondary" onPress={() => router.dismissTo('/')} />}>
+    <Screen
+      footer={
+        <>
+          {(pasted || topic) && router.canGoBack() ? (
+            <Button label={pasted ? 'Back to my text' : 'Back to the practice'} onPress={() => router.back()} />
+          ) : null}
+          <Button label="Back to home" variant="secondary" onPress={() => router.dismissTo('/')} />
+        </>
+      }>
       <Text style={type.title} accessibilityRole="header">
-        {chosen || pasted ? 'Take a moment.' : 'Let’s stop here.'}
+        {chosen || pasted || topic ? 'Take a moment.' : 'Let’s stop here.'}
       </Text>
       <Text style={type.body}>
-        {pasted
+        {topic
+          ? 'Your practice is still saved for whenever you want it.'
+          : pasted
           ? 'Nothing you wrote was turned into a practice or saved.'
           : chosen
           ? 'You ended the practice, and nothing from it was scored or saved.'

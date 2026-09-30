@@ -416,6 +416,15 @@ describe('detectDistress', () => {
     "I've been stockpiling my pills.",
     "I can't go on.",
     "I want it all to end.",
+    // Round 19 (D-123): paraphrases that drafted a panel from a paste.
+    "I'm so tired of living.",
+    "I've been stockpiling my meds for a month.",
+    "I can't take this anymore and I want it all to be over.",
+    "There's no point going on anymore.",
+    "This is my last week, I've given my things away.",
+    "Personally I've been cutting again and I don't know how to stop.",
+    "I don't see a way out.",
+    "I'm writing a goodbye note tonight.",
   ])('flags %j', (line) => expect(detectDistress(line, config)).toBe(true));
 
   it.each([
@@ -494,6 +503,10 @@ describe('detectDistress', () => {
     // Round 11 (D-081): the 'beat me to it' exception holds in reported speech.
     "She said she'd beat me to it.",
     "He said he'd beat me to the punch.",
+    "There's no point going on with the migration until QA signs off.",
+    "I can't see a way out of this deadline without cutting scope.",
+    "We've been cutting again and again at the budget.",
+    "I'm writing a note to the team about the release.",
   ])('does not flag the workplace idiom %j', (line) => expect(detectDistress(line, config)).toBe(false));
 });
 

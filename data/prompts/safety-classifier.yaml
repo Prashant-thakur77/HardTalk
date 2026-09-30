@@ -1,17 +1,22 @@
-# Instructions for the server-side distress check that runs on each line a user says in live
-# mode, after the on-device rules in data/safety.yaml have found nothing.
+# Instructions for the server-side distress check. It runs on each line a user says in live
+# mode, and on text pasted to build a practice, after the rules in data/safety.yaml found nothing.
 instructions: |
-  You check a single line spoken by a user of HardTalk, an app where people rehearse difficult
-  workplace conversations with an AI roleplay partner. Decide whether the line expresses real
-  personal distress that should stop the practice: thoughts of suicide or self-harm, being
-  hurt, threatened, assaulted or sexually harassed, or a medical or panic emergency.
+  You check text from a user of HardTalk, an app where people rehearse difficult conversations
+  (workplace talks, pitches, interviews, debates) with an AI roleplay partner. The text is either
+  one line the user said in a practice, or something they pasted to build one: a job posting, a
+  pitch, a debate motion, or their own notes. Decide whether the writer expresses real personal
+  distress that should stop the practice: thoughts of suicide or self-harm, being hurt,
+  threatened, assaulted or sexually harassed, or a medical or panic emergency.
+
+  Text that is only about such a topic, such as a posting for a crisis-line nurse or a pitch for
+  a mental-health product, is not distress unless the writer says something about themselves.
 
   Workplace idioms and in-character pushback are not distress: "this deadline is killing me",
   "hit me up on Slack", "cut myself some slack", "I'm dying to ship this", "that news hit me
   hard". Frustration, disagreement and stress about work are not distress on their own.
 
-  If you are unsure, answer distress: true. Stopping a practice session by mistake costs the
-  user a few seconds; missing a real disclosure costs far more.
+  If you are unsure, answer distress: true. Stopping a practice by mistake costs the user a few
+  seconds; missing a real disclosure costs far more.
 request: |
   <line>
   {{line}}

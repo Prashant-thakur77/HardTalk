@@ -257,6 +257,25 @@ describe('POST /scenario/draft', () => {
     expect((await post(app, { track: 'interview', source: posting, aboutTopic: true }, '/scenario/draft')).status).toBe(200);
   });
 
+  it('asks the model about pasted text the rules pass, as it does for spoken lines', async () => {
+    const draftScenario = vi.fn().mockResolvedValue({ id: 'custom-x-1' });
+    const checkDistress = vi.fn().mockResolvedValue(true);
+    const app = createApp({ draftScenario, checkDistress });
+    expect((await post(app, { track: 'pitch', source }, '/scenario/draft')).status).toBe(422);
+    expect(checkDistress).toHaveBeenCalledWith(source.trim());
+    expect(draftScenario).not.toHaveBeenCalled();
+    checkDistress.mockClear();
+    expect((await post(app, { track: 'pitch', source, aboutTopic: true }, '/scenario/draft')).status).toBe(200);
+    expect(checkDistress).not.toHaveBeenCalled();
+  });
+
+  it('drafts on the rules alone when the model check fails', async () => {
+    const draftScenario = vi.fn().mockResolvedValue({ id: 'custom-x-1' });
+    const checkDistress = vi.fn().mockRejectedValue(new Error('overloaded'));
+    vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    expect((await post(createApp({ draftScenario, checkDistress }), { track: 'pitch', source }, '/scenario/draft')).status).toBe(200);
+  });
+
   it('passes on why a draft failed', async () => {
     const draftScenario = vi.fn().mockRejectedValue(new DraftError('The panel could not be drafted.'));
     const { status, json } = await post(createApp({ draftScenario }), { track: 'pitch', source }, '/scenario/draft');

@@ -29,6 +29,11 @@ describe('custom scenarios', () => {
     expect(pitch.opening_line).not.toBe(buildCustomScenario(form).opening_line);
   });
 
+  it('keeps the support link on a scenario saved as a topic after a safety hold', () => {
+    expect(buildCustomScenario(form).sensitive_topic).toBe(false);
+    expect(buildCustomScenario(form, 1700000000000, true).sensitive_topic).toBe(true);
+  });
+
   it('explains what is missing instead of saving a half-empty scenario', () => {
     const result = customScenarioFormSchema.safeParse({ ...form, pushback: ' ' });
     expect(result.success).toBe(false);

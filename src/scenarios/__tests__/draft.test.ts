@@ -62,7 +62,10 @@ describe('drafted scenarios', () => {
   it('holds a nursing posting too, and drafts it once the user says it is a topic, not about them', async () => {
     const posting = `${sampleFor('interview').source} You will care for patients at risk of suicide and self-harm.`;
     await expect(draftScenario('interview', posting)).rejects.toBeInstanceOf(NotScoredForSafety);
-    await expect(draftScenario('interview', posting, true)).resolves.toMatchObject({ track: 'interview' });
+    await expect(draftScenario('interview', posting, true)).resolves.toMatchObject({
+      track: 'interview',
+      sensitive_topic: true,
+    });
   });
 
   it("describes each track's sample panel in one line for RevenueCat, names and capitals intact", () => {

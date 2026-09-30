@@ -22,7 +22,7 @@ export const customScenarioFormSchema = z.object({
 });
 export type CustomScenarioForm = z.infer<typeof customScenarioFormSchema>;
 
-export function buildCustomScenario(form: CustomScenarioForm, now = Date.now()): Scenario {
+export function buildCustomScenario(form: CustomScenarioForm, now = Date.now(), sensitiveTopic = false): Scenario {
   return scenarioSchema.parse({
     id: customScenarioId(form.title, now),
     track: form.track,
@@ -41,6 +41,7 @@ export function buildCustomScenario(form: CustomScenarioForm, now = Date.now()):
     opening_line: getTrack(form.track).custom_opening_line,
     stop_condition: defaults.stop_condition,
     max_user_turns: defaults.max_user_turns,
+    sensitive_topic: sensitiveTopic,
   });
 }
 

@@ -118,7 +118,7 @@ export default function ScenarioList() {
           onPress={() => void clearOutcome(lastOwn.id)}
           style={styles.progressLink}>
           <Text style={type.caption}>
-            {outcomeLabel(outcomes[lastOwn.id]!.outcome)} · <Text style={styles.headLink}>Change</Text>
+            How it went: {outcomeLabel(outcomes[lastOwn.id]!.outcome)} · <Text style={styles.headLink}>Change</Text>
           </Text>
         </Pressable>
       ) : (
@@ -172,6 +172,7 @@ export default function ScenarioList() {
               Last try {totalScore(last.grade)}/{MAX_TOTAL} at {last.difficulty}
             </Text>
           </View>
+          {!pro && freeLeft === 0 ? <Text style={type.caption}>Your free graded sessions are used, so this opens Pro.</Text> : null}
           <Button
             label="Practise it again"
             hint={lastScenario.title}
@@ -214,9 +215,7 @@ export default function ScenarioList() {
 
       <View style={styles.bring}>
         <Text style={styles.continueLabel}>Bring the real one</Text>
-        <Text style={type.body}>
-          Paste the job posting you’re applying to, your pitch, or the motion. HardTalk builds the panel for it.
-        </Text>
+        <Text style={type.body}>{track.paste_label} HardTalk builds the panel for it.</Text>
         <Button
           label={pro ? 'Create your own scenario' : 'Create your own scenario (Pro)'}
           onPress={() => void openCustomScenario(trackId)}

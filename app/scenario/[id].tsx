@@ -21,6 +21,7 @@ import { RoomCard } from '@/ui/RoomCard';
 import { Segmented } from '@/ui/Segmented';
 import { Screen } from '@/ui/Screen';
 import { colors, MIN_TARGET, space, type } from '@/ui/theme';
+import { TopicSupport } from '@/ui/TopicSupport';
 
 const MODES = [
   { value: 'voice', label: 'Talk', description: 'Speak out loud. Live captions for everyone.' },
@@ -73,6 +74,7 @@ export default function ScenarioBrief() {
         <Text style={styles.goalText}>{scenario.user_goal}</Text>
       </View>
       <RoomCard people={people} reduceMotion={reduceMotion} />
+      {scenario.sensitive_topic ? <TopicSupport /> : null}
       <View style={styles.facts}>
         <Pressable
           accessibilityRole="button"

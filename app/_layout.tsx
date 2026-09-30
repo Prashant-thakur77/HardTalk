@@ -40,7 +40,7 @@ export default function RootLayout() {
         <Stack.Screen name="paywall" options={{ title: 'HardTalk Pro', presentation: 'modal' }} />
         <Stack.Screen name="history" options={{ title: 'Your progress' }} />
         <Stack.Screen name="custom/new" options={{ title: 'Your own scenario' }} />
-        <Stack.Screen name="support" options={{ title: 'Take a moment', ...noBack }} />
+        <Stack.Screen name="support" options={{ title: 'Support', ...noBack }} />
       </Stack>
     </>
   );
