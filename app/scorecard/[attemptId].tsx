@@ -1,5 +1,6 @@
-import { router, useLocalSearchParams } from 'expo-router';
-import { StyleSheet, Text, View } from 'react-native';
+import { router, Stack, useLocalSearchParams } from 'expo-router';
+import { useRef, useState } from 'react';
+import { Pressable, ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 
 import { usePreferences } from '@/a11y/preferences';
 import { findAttempt, findPreviousAttempt, useAttempts } from '@/attempts/store';
@@ -20,7 +21,7 @@ import { Room } from '@/ui/Room';
 import { ScoreRing } from '@/ui/ScoreRing';
 import { Screen } from '@/ui/Screen';
 import { SkillBar } from '@/ui/SkillBar';
-import { colors, scoreColors, shadow, space, type } from '@/ui/theme';
+import { colors, MIN_TARGET, scoreColors, shadow, space, type } from '@/ui/theme';
 
 /** A plain-words read of the total, calibrated to the rubric: most first tries land near 8. */
 function verdict(score: number): string {
@@ -43,6 +44,10 @@ export default function Scorecard() {
   const { attemptId } = useLocalSearchParams<{ attemptId: string }>();
   const attempts = useAttempts();
   const { reduceMotion } = usePreferences();
+  const { width } = useWindowDimensions();
+  const scroll = useRef<ScrollView>(null);
+  const cardY = useRef<Partial<Record<Dimension, number>>>({});
+  const [showTranscript, setShowTranscript] = useState(false);
   const attempt = findAttempt(attempts, attemptId);
   const scenario = attempt && getScenario(attempt.scenarioId);
 
@@ -55,36 +60,49 @@ export default function Scorecard() {
   const track = getTrack(scenario.track);
 
   const retry = () => void startSession(scenario.id, attempt.difficulty, attempt.mode, 'replace');
+  // After a strong try the next step is more pushback, so that becomes the main button.
+  const up = score >= 12 ? nextLevel(attempt.difficulty) : null;
+  const jumpTo = (dimension: Dimension) =>
+    scroll.current?.scrollTo({ y: Math.max(0, (cardY.current[dimension] ?? 0) - space.md), animated: !reduceMotion });
 
   return (
     <Screen
+      scrollRef={scroll}
       footer={
-        <>
-          <Button label="Retry this conversation" onPress={retry} hint="Runs the same scenario again" />
-          <Button label="Pick another conversation" variant="secondary" onPress={() => router.dismissTo('/')} />
-        </>
+        up ? (
+          <>
+            <Button
+              label={`Try ${up} · ${scenario.difficulty_levels[up].name}`}
+              onPress={() => void startSession(scenario.id, up, attempt.mode, 'replace')}
+              hint="Same conversation, more pushback"
+            />
+            <View style={styles.footerRow}>
+              <Link label="Retry this conversation" text="Retry" onPress={retry} />
+              <Link label="Pick another conversation" text="Pick another" onPress={() => router.dismissTo('/')} />
+            </View>
+          </>
+        ) : (
+          <>
+            <Button label="Retry this conversation" onPress={retry} hint="Runs the same scenario again" />
+            <Link label="Pick another conversation" onPress={() => router.dismissTo('/')} />
+          </>
+        )
       }>
-      <MockBanner
-        message={
-          attempt.mode === 'text'
-            ? 'Mock mode: this is the recorded grade, checked against what you typed. It cannot grade new words, so any line you changed scores lower here. Live mode grades what you type.'
-            : 'Mock mode: this is the recorded example grade for this replay, checked against the transcript below. Live mode grades what you actually say.'
-        }
-      />
+      <Stack.Screen options={{ title: `Attempt ${attempt.number} · ${attempt.difficulty}` }} />
       <PurchaseNotice />
       <View style={styles.summary} accessible accessibilityLabel={summaryLabel(score, previousScore)}>
         {previousScore !== undefined && score > previousScore ? <Celebration reduceMotion={reduceMotion} /> : null}
-        <View style={styles.totalRow}>
-          <ScoreRing score={score} max={MAX_TOTAL} />
+        <View style={[styles.totalRow, width < 360 && styles.stacked]}>
+          <ScoreRing score={score} max={MAX_TOTAL} previous={previousScore} reduceMotion={reduceMotion} />
           <View style={styles.totalText}>
-            <Text style={type.caption}>
-              {scenario.title} · attempt {attempt.number} · {attempt.difficulty}
-            </Text>
+            <Text style={type.caption}>{scenario.title}</Text>
             <Text style={styles.verdict}>{verdict(score)}</Text>
             {previousScore !== undefined ? (
               <View style={styles.deltaRow}>
+                <Text style={styles.fromTo}>
+                  {previousScore} → {score}
+                </Text>
                 <Delta before={previousScore} after={score} large />
-                <Text style={type.caption}>vs your last try at {attempt.difficulty}</Text>
               </View>
             ) : null}
           </View>
@@ -100,6 +118,42 @@ export default function Scorecard() {
         </View>
       </View>
 
+      <MockBanner
+        compact
+        message={
+          attempt.mode === 'text'
+            ? 'Mock mode: this is the recorded grade, checked against what you typed. It cannot grade new words, so any line you changed scores lower here. Live mode grades what you type.'
+            : 'Mock mode: this is the recorded example grade for this replay, checked against the transcript below. Live mode grades what you actually say.'
+        }
+      />
+
+      <View style={styles.card}>
+        <Text style={styles.nextLabel}>Your four skills</Text>
+        {track.rubrics.map((dimension) => {
+          const result = grade.dimensions[dimension];
+          if (!result) return null;
+          const before = previous?.grade.dimensions[dimension]?.score;
+          return (
+            <Pressable
+              key={dimension}
+              accessibilityRole="button"
+              accessibilityLabel={`${rubrics[dimension].name}: ${result.score} out of 4${before === undefined ? '' : `, was ${before}`}`}
+              accessibilityHint="Jumps to the evidence and a better line"
+              onPress={() => jumpTo(dimension)}
+              style={({ pressed }) => [styles.skillRow, pressed && styles.pressed]}>
+              <View style={styles.skillHead}>
+                <Text style={styles.skillName}>{rubrics[dimension].name}</Text>
+                <Text style={[styles.skillScore, { color: scoreColors[result.score] }]}>
+                  {before === undefined ? '' : `${before} → `}
+                  {result.score}/4 ›
+                </Text>
+              </View>
+              <SkillBar score={result.score} previous={before} />
+            </Pressable>
+          );
+        })}
+      </View>
+
       {previous ? <WhatChanged jump={biggestJump(previous.grade, grade)} /> : null}
 
       <NextStep
@@ -108,36 +162,38 @@ export default function Scorecard() {
         dimensions={track.rubrics}
         level={attempt.difficulty}
         personaName={scenario.persona.name}
-        levelName={(level) => scenario.difficulty_levels[level].name}
         levelSummary={(level) => scenario.difficulty_levels[level].summary}
-        onLevelUp={(level) => void startSession(scenario.id, level, attempt.mode, 'replace')}
       />
 
       {track.rubrics.map((dimension) => {
         const result = grade.dimensions[dimension];
         return result ? (
-          <DimensionCard
-            key={dimension}
-            dimension={dimension}
-            result={result}
-            previousScore={previous?.grade.dimensions[dimension]?.score}
-          />
+          <View key={dimension} onLayout={(event) => (cardY.current[dimension] = event.nativeEvent.layout.y)}>
+            <DimensionCard
+              dimension={dimension}
+              result={result}
+              previousScore={previous?.grade.dimensions[dimension]?.score}
+            />
+          </View>
         ) : null;
       })}
 
-      <Text style={type.heading} accessibilityRole="header">
-        Full transcript
-      </Text>
-      <View style={styles.transcript}>
-        {attempt.turns.map((turn, index) => (
-          <Text key={index} style={type.body}>
-            <Text style={styles.speaker}>
-              {turn.speaker === 'persona' ? (turn.name ?? scenario.persona.name) : 'You'}:{' '}
+      <Link
+        label={showTranscript ? 'Hide the full transcript' : 'Show the full transcript'}
+        onPress={() => setShowTranscript((open) => !open)}
+      />
+      {showTranscript ? (
+        <View style={styles.transcript}>
+          {attempt.turns.map((turn, index) => (
+            <Text key={index} style={type.body}>
+              <Text style={styles.speaker}>
+                {turn.speaker === 'persona' ? (turn.name ?? scenario.persona.name) : 'You'}:{' '}
+              </Text>
+              {turn.text}
             </Text>
-            {turn.text}
-          </Text>
-        ))}
-      </View>
+          ))}
+        </View>
+      ) : null}
     </Screen>
   );
 }
@@ -148,8 +204,11 @@ export default function Scorecard() {
  * was none, or one the evidence check threw out.
  */
 function keyLine(grade: Grade, track: Track): string {
-  if (grade.key_line) return `${track.key_line.label}: “${grade.key_line}”`;
-  const closest = grade.dimensions[track.key_line.from]?.evidence_quotes[0];
+  const source = grade.dimensions[track.key_line.from];
+  // A weak key line is labelled as the closest you came, so a low score never reads as praise.
+  const strong = (source?.score ?? 0) >= 3;
+  if (grade.key_line) return `${strong ? track.key_line.label : track.key_line.closest}: “${grade.key_line}”`;
+  const closest = source?.evidence_quotes[0];
   if (closest) return `${track.key_line.closest}: “${closest}”`;
   return track.key_line.none;
 }
@@ -167,18 +226,14 @@ function NextStep({
   dimensions,
   level,
   personaName,
-  levelName,
   levelSummary,
-  onLevelUp,
 }: {
   score: number;
   grade: Grade;
   dimensions: Dimension[];
   level: Difficulty;
   personaName: string;
-  levelName: (level: Difficulty) => string;
   levelSummary: (level: Difficulty) => string;
-  onLevelUp: (level: Difficulty) => void;
 }) {
   const up = nextLevel(level);
   if (score >= 12 && up) {
@@ -189,7 +244,6 @@ function NextStep({
           Ready for more pushback? At {up}, {personaName}: {levelSummary(up).charAt(0).toLowerCase()}
           {levelSummary(up).slice(1)}
         </Text>
-        <Button label={`Try ${up} · ${levelName(up)}`} variant="secondary" onPress={() => onLevelUp(up)} />
       </View>
     );
   }
@@ -205,6 +259,15 @@ function NextStep({
       </Text>
       <Text style={styles.nextLine}>“{betterLine}”</Text>
     </View>
+  );
+}
+
+/** A text button. `text` is a shorter visible form of the label, and always part of it (WCAG 2.5.3). */
+function Link({ label, text = label, onPress }: { label: string; text?: string; onPress: () => void }) {
+  return (
+    <Pressable accessibilityRole="button" accessibilityLabel={label} onPress={onPress} style={styles.link}>
+      <Text style={styles.linkText}>{text}</Text>
+    </Pressable>
   );
 }
 
@@ -313,6 +376,16 @@ const styles = StyleSheet.create({
   totalText: { flex: 1, gap: space.xs },
   verdict: { fontSize: 20, fontWeight: '700', color: colors.text },
   deltaRow: { flexDirection: 'row', alignItems: 'center', gap: space.sm, flexWrap: 'wrap' },
+  fromTo: { fontSize: 26, fontWeight: '800', color: colors.text },
+  stacked: { flexDirection: 'column', alignItems: 'flex-start' },
+  skillRow: { gap: 6, paddingVertical: space.xs, minHeight: MIN_TARGET, justifyContent: 'center' },
+  skillHead: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  skillName: { fontSize: 16, fontWeight: '600', color: colors.text },
+  skillScore: { fontSize: 16, fontWeight: '800' },
+  pressed: { opacity: 0.6 },
+  footerRow: { flexDirection: 'row', justifyContent: 'space-around' },
+  link: { minHeight: MIN_TARGET, justifyContent: 'center', paddingHorizontal: space.sm },
+  linkText: { color: colors.primary, fontSize: 16, fontWeight: '700' },
   reaction: { flexDirection: 'row', alignItems: 'center', gap: space.md, flexWrap: 'wrap' },
   keyLine: { flex: 1, minWidth: 180 },
   card: {
