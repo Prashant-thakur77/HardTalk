@@ -23,7 +23,7 @@ Restore purchases is on the home screen, and the entitlement listener in `src/pu
    | `body` | `Unlimited practice, your own scenarios, and your progress over time.` | The reason-specific line |
    | `score_line` | leave empty | "Your score on it so far: 7 → 14 out of 16." or empty on a fresh install |
 
-   Lay the paywall out as: headline `{{ custom.headline }}`, body `{{ custom.body }}`, a highlighted line `{{ custom.score_line }}`, then the three features (Unlimited graded sessions and retries; Your own scenarios, with your real names and stakes; Progress history across every attempt) and the two packages. `scenario_title` and `reason` are also sent, if you want them in the layout.
+   Lay the paywall out as: headline `{{ custom.headline }}`, body `{{ custom.body }}`, a highlighted line `{{ custom.score_line }}`, then the three features (Unlimited graded sessions and retries; A panel built from your real job posting, pitch or motion; Progress history across every attempt) and the three packages. `scenario_title` and `reason` are also sent, if you want them in the layout.
 
 6. Put the key in `.env.local` in the repo root:
 

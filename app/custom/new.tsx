@@ -1,4 +1,4 @@
-import { Redirect, router } from 'expo-router';
+import { Redirect, router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 
@@ -13,13 +13,13 @@ import {
 } from '@/scenarios/custom';
 import { MAX_SOURCE_CHARS, MIN_SOURCE_CHARS } from '@/scenarios/draft';
 import { draftScenario, sampleFor } from '@/scenarios/drafting';
-import { NotScoredForSafety } from '@/safety';
+import { isDistressLine, NotScoredForSafety } from '@/safety';
 import { peopleIn } from '@/scenarios/people';
 import type { Scenario } from '@/scenarios/schema';
 import { getTrack, tracks } from '@/tracks';
-import type { TrackId } from '@/tracks/schema';
+import { trackIdSchema, type TrackId } from '@/tracks/schema';
 import { Button } from '@/ui/Button';
-import { ChoiceGroup } from '@/ui/ChoiceGroup';
+import { Segmented } from '@/ui/Segmented';
 import { MockBanner } from '@/ui/MockBanner';
 import { PurchaseNotice } from '@/ui/PurchaseNotice';
 import { RoomCard } from '@/ui/RoomCard';
@@ -31,8 +31,8 @@ type Field = Exclude<keyof CustomScenarioForm, 'track'>;
 type Mode = 'paste' | 'describe';
 
 const MODES = [
-  { value: 'paste', label: 'Paste the real thing', description: 'A job posting, your pitch, the motion.' },
-  { value: 'describe', label: 'Describe it', description: 'Five short answers.' },
+  { value: 'paste', label: 'Paste it', description: 'Paste a job posting, your pitch or the motion, and a panel is built for it.' },
+  { value: 'describe', label: 'Describe it', description: 'Answer five short questions instead.' },
 ] as const;
 
 const FIELDS: { key: Field; label: string; placeholder: string }[] = [
@@ -51,11 +51,15 @@ export default function NewCustomScenario() {
   const pro = usePro();
   const { reduceMotion } = usePreferences();
   const [mode, setMode] = useState<Mode>('paste');
-  const [track, setTrack] = useState<TrackId>('interview');
+  const params = useLocalSearchParams<{ track?: string }>();
+  const [track, setTrack] = useState<TrackId>(() => trackIdSchema.catch('interview').parse(params.track));
   const [source, setSource] = useState('');
   const [drafting, setDrafting] = useState(false);
   const [draft, setDraft] = useState<Scenario | null>(null);
   const [draftError, setDraftError] = useState<string | null>(null);
+  // Set when what was written reads like real distress: nothing is drafted or saved, the text
+  // stays so a false alarm can be reworded, and support is one tap away.
+  const [safetyHold, setSafetyHold] = useState(false);
   const [form, setForm] = useState<Omit<CustomScenarioForm, 'track'>>({
     title: '',
     personaName: '',
@@ -78,7 +82,7 @@ export default function NewCustomScenario() {
       setDraft(await draftScenario(track, source));
     } catch (error) {
       if (error instanceof NotScoredForSafety) {
-        router.replace('/support');
+        setSafetyHold(true);
         return;
       }
       setDraftError(error instanceof Error ? error.message : String(error));
@@ -88,6 +92,10 @@ export default function NewCustomScenario() {
   };
 
   const saveDescribed = async () => {
+    if (Object.values(form).some((answer) => isDistressLine(answer))) {
+      setSafetyHold(true);
+      return;
+    }
     const parsed = customScenarioFormSchema.safeParse({ ...form, track });
     if (!parsed.success) {
       const byField: Partial<Record<Field, string>> = {};
@@ -142,6 +150,25 @@ export default function NewCustomScenario() {
   return (
     <Screen footer={footer}>
       <PurchaseNotice />
+      {safetyHold ? (
+        <View style={styles.hold} accessibilityLiveRegion="assertive">
+          <Text style={styles.holdTitle}>This wasn’t turned into a practice</Text>
+          <Text style={type.body}>
+            Some of it reads like someone may be in real distress, so HardTalk won’t roleplay it. Nothing was drafted
+            or saved.
+          </Text>
+          <Text style={type.body}>
+            If it’s about you, free and confidential support is one tap away. If it’s a topic in a posting or pitch
+            (a mental-health product, say), reword those lines and try again.
+          </Text>
+          <Button
+            label="Talk to someone"
+            variant="secondary"
+            onPress={() => router.push({ pathname: '/support', params: { reason: 'pasted' } })}
+            hint="Free, confidential support lines"
+          />
+        </View>
+      ) : null}
       {draft ? (
         <>
           <Text style={styles.eyebrow}>Your panel is ready</Text>
@@ -158,7 +185,12 @@ export default function NewCustomScenario() {
         </>
       ) : (
         <>
-          <ChoiceGroup<Mode> label="How do you want to set it up?" choices={MODES} selected={mode} onSelect={setMode} horizontal />
+          <Segmented<Mode>
+            label="How do you want to set it up?"
+            segments={MODES.map((option) => ({ value: option.value, name: option.label, description: option.description }))}
+            selected={mode}
+            onSelect={setMode}
+          />
           <View style={styles.field}>
             <Text style={styles.label}>What kind of practice?</Text>
             <TrackTabs tracks={tracks} selected={track} onSelect={setTrack} />
@@ -172,7 +204,10 @@ export default function NewCustomScenario() {
                 accessibilityLabel={getTrack(track).paste_label}
                 accessibilityLabelledBy="label-source"
                 value={source}
-                onChangeText={setSource}
+                onChangeText={(text) => {
+                  setSource(text);
+                  setSafetyHold(false);
+                }}
                 maxLength={MAX_SOURCE_CHARS}
                 multiline
                 placeholder="Paste it here. Names of real people are replaced with invented ones."
@@ -212,6 +247,7 @@ export default function NewCustomScenario() {
                     placeholderTextColor={colors.textMuted}
                     onChangeText={(value) => {
                       setForm((current) => ({ ...current, [field.key]: value }));
+                      setSafetyHold(false);
                       if (error) setErrors((current) => ({ ...current, [field.key]: undefined }));
                     }}
                     style={[styles.input, error && styles.invalid]}
@@ -249,6 +285,8 @@ const styles = StyleSheet.create({
   invalid: { borderColor: colors.danger, borderWidth: 2 },
   fieldError: { color: colors.danger, fontSize: 14, fontWeight: '600' },
   error: { ...type.body, color: colors.danger, fontWeight: '600' },
+  hold: { gap: space.sm, borderRadius: radius, borderWidth: 1.5, borderColor: colors.warning, backgroundColor: colors.surface, padding: space.md },
+  holdTitle: { fontSize: 17, fontWeight: '700', color: colors.text },
   mockNote: { fontSize: 14, lineHeight: 19, color: colors.textMuted, textAlign: 'center' },
   link: { minHeight: MIN_TARGET, justifyContent: 'center', alignItems: 'center' },
   linkText: { color: colors.primary, fontSize: 16, fontWeight: '700' },

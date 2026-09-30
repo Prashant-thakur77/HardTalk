@@ -128,6 +128,7 @@ export default function Scorecard() {
         score={score}
         level={attempt.difficulty}
         personaName={scenario.persona.name}
+        levelName={(level) => scenario.difficulty_levels[level].name}
         levelSummary={(level) => scenario.difficulty_levels[level].summary}
       />
 
@@ -201,11 +202,13 @@ function NextStep({
   score,
   level,
   personaName,
+  levelName,
   levelSummary,
 }: {
   score: number;
   level: Difficulty;
   personaName: string;
+  levelName: (level: Difficulty) => string;
   levelSummary: (level: Difficulty) => string;
 }) {
   const up = nextLevel(level);
@@ -214,7 +217,7 @@ function NextStep({
       <View style={[styles.card, styles.next]}>
         <Text style={styles.nextLabel}>What next</Text>
         <Text style={type.body}>
-          Ready for more pushback? At {up}, {personaName} gets tougher: {levelSummary(up)}
+          Ready for more pushback? At {up} · {levelName(up)}, {personaName} gets tougher. {levelSummary(up)}
         </Text>
       </View>
     );
@@ -300,8 +303,7 @@ function DimensionCard({
               </>
             ) : null}
             <Text style={[styles.score, { color: scoreColors[result.score] }]}>{result.score}</Text>
-            <Text style={styles.scoreMax}>/4</Text>
-            {previousScore !== undefined ? <Delta before={previousScore} after={result.score} /> : null}
+            {previousScore === undefined ? <Text style={styles.scoreMax}>/4</Text> : null}
             <Text style={styles.chevron}>{open ? '⌃' : '⌄'}</Text>
           </View>
         </View>

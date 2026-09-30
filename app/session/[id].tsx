@@ -1,6 +1,16 @@
 import { router, Stack, useLocalSearchParams } from 'expo-router';
 import { useRef, useState } from 'react';
-import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import {
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  useWindowDimensions,
+  View,
+} from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { announce, turnHaptic } from '@/a11y/announce';
@@ -61,6 +71,7 @@ export default function Session() {
   const [attempt] = useState(() => nextAttemptNumber(params.id));
   const [preferences] = useState(getPreferences);
   const insets = useSafeAreaInsets();
+  const { width } = useWindowDimensions();
   const [grading, setGrading] = useState(false);
   const [gradeError, setGradeError] = useState<string | null>(null);
   const [draft, setDraft] = useState('');
@@ -168,6 +179,7 @@ export default function Session() {
     if (!canSend) return;
     sendText(draft.trim());
     setDraft('');
+    setInputHeight(2 * LINE);
   };
 
   const userTurns = turns.filter((turn) => turn.speaker === 'user' && turn.final).length;
@@ -197,9 +209,11 @@ export default function Session() {
               <Text style={styles.turnText}>
                 Turn {Math.min(userTurns + 1, scenario.max_user_turns)} of {scenario.max_user_turns}
               </Text>
-              {Array.from({ length: scenario.max_user_turns }, (_, index) => (
-                <View key={index} style={[styles.dot, index < userTurns && styles.dotDone]} />
-              ))}
+              {width >= 360
+                ? Array.from({ length: scenario.max_user_turns }, (_, index) => (
+                    <View key={index} style={[styles.dot, index < userTurns && styles.dotDone]} />
+                  ))
+                : null}
             </View>
           </View>
           <View style={styles.meta}>

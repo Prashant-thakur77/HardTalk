@@ -53,6 +53,9 @@ export default function ScenarioList() {
   const freeLeft = Math.max(0, FREE_GRADED_SESSIONS - getGradedSessionsUsed());
   const last = attempts.at(-1);
   const lastScenario = last && getScenario(last.scenarioId);
+  // The "real one" is always one of your own scenarios: the latest one you practised.
+  const lastOwnId = attempts.findLast((attempt) => isCustomScenario(attempt.scenarioId))?.scenarioId;
+  const lastOwn = lastOwnId ? getScenario(lastOwnId) : undefined;
 
   const card = (scenario: Scenario) => {
     const mine = attempts.filter((attempt) => attempt.scenarioId === scenario.id);
@@ -125,62 +128,68 @@ export default function ScenarioList() {
       <MockBanner compact />
       {last && lastScenario ? (
         <View style={styles.continue}>
-          <Text style={styles.continueLabel}>Pick up where you left off</Text>
+          <View style={styles.continueHead}>
+            <Text style={styles.continueLabel}>Pick up where you left off</Text>
+            {pro ? (
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel="Your progress"
+                onPress={() => router.push('/history')}
+                hitSlop={8}>
+                <Text style={styles.headLink}>Your progress ›</Text>
+              </Pressable>
+            ) : null}
+          </View>
+          <Text style={styles.continueTitle}>{lastScenario.title}</Text>
           <View style={styles.faces}>
             {peopleIn(lastScenario, last.difficulty).map((person, index) => (
               <View key={person.name} style={index > 0 && styles.panelFace}>
-                <Face face={person.face} mood={person.mood} size={36} />
+                <Face face={person.face} mood={person.mood} size={32} />
               </View>
             ))}
-            <View style={styles.personaLine}>
-              <Text style={styles.continueTitle} numberOfLines={2}>
-                {lastScenario.title}
-              </Text>
-              <Text style={type.caption}>
-                Last try {totalScore(last.grade)}/{MAX_TOTAL} at {last.difficulty}
-              </Text>
-            </View>
+            <Text style={[type.caption, styles.personaLine]}>
+              Last try {totalScore(last.grade)}/{MAX_TOTAL} at {last.difficulty}
+            </Text>
           </View>
           <Button
             label="Practise it again"
             hint={lastScenario.title}
             onPress={() => void startSession(lastScenario.id, last.difficulty, last.mode, 'push')}
           />
-          {pro ? (
+        </View>
+      ) : null}
+      {lastOwn ? (
+        <View style={styles.realOne}>
+          <Text style={styles.continueLabel}>The real one</Text>
+          <Text style={type.body} numberOfLines={2}>
+            {lastOwn.title}
+          </Text>
+          {outcomes[lastOwn.id] ? (
             <Pressable
               accessibilityRole="button"
-              accessibilityLabel="Your progress"
-              onPress={() => router.push('/history')}
-              style={styles.progressLink}>
-              <Text style={styles.linkText}>Your progress ›</Text>
-            </Pressable>
-          ) : null}
-          {!isCustomScenario(lastScenario.id) ? null : outcomes[lastScenario.id] ? (
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel={`The real one: ${outcomeLabel(outcomes[lastScenario.id]!.outcome)}. Change`}
-              onPress={() => void clearOutcome(lastScenario.id)}
+              accessibilityLabel={`How it went: ${outcomeLabel(outcomes[lastOwn.id]!.outcome)}. Change`}
+              onPress={() => void clearOutcome(lastOwn.id)}
               style={styles.progressLink}>
               <Text style={type.caption}>
-                The real one: {outcomeLabel(outcomes[lastScenario.id]!.outcome)} · <Text style={styles.linkText}>Change</Text>
+                {outcomeLabel(outcomes[lastOwn.id]!.outcome)} · <Text style={styles.headLink}>Change</Text>
               </Text>
             </Pressable>
           ) : (
-            <View style={styles.checkin}>
-              <Text style={type.caption}>When you’ve had the real one, how did it go?</Text>
+            <>
+              <Text style={type.caption}>When you’ve had it, how did it go?</Text>
               <View style={styles.checkinRow}>
                 {OUTCOMES.map((option) => (
                   <Pressable
                     key={option.value}
                     accessibilityRole="button"
                     accessibilityLabel={`The real one: ${option.label}`}
-                    onPress={() => void recordOutcome(lastScenario.id, option.value)}
+                    onPress={() => void recordOutcome(lastOwn.id, option.value)}
                     style={({ pressed }) => [styles.checkinChip, pressed && styles.pressed]}>
                     <Text style={styles.checkinText}>{option.label}</Text>
                   </Pressable>
                 ))}
               </View>
-            </View>
+            </>
           )}
         </View>
       ) : null}
@@ -205,7 +214,7 @@ export default function ScenarioList() {
         </Text>
         <Button
           label={pro ? 'Create your own scenario' : 'Create your own scenario (Pro)'}
-          onPress={() => void openCustomScenario()}
+          onPress={() => void openCustomScenario(trackId)}
           hint="Drafts a panel from a job posting, pitch or motion you paste"
         />
       </View>
@@ -278,7 +287,6 @@ const styles = StyleSheet.create({
     ...shadow,
   },
   progressLink: { minHeight: MIN_TARGET, justifyContent: 'center', alignItems: 'center' },
-  checkin: { gap: space.xs, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.border, paddingTop: space.sm },
   checkinRow: { flexDirection: 'row', flexWrap: 'wrap', gap: space.xs },
   checkinChip: {
     minHeight: MIN_TARGET,
@@ -292,7 +300,17 @@ const styles = StyleSheet.create({
   checkinText: { fontSize: 14, fontWeight: '700', color: colors.text },
   bring: { backgroundColor: colors.quote, borderRadius: 16, padding: space.md, gap: space.sm },
   continueLabel: { fontSize: 13, fontWeight: '800', color: colors.primary, textTransform: 'uppercase', letterSpacing: 0.5 },
-  continueTitle: { fontSize: 17, fontWeight: '700', color: colors.text },
+  continueTitle: { fontSize: 18, lineHeight: 24, fontWeight: '700', color: colors.text },
+  continueHead: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: space.sm },
+  headLink: { color: colors.primary, fontSize: 15, fontWeight: '700' },
+  realOne: {
+    backgroundColor: colors.surface,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: colors.border,
+    padding: space.md,
+    gap: space.xs,
+  },
   summary: { color: colors.textMuted },
   pressed: { opacity: 0.75, transform: [{ scale: 0.99 }] },
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: space.xs + 2 },

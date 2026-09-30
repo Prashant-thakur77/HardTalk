@@ -75,7 +75,7 @@ export default function ScenarioBrief() {
           onPress={() => setShowFacts((open) => !open)}
           style={styles.factsHead}>
           <Text style={styles.label}>What you both know</Text>
-          <Text style={styles.chevron}>{showFacts ? '⌃' : `${scenario.persona.context.length} facts ⌄`}</Text>
+          <Text style={styles.chevron}>{showFacts ? '⌃' : `${scenario.persona.context.length} ${scenario.persona.context.length === 1 ? 'fact' : 'facts'} ⌄`}</Text>
         </Pressable>
         {showFacts
           ? scenario.persona.context.map((fact) => (
@@ -130,7 +130,7 @@ const styles = StyleSheet.create({
   track: { fontSize: 13, fontWeight: '800', color: colors.primary, textTransform: 'uppercase', letterSpacing: 0.5 },
   goal: { gap: 2 },
   goalCard: { gap: 2, backgroundColor: colors.quote, borderRadius: 14, padding: space.md },
-  facts: { borderRadius: 14, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface, padding: space.md, gap: space.xs },
+  facts: { borderRadius: 14, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface, paddingHorizontal: space.md, gap: space.xs },
   factsHead: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', minHeight: MIN_TARGET },
   chevron: { fontSize: 14, fontWeight: '700', color: colors.textMuted },
   goalText: { fontSize: 17, lineHeight: 24, fontWeight: '600', color: colors.text },

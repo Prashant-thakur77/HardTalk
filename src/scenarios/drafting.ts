@@ -29,8 +29,8 @@ export const sampleScenarioId = (track: TrackId) => `custom-sample-${track}`;
  * for this track's sample, whatever was pasted, so the screen says so.
  */
 export async function draftScenario(track: TrackId, source: string): Promise<Scenario> {
-  // The same on-device check as every spoken line: text that sounds like distress is never
-  // turned into a roleplay, in mock mode or live.
+  // The same on-device check as every spoken line: pasted text that sounds like distress is not
+  // drafted, in mock mode or live. The describe form runs the same check before saving.
   if (isDistressLine(source)) throw new NotScoredForSafety();
   if (config.mock) return scenarioFromDraft(sampleFor(track).draft, track, Date.now(), sampleScenarioId(track));
 

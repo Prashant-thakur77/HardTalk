@@ -66,8 +66,8 @@ const styles = StyleSheet.create({
     borderColor: colors.borderStrong,
     backgroundColor: colors.surface,
   },
-  checked: { backgroundColor: colors.primary, borderColor: colors.primary },
+  checked: { backgroundColor: colors.quote, borderColor: colors.primary, borderWidth: 2.5 },
   top: { fontSize: 13, fontWeight: '800', color: colors.textMuted },
   name: { fontSize: 15, fontWeight: '700', color: colors.text, textAlign: 'center' },
-  onChecked: { color: colors.onPrimary },
+  onChecked: { color: colors.primary },
 });

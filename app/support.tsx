@@ -13,13 +13,16 @@ import { colors, MIN_TARGET, radius, space, type } from '@/ui/theme';
 export default function Support() {
   const { reason } = useLocalSearchParams<{ reason?: string }>();
   const chosen = reason === 'chosen';
+  const pasted = reason === 'pasted';
   return (
     <Screen footer={<Button label="Back to home" variant="secondary" onPress={() => router.dismissTo('/')} />}>
       <Text style={type.title} accessibilityRole="header">
-        {chosen ? 'Take a moment.' : 'Let’s stop here.'}
+        {chosen || pasted ? 'Take a moment.' : 'Let’s stop here.'}
       </Text>
       <Text style={type.body}>
-        {chosen
+        {pasted
+          ? 'Nothing you wrote was turned into a practice or saved.'
+          : chosen
           ? 'You ended the practice, and nothing from it was scored or saved.'
           : 'It sounded like this might be about more than practice. The roleplay has ended, and nothing from it was scored or saved.'}
       </Text>

@@ -1,6 +1,6 @@
 import { StyleSheet, View } from 'react-native';
 
-import { colors, scoreColors } from './theme';
+import { colors, scoreStrokes } from './theme';
 
 /**
  * Four steps for a 1–4 score. After a retry, what you already had is drawn faint and the gain in
@@ -18,7 +18,7 @@ export function SkillBar({ score, previous }: { score: number; previous?: number
             key={step}
             style={[
               styles.step,
-              filled && { backgroundColor: scoreColors[score] },
+              filled && { backgroundColor: scoreStrokes[score] },
               alreadyHad && { opacity: 0.45 },
               wasFilled && { borderColor: colors.borderStrong, borderWidth: 2, borderStyle: 'dashed' },
             ]}

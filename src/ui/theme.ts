@@ -42,6 +42,17 @@ export const scoreColors: Record<number, string> = {
   4: colors.success,
 };
 
+/**
+ * Lighter fills for the same ramp, for the score ring and skill bars: graphics need 3:1, not
+ * text's 4.5:1, and the brighter steps read as one clear red → amber → lime → green scale.
+ */
+export const scoreStrokes: Record<number, string> = {
+  1: '#DC2626',
+  2: '#D97706',
+  3: '#4D7C0F',
+  4: '#15803D',
+};
+
 export const space = { xs: 4, sm: 8, md: 16, lg: 24, xl: 32 } as const;
 
 export const radius = 12;

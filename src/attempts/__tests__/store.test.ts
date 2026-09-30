@@ -53,6 +53,19 @@ describe('attempt store', () => {
     expect(store.getAttempts()[0]?.grade.key_line).toBe('Merge by 4pm?');
   });
 
+  it("moves an old pitch grade's close from Ask made to Next step, and leaves workplace grades alone", () => {
+    const d = { score: 3, evidence_quotes: [], rationale: 'r', better_line: 'b' };
+    const pitch = { dimensions: { answer_directness: d, evidence: d, objection_handling: d, ask_made: d }, key_line: null, safety_flag: false };
+    const workplace = { dimensions: { clarity: d, empathy: d, ask_made: d, boundary_held: d }, key_line: null, safety_flag: false };
+    expect(Object.keys((store.migrateGrade(pitch) as typeof pitch).dimensions)).toEqual([
+      'answer_directness',
+      'evidence',
+      'objection_handling',
+      'next_step',
+    ]);
+    expect(store.migrateGrade(workplace)).toEqual(workplace);
+  });
+
   it('drops corrupt saved data instead of crashing', async () => {
     storage.set('hardtalk.attempts.v1', JSON.stringify([{ id: 'broken' }]));
     await store.loadAttempts();

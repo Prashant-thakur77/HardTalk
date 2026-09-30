@@ -5,6 +5,14 @@ import { STANCE_LABEL, type Person } from '@/scenarios/people';
 import { Face } from './Face';
 import { colors, shadow, space, type } from './theme';
 
+/** Green for someone on your side, amber for someone who will question you, grey otherwise. */
+const STANCE_COLOR = {
+  lead: { color: colors.textMuted },
+  agrees: { color: colors.success },
+  questions: { color: colors.warning },
+  neutral: { color: colors.textMuted },
+} as const;
+
 /** Who is in the room, whose side they are on, and what each will ask about. */
 export function RoomCard({ people, reduceMotion }: { people: Person[]; reduceMotion: boolean }) {
   return (
@@ -18,7 +26,7 @@ export function RoomCard({ people, reduceMotion }: { people: Person[]; reduceMot
           <View style={styles.personText}>
             <Text style={styles.personName}>{person.name}</Text>
             <Text style={type.caption}>{person.role}</Text>
-            <Text style={[styles.stance, person.stance === 'agrees' && styles.agrees]}>{STANCE_LABEL[person.stance]}</Text>
+            <Text style={[styles.stance, STANCE_COLOR[person.stance]]}>{STANCE_LABEL[person.stance]}</Text>
             {person.asksAbout.length > 0 ? (
               <View
                 style={styles.topics}
@@ -52,8 +60,7 @@ const styles = StyleSheet.create({
   person: { flexDirection: 'row', alignItems: 'flex-start', gap: space.sm },
   personText: { flex: 1, gap: 1 },
   personName: { fontSize: 17, fontWeight: '700', color: colors.text },
-  stance: { fontSize: 13, fontWeight: '700', color: colors.warning },
-  agrees: { color: colors.success },
+  stance: { fontSize: 13, fontWeight: '700' },
   topics: { flexDirection: 'row', flexWrap: 'wrap', gap: space.xs, marginTop: space.xs },
   topic: { backgroundColor: colors.track, borderRadius: 6, paddingHorizontal: 8, paddingVertical: 3 },
   topicText: { fontSize: 13, fontWeight: '600', color: colors.text },

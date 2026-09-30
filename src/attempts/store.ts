@@ -7,13 +7,24 @@ import { turnSchema } from '@/grading/transcript';
 import { difficultySchema } from '@/scenarios/schema';
 
 /**
- * Grades saved before practice tracks had fixed workplace flags (ask_made, ask_text,
- * boundary_held). The ask became the key line; the flags were never shown on their own.
+ * Brings saved grades up to date. Grades from before practice tracks had fixed workplace flags
+ * (ask_made, ask_text, boundary_held): the ask became the key line. Pitch grades from before the
+ * pitch close had its own rubric scored it as ask_made: only the pitch track scores
+ * objection_handling, so a grade with both is a pitch grade, and its close becomes next_step.
  */
-function migrateGrade(raw: unknown): unknown {
-  if (typeof raw !== 'object' || raw === null || 'key_line' in raw) return raw;
-  const { ask_text: askText, ...rest } = raw as Record<string, unknown>;
-  return { ...rest, key_line: askText ?? null };
+export function migrateGrade(raw: unknown): unknown {
+  if (typeof raw !== 'object' || raw === null) return raw;
+  let grade = raw as Record<string, unknown>;
+  if (!('key_line' in grade)) {
+    const { ask_text: askText, ...rest } = grade;
+    grade = { ...rest, key_line: askText ?? null };
+  }
+  const dimensions = grade.dimensions as Record<string, unknown> | undefined;
+  if (dimensions && 'objection_handling' in dimensions && 'ask_made' in dimensions) {
+    const { ask_made: close, ...others } = dimensions;
+    grade = { ...grade, dimensions: { ...others, next_step: close } };
+  }
+  return grade;
 }
 
 const attemptSchema = z.object({

@@ -51,7 +51,7 @@ export default function MockPaywall() {
       footer={
         <>
           <Button
-            label={`Start Pro, ${chosen?.label.toLowerCase() ?? 'annual'} (mock purchase)`}
+            label={`Start Pro · ${chosen?.price ?? ''} (mock)`}
             onPress={() => close('purchased')}
           />
           <View style={styles.links}>
@@ -66,6 +66,7 @@ export default function MockPaywall() {
               <Text style={styles.linkText}>Restore purchases</Text>
             </Pressable>
           </View>
+          <Text style={[type.caption, styles.centred]}>Cancel any time in your App Store or Google Play settings.</Text>
           {restored ? (
             <Text style={type.caption} accessibilityLiveRegion="polite">
               {restored}
@@ -129,6 +130,7 @@ const styles = StyleSheet.create({
   tick: { fontSize: 17, fontWeight: '800', color: colors.success, lineHeight: 23 },
   featureText: { flex: 1 },
   links: { flexDirection: 'row', justifyContent: 'space-around' },
+  centred: { textAlign: 'center' },
   link: { minHeight: MIN_TARGET, justifyContent: 'center', paddingHorizontal: space.sm },
   linkText: { color: colors.primary, fontSize: 16, fontWeight: '700' },
 });

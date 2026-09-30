@@ -47,8 +47,8 @@ const styles = StyleSheet.create({
     borderColor: colors.borderStrong,
     backgroundColor: colors.surface,
   },
-  active: { backgroundColor: colors.primary, borderColor: colors.primary },
+  active: { backgroundColor: colors.quote, borderColor: colors.primary, borderWidth: 2.5 },
   pressed: { opacity: 0.8 },
   label: { fontSize: 16, fontWeight: '700', color: colors.text },
-  activeLabel: { color: colors.onPrimary },
+  activeLabel: { color: colors.primary },
 });

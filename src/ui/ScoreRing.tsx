@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import Svg, { Circle } from 'react-native-svg';
 
-import { colors, scoreColors } from './theme';
+import { colors, scoreStrokes } from './theme';
 
 const COUNT_MS = 900;
 const FRAME_MS = 30;
@@ -40,7 +40,7 @@ export function ScoreRing({ score, max, previous, size = 120, reduceMotion = fal
   const ratio = (points: number) => Math.max(0, Math.min(1, points / max));
   const final = ratio(score);
   // The same ramp as the skill bars: the total, scaled to a 1–4 step.
-  const tone = scoreColors[Math.min(4, Math.max(1, Math.round(final * 4)))]!;
+  const tone = scoreStrokes[Math.min(4, Math.max(1, Math.round(final * 4)))]!;
   const arc = (points: number, color: string, opacity = 1) => (
     <Circle
       cx={size / 2}

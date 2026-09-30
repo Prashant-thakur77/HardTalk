@@ -7,7 +7,7 @@ previous plan. Every item names the criterion it moves (CLAUDE.md §3).
 code are clean (1,326 tests, five browser flows with zero errors); the score is capped by C1 and C3,
 which only the owner's phone session can move. Round 14's defects D-094..D-100 are fixed or in hand.
 
-## Now (round 13): bring the real one
+## Now (rounds 13–15): bring the real one, then harden it
 
 Evidence from past winners (Shipaton 2025: Payout, Heartbeat Hero; Gemini API Competition:
 Vite Vere) is that entries win by helping one person with their own real problem. HardTalk made

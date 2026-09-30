@@ -24,6 +24,13 @@ describe('real-conversation outcomes', () => {
     expect(outcomes.outcomeLabel('well')).toBe('It went well');
   });
 
+  it('takes an answer back, so it can be changed', async () => {
+    await outcomes.recordOutcome('custom-sample-interview', 'not_yet');
+    await outcomes.clearOutcome('custom-sample-interview');
+    await outcomes.loadOutcomes();
+    expect(outcomes.getOutcomes()).toEqual({});
+  });
+
   it('is deleted with the practice history', async () => {
     await outcomes.recordOutcome('pitch-seed-round', 'mixed');
     await outcomes.deleteAllOutcomes();

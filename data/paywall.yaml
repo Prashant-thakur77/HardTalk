@@ -11,7 +11,7 @@ session_limit_new:
   body: You've used your three free graded sessions. Pro keeps every conversation open, with as many retries as you need.
   score: ""
 custom_scenario:
-  headline: Rehearse the one you're actually dreading
+  headline: Rehearse the one you’re actually dreading
   body: Paste the real job posting, pitch or motion, and HardTalk builds the panel for it, with the questions they'll ask and the same scorecard.
   # A past score is not what this gate sells; the paywall shows a drafted panel instead.
   score: ""

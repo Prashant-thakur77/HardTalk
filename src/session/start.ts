@@ -6,6 +6,7 @@ import { isPro } from '@/purchases/entitlement';
 import { paywallContext, shouldGateNewSession } from '@/purchases/gates';
 import { getScenario } from '@/scenarios';
 import type { Difficulty } from '@/scenarios/schema';
+import type { TrackId } from '@/tracks/schema';
 
 const titleOf = (id: string) => getScenario(id)?.title ?? 'this conversation';
 
@@ -27,10 +28,11 @@ export async function startSession(
 }
 
 /** "Create your own scenario" is Pro. Free users see the paywall first; nothing else opens it. */
-export async function openCustomScenario(): Promise<void> {
+/** Opens the custom scenario form on the track the user was browsing, after the paywall if needed. */
+export async function openCustomScenario(track: TrackId): Promise<void> {
   if (!isPro()) {
     await presentPaywall(paywallContext('custom_scenario', getAttempts(), titleOf));
     if (!isPro()) return;
   }
-  router.push('/custom/new');
+  router.push({ pathname: '/custom/new', params: { track } });
 }

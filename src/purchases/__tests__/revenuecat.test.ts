@@ -81,7 +81,7 @@ describe('RevenueCat provider', () => {
   it('gives the "Create your own" entry point its own copy, never the session-limit text', async () => {
     await createRevenueCat('test_abc').presentPaywall({ reason: 'custom_scenario', scenarioTitle: null, scoreLine: null });
     const variables = (rc.paywallParams as { customVariables: Record<string, { value: string }> }).customVariables;
-    expect(variables.headline!.value).toBe("Rehearse the one you're actually dreading");
+    expect(variables.headline!.value).toBe('Rehearse the one you’re actually dreading');
     expect(variables.body!.value).not.toMatch(/free graded sessions/);
     expect(variables.score_line!.value).toBe('');
   });

@@ -73,6 +73,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: space.md,
     paddingVertical: space.sm,
     borderRadius: 16,
+    overflow: 'hidden',
     backgroundColor: colors.surface,
     borderWidth: 1,
     borderColor: colors.border,
