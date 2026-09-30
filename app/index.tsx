@@ -109,7 +109,9 @@ export default function ScenarioList() {
         <Text style={styles.tagline} accessibilityRole="header">
           Practise the conversation before you have it.
         </Text>
-        <Text style={styles.heroBody}>Say it out loud. Get a scorecard that quotes you. Try again.</Text>
+        {last ? null : (
+          <Text style={styles.heroBody}>Say it out loud. Get a scorecard that quotes you. Try again.</Text>
+        )}
         <View style={styles.heroPill}>
           <Text style={styles.heroPillText}>
             {pro ? 'Pro · unlimited practice' : `${freeLeft} of ${FREE_GRADED_SESSIONS} free graded sessions left`}

@@ -41,14 +41,20 @@ export default function History() {
             <Text style={type.heading} accessibilityRole="header">
               {getScenario(scenarioId)?.title ?? 'Deleted scenario'}
             </Text>
-            <View style={styles.progress}>
-              <Text style={styles.fromTo}>
-                {first} → {latest}
-              </Text>
+            {list.length > 1 ? (
+              <View style={styles.progress}>
+                <Text style={styles.fromTo}>
+                  {first} → {latest}
+                </Text>
+                <Text style={type.caption}>
+                  out of {MAX_TOTAL}, over {list.length} attempts
+                </Text>
+              </View>
+            ) : (
               <Text style={type.caption}>
-                out of {MAX_TOTAL}, over {list.length} {list.length === 1 ? 'attempt' : 'attempts'}
+                {latest}/{MAX_TOTAL} · 1 attempt. Retry it to see your progress here.
               </Text>
-            </View>
+            )}
             {list.length > 1
               ? scoredDimensions(latestGrade).map(([dimension, result]) => {
                   const before = firstGrade.dimensions[dimension]?.score;

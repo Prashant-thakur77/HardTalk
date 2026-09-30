@@ -36,7 +36,7 @@ export interface PurchaseNoticeMessage {
   text: string;
 }
 
-const SUCCESS_MS = 6000;
+const SUCCESS_MS = 10000;
 let notice: PurchaseNoticeMessage | null = null;
 let clearSuccess: ReturnType<typeof setTimeout> | undefined;
 const noticeListeners = new Set<() => void>();

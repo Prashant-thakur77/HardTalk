@@ -14,6 +14,7 @@ import { getScenario } from '@/scenarios';
 import { peopleIn } from '@/scenarios/people';
 import { difficultySchema } from '@/scenarios/schema';
 import { startSession } from '@/session/start';
+import { getTrack } from '@/tracks';
 import { useConversation } from '@/session/useConversation';
 import { Button } from '@/ui/Button';
 import { Face } from '@/ui/Face';
@@ -26,6 +27,8 @@ import type { EndReason, SessionState } from '@/voice';
 
 /** iOS's standard navigation bar height: the keyboard offset under the stack header. */
 const IOS_NAV_BAR = 44;
+/** Line height of the reply box, which sizes it in whole lines. */
+const LINE = 23;
 
 const TYPED_MOCK_MESSAGE =
   'Mock mode, typed: your reply is prefilled with the recorded line, and the persona and the grade are recorded, so a line you change scores lower here. Live mode answers and grades your own words. Type “stop” to end without a score.';
@@ -170,24 +173,20 @@ export default function Session() {
 
   return (
     <SafeAreaView style={styles.safe} edges={['bottom']}>
-      <Stack.Screen options={{ title: scenario.title }} />
+      <Stack.Screen options={{ title: `${getTrack(scenario.track).name} · ${scenario.persona.name}` }} />
       <KeyboardAvoidingView
         style={styles.safe}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         keyboardVerticalOffset={insets.top + IOS_NAV_BAR}>
         <View style={styles.header}>
-          <Room
-            people={people}
-            speaking={state.status === 'persona_speaking' ? speaker : null}
-            size={48}
-            reduceMotion={preferences.reduceMotion}
-          />
-          <View style={styles.meta}>
-            <Text style={styles.chip}>
-              {difficulty} · {scenario.difficulty_levels[difficulty].name}
-            </Text>
-            {textOnly ? <Text style={styles.chip}>Typing</Text> : null}
-            <MockBanner compact message={textOnly ? TYPED_MOCK_MESSAGE : undefined} />
+          <View style={styles.headRow}>
+            <Room
+              people={people}
+              speaking={state.status === 'persona_speaking' ? speaker : null}
+              size={40}
+              showNames={false}
+              reduceMotion={preferences.reduceMotion}
+            />
             <View
               style={styles.dots}
               accessible
@@ -196,6 +195,12 @@ export default function Session() {
                 <View key={index} style={[styles.dot, index < userTurns && styles.dotDone]} />
               ))}
             </View>
+          </View>
+          <View style={styles.meta}>
+            <Text style={styles.chip}>
+              {difficulty} · {scenario.difficulty_levels[difficulty].name}
+            </Text>
+            <MockBanner compact message={textOnly ? TYPED_MOCK_MESSAGE : undefined} />
           </View>
           {safetyOffline ? (
             <Text style={type.caption} accessibilityLiveRegion="polite">
@@ -253,12 +258,14 @@ export default function Session() {
               </Text>
               <Button label="Try again" onPress={() => void startSession(scenario.id, difficulty, mode, 'replace')} />
               <Button label="Back to conversations" variant="secondary" onPress={() => router.dismissTo('/')} />
-              <Button
-                label="Talk to someone"
-                variant="secondary"
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel="Talk to someone"
+                accessibilityHint="Free, confidential support lines"
                 onPress={() => router.replace({ pathname: '/support', params: { reason: 'chosen' } })}
-                hint="Free, confidential support lines"
-              />
+                style={styles.end}>
+                <Text style={styles.supportText}>Talk to someone</Text>
+              </Pressable>
             </>
           ) : (
             <>
@@ -268,16 +275,18 @@ export default function Session() {
                     {status}
                   </Text>
                   <View style={styles.composer}>
-                    <TextInput
-                      accessibilityLabel="Your reply"
-                      value={draft}
-                      onChangeText={setDraft}
-                      placeholder={state.status === 'listening' ? 'Type your reply' : 'Wait for your turn'}
-                      placeholderTextColor={colors.textMuted}
-                      editable={state.status === 'listening'}
-                      multiline
-                      style={styles.input}
-                    />
+                    <View style={styles.inputBox}>
+                      <TextInput
+                        accessibilityLabel="Your reply"
+                        value={draft}
+                        onChangeText={setDraft}
+                        placeholder={state.status === 'listening' ? 'Type your reply' : 'Wait for your turn'}
+                        placeholderTextColor={colors.textMuted}
+                        editable={state.status === 'listening'}
+                        multiline
+                        style={styles.input}
+                      />
+                    </View>
                     <Pressable
                       accessibilityRole="button"
                       accessibilityLabel="Send"
@@ -318,6 +327,7 @@ export default function Session() {
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.background },
   header: { paddingHorizontal: space.md, paddingTop: space.sm, gap: space.sm },
+  headRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: space.sm },
   meta: { flexDirection: 'row', alignItems: 'center', gap: space.sm, flexWrap: 'wrap' },
   chip: {
     fontSize: 13,
@@ -329,7 +339,7 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
     overflow: 'hidden',
   },
-  dots: { flexDirection: 'row', gap: 5, marginLeft: 'auto', paddingVertical: space.xs },
+  dots: { flexDirection: 'row', gap: 5, paddingVertical: space.xs },
   dot: { width: 9, height: 9, borderRadius: 5, backgroundColor: colors.track },
   dotDone: { backgroundColor: colors.primary },
   captions: { flex: 1 },
@@ -343,17 +353,23 @@ const styles = StyleSheet.create({
   userText: { color: colors.onPrimary },
   typedStatus: { fontSize: 15, fontWeight: '700', color: colors.primary },
   composer: { flexDirection: 'row', alignItems: 'flex-end', gap: space.sm },
-  input: {
+  // The border and padding sit on the box, so the text area clips at whole lines: two when
+  // empty, up to four as it grows. No line is ever shown cut in half.
+  inputBox: {
     flex: 1,
-    minHeight: MIN_TARGET,
-    maxHeight: 96,
     borderWidth: 1.5,
     borderColor: colors.borderStrong,
     borderRadius: radius,
     backgroundColor: colors.surface,
     paddingHorizontal: space.md,
-    paddingVertical: space.sm + 2,
+    paddingVertical: 12,
+  },
+  input: {
+    minHeight: 2 * LINE,
+    maxHeight: 4 * LINE,
+    padding: 0,
     fontSize: 16,
+    lineHeight: LINE,
     color: colors.text,
   },
   send: {
@@ -367,6 +383,7 @@ const styles = StyleSheet.create({
   sendDimmed: { opacity: 0.5 },
   end: { minHeight: MIN_TARGET, alignItems: 'center', justifyContent: 'center' },
   endText: { color: colors.danger, fontSize: 16, fontWeight: '700' },
+  supportText: { color: colors.primary, fontSize: 16, fontWeight: '700' },
   footer: {
     paddingHorizontal: space.md,
     paddingTop: space.sm,

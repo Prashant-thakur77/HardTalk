@@ -13,6 +13,8 @@ export const colors = {
   userBubble: '#2445C8',
   quote: '#EEF1FB',
   success: '#12703F',
+  /** A 3 out of 4: good, and never the blue that means "tap me". */
+  good: '#0F766E',
   warning: '#8A4B00',
   danger: '#B42318',
   notice: '#FFF4D6',
@@ -36,7 +38,7 @@ export const shadow = {
 export const scoreColors: Record<number, string> = {
   1: colors.danger,
   2: colors.warning,
-  3: colors.primary,
+  3: colors.good,
   4: colors.success,
 };
 

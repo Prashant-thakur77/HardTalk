@@ -111,7 +111,8 @@ export default function Scorecard() {
           <Room
             people={peopleIn(scenario, attempt.difficulty)}
             mood={reactionMood(score)}
-            size={40}
+            size={32}
+            showNames={false}
             reduceMotion={reduceMotion}
           />
           <Text style={[type.body, styles.keyLine]}>{keyLine(grade, track)}</Text>
@@ -241,8 +242,7 @@ function NextStep({
       <View style={[styles.card, styles.next]}>
         <Text style={styles.nextLabel}>What next</Text>
         <Text style={type.body}>
-          Ready for more pushback? At {up}, {personaName}: {levelSummary(up).charAt(0).toLowerCase()}
-          {levelSummary(up).slice(1)}
+          Ready for more pushback? At {up}, {personaName} gets tougher: {levelSummary(up)}
         </Text>
       </View>
     );

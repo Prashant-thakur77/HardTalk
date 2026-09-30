@@ -86,6 +86,6 @@ export default function MockPaywall() {
 const styles = StyleSheet.create({
   notice: { backgroundColor: colors.notice, borderRadius: radius, padding: space.sm + 4 },
   noticeText: { color: colors.onNotice, fontSize: 14, lineHeight: 19, fontWeight: '500' },
-  score: { fontSize: 17, fontWeight: '700', color: colors.success },
+  score: { fontSize: 17, fontWeight: '700', color: colors.text },
   features: { gap: space.xs },
 });

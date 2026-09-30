@@ -19,11 +19,11 @@ import { TrackTabs } from '@/ui/TrackTabs';
 type Field = Exclude<keyof CustomScenarioForm, 'track'>;
 
 const FIELDS: { key: Field; label: string; placeholder: string }[] = [
-  { key: 'title', label: 'What is the conversation?', placeholder: 'Ask my lead for a raise' },
-  { key: 'personaName', label: 'Who is it with?', placeholder: 'Dana' },
-  { key: 'personaRole', label: 'Their role', placeholder: 'Engineering lead' },
-  { key: 'userGoal', label: 'What do you need from them?', placeholder: 'A clear answer before the review cycle' },
-  { key: 'pushback', label: 'What pushback do you expect?', placeholder: 'Budgets are frozen until next year' },
+  { key: 'title', label: 'What is the conversation?', placeholder: 'e.g. Ask my lead for a raise' },
+  { key: 'personaName', label: 'Who is it with?', placeholder: 'e.g. Dana' },
+  { key: 'personaRole', label: 'Their role', placeholder: 'e.g. Engineering lead' },
+  { key: 'userGoal', label: 'What do you need from them?', placeholder: 'e.g. A clear answer before the review cycle' },
+  { key: 'pushback', label: 'What pushback do you expect?', placeholder: 'e.g. Budgets are frozen until next year' },
 ];
 
 /**

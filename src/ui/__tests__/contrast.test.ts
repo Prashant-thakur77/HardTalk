@@ -35,6 +35,8 @@ const textPairs: [string, string, string][] = [
   ['"Best" chip', colors.success, '#E3F2EA'],
   ['"Try saying" callout', colors.text, '#EAF5EF'],
   ['stance label on card', colors.warning, colors.surface],
+  ['"asks about" topic tag', colors.text, colors.track],
+  ['score 3 skill number on page', colors.good, colors.background],
   ['"This time" label in What changed', colors.success, '#EAF5EF'],
   ['track tab label', colors.text, colors.surface],
   ['selected track tab label', colors.onPrimary, colors.primary],

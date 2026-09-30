@@ -13,11 +13,13 @@ interface RoomProps {
   /** Everyone shows this expression instead of their own, such as on the scorecard. */
   mood?: Mood;
   size?: number;
+  /** Names under the faces. Off where the speaker is already named in text nearby. */
+  showNames?: boolean;
   reduceMotion?: boolean;
 }
 
 /** Everyone in the conversation, side by side, with the speaker animated. Names are in text. */
-export function Room({ people, speaking = null, mood, size = 56, reduceMotion = false }: RoomProps) {
+export function Room({ people, speaking = null, mood, size = 56, showNames = true, reduceMotion = false }: RoomProps) {
   return (
     <View style={styles.row}>
       {people.map((person, index) => (
@@ -29,9 +31,11 @@ export function Room({ people, speaking = null, mood, size = 56, reduceMotion = 
             speaking={speaking === person.name}
             reduceMotion={reduceMotion}
           />
-          <Text style={[styles.name, speaking === person.name && styles.speaking]} numberOfLines={1}>
-            {person.name}
-          </Text>
+          {showNames ? (
+            <Text style={[styles.name, speaking === person.name && styles.speaking]} numberOfLines={1}>
+              {person.name}
+            </Text>
+          ) : null}
         </View>
       ))}
     </View>
