@@ -49,6 +49,13 @@ describe('claudeDrafter', () => {
     expect(scenario.track).toBe('interview');
   });
 
+  it("sends a draft back when it judges someone on a skill the track doesn't score", async () => {
+    const persona = { ...(interview.draft.persona as object), cares_about: ['clarity'] };
+    const { client, create } = fakeClient({ text: JSON.stringify({ ...interview.draft, persona }) }, { text: JSON.stringify(interview.draft) });
+    await claudeDrafter({ client, model: 'm' })(getTrack('interview'), interview.source);
+    expect(create.mock.calls[1]![0].messages[0].content).toMatch(/cares_about may only use/);
+  });
+
   it('gives up with a plain message after two bad answers, and on a refusal', async () => {
     const twice = fakeClient({ text: 'not json' }, { text: '{"title": 1}' });
     await expect(claudeDrafter({ client: twice.client, model: 'm' })(getTrack('pitch'), 'x'.repeat(100))).rejects.toThrow(DraftError);

@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 import type { TrackId } from '../tracks/schema';
 import { customScenarioId } from './ids';
-import { faceSchema, moodSchema, scenarioSchema, type Scenario } from './schema';
+import { caresAboutSchema, faceSchema, moodSchema, scenarioSchema, type Scenario } from './schema';
 
 /** Longest pasted text the drafter accepts: a full job posting or a one-page pitch. */
 export const MAX_SOURCE_CHARS = 6000;
@@ -36,6 +36,7 @@ export const draftSchema = z.object({
     tone: z.string().min(1),
     context: z.array(z.string().min(1)).min(1).max(8),
     asks_about: asksAbout,
+    cares_about: caresAboutSchema,
     face,
   }),
   panel: z
@@ -47,6 +48,7 @@ export const draftSchema = z.object({
         view: z.string().min(1),
         tone: z.string().min(1),
         asks_about: asksAbout,
+        cares_about: caresAboutSchema,
         face,
       }),
     )

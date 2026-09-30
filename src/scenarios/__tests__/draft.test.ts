@@ -4,6 +4,7 @@ import { draftSamples, sampleFor } from '@/scenarios/drafting';
 import { scenarioFromDraft } from '@/scenarios/draft';
 import { peopleIn } from '@/scenarios/people';
 import { scenarios } from '@/scenarios';
+import { getTrack } from '@/tracks';
 import { TRACK_IDS } from '@/tracks/schema';
 
 describe('drafted scenarios', () => {
@@ -33,6 +34,15 @@ describe('drafted scenarios', () => {
       }
     });
   }
+
+  it('judges each sample panel only on its own track, and covers all four skills between them', () => {
+    for (const sample of draftSamples) {
+      const rubrics = getTrack(sample.track).rubrics;
+      const cared = [sample.draft.persona, ...sample.draft.panel].flatMap((person) => person.cares_about);
+      for (const id of cared) expect(rubrics, sample.track).toContain(id);
+      expect(new Set(cared).size, sample.track).toBe(rubrics.length);
+    }
+  });
 
   it("never reuses a built-in persona's name", () => {
     const builtIn = new Set(scenarios.flatMap((scenario) => [scenario.persona.name, ...scenario.panel.map((m) => m.name)]));

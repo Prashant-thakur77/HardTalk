@@ -53,6 +53,7 @@ samples:
             so others can cover it.
           - This meeting is about the November rota.
         asks_about: [How weekends have been assigned, What you are asking for]
+        cares_about: [ask_made, boundary_held]
       panel:
         - name: Talia
           face: { skin: tan, hair: black, hair_style: long, top: teal, glasses: false, beard: false, earrings: true }
@@ -64,6 +65,7 @@ samples:
             would cover. Offers to take a November weekend if the training comes first.
           tone: Warm, direct, keen to help.
           asks_about: [The training plan, When others could start]
+          cares_about: [empathy]
         - name: Owen
           face: { skin: porcelain, hair: auburn, hair_style: crop, top: blue, glasses: true, beard: false, earrings: false }
           role: Engineering manager for the payments team
@@ -74,6 +76,7 @@ samples:
             who handles a settlement problem while the others are still learning.
           tone: Calm, careful, keeps pressing for specifics.
           asks_about: [Covering settlement in November, A date for the runbook]
+          cares_about: [clarity]
       difficulty_levels:
         L1:
           name: Open
@@ -156,6 +159,7 @@ samples:
           - They are asking the fund for $150,000 in pre-seed funding for twelve months, to
             reach eight campuses and build a dashboard for dining halls.
         asks_about: [How you make money, Why dining halls say yes]
+        cares_about: [evidence, objection_handling]
       panel:
         - name: Idris
           face: { skin: deep, hair: black, hair_style: short, top: green, glasses: false, beard: true, earrings: false }
@@ -167,6 +171,7 @@ samples:
             clear plan with a date wins him over; a vague answer makes him go quiet.
           tone: Warm, informal, speaks from experience.
           asks_about: [The founding team, Plans after June]
+          cares_about: [answer_directness]
         - name: Selma
           face: { skin: light, hair: blonde, hair_style: bob, top: red, glasses: false, beard: false, earrings: true }
           role: Finance lead at the fund
@@ -177,6 +182,7 @@ samples:
             launch and how many meals a week it needs to pay its way.
           tone: Quiet, exact, one number at a time.
           asks_about: [Revenue per meal, Cost of each new campus]
+          cares_about: [ask_made]
       difficulty_levels:
         L1:
           name: Curious
@@ -264,6 +270,7 @@ samples:
           - The company's stated values are putting patients first, writing things down
             clearly, and asking for help early.
         asks_about: [A project you built, Working in a team]
+        cares_about: [star_structure, ownership]
       panel:
         - name: Jonas
           face: { skin: porcelain, hair: blonde, hair_style: crop, top: charcoal, glasses: false, beard: true, earrings: false }
@@ -275,6 +282,7 @@ samples:
             A concrete example of learning something fast earns a short, encouraging comment.
           tone: Warm, patient, curious.
           asks_about: [How you learn new things, What you want from a mentor]
+          cares_about: [answer_directness]
         - name: Lucia
           face: { skin: olive, hair: dark_brown, hair_style: ponytail, top: amber, glasses: false, beard: false, earrings: true }
           role: Staff engineer who leads testing across Harbourline
@@ -285,6 +293,7 @@ samples:
             booking that crosses midnight. Keeps asking until she hears a specific example.
           tone: Polite, precise, keeps pressing.
           asks_about: [Tests you have written, Testing a tricky booking]
+          cares_about: [evidence]
       difficulty_levels:
         L1:
           name: Warm
@@ -365,6 +374,7 @@ samples:
           - Elena's main theme is that small organisations cannot afford to pay, so a ban
             means fewer opportunities.
         asks_about: [Fewer opportunities, Small charities and the arts]
+        cares_about: [rebuttal, held_position]
       panel:
         - name: Beatrix
           face: { skin: deep, hair: grey, hair_style: afro, top: purple, glasses: true, beard: false, earrings: true }
@@ -377,6 +387,7 @@ samples:
             enforced.
           tone: Crisp, fair, keeps turns short.
           asks_about: [How a ban would work, Evidence for your claim]
+          cares_about: [steelman]
         - name: Rohan
           face: { skin: brown, hair: black, hair_style: curly, top: green, glasses: false, beard: true, earrings: false }
           role: Society member speaking from the floor
@@ -387,6 +398,7 @@ samples:
             organisations that cannot pay. Nods along to a clear, specific answer.
           tone: Friendly, earnest, brief.
           asks_about: [Who gets left out today, What small organisations do]
+          cares_about: [claim_clarity]
       difficulty_levels:
         L1:
           name: Fair

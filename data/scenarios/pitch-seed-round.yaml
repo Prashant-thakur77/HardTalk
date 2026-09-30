@@ -29,6 +29,7 @@ persona:
       Fourteen months of data show which group sizes and meeting times keep a group going.
       Each new campus is launched by student ambassadors, not by the university.
   asks_about: [Who pays today, Retention after graduation]
+  cares_about: [evidence, objection_handling]
   face: { skin: olive, hair: dark_brown, hair_style: bob, top: charcoal, glasses: true, beard: false, earrings: true }
   voice: { pitch: 1.1 }
 
@@ -43,6 +44,7 @@ panel:
       answer makes him go quiet.
     tone: Warm, informal, speaks from experience.
     asks_about: [The founding team, Going full-time after May]
+    cares_about: [answer_directness, ask_made]
     face: { skin: porcelain, hair: auburn, hair_style: crop, top: green, glasses: false, beard: true, earrings: false }
     voice: { pitch: 0.9 }
   - name: Kenji
@@ -55,6 +57,7 @@ panel:
       faster" does not.
     tone: Quiet, exact, asks one thing at a time.
     asks_about: [How matching works, What stops a copycat]
+    cares_about: [evidence]
     face: { skin: light, hair: black, hair_style: short, top: amber, glasses: true, beard: false, earrings: false }
     voice: { pitch: 0.75 }
 

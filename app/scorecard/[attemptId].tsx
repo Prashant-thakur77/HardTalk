@@ -8,7 +8,7 @@ import { biggestJump, type Jump } from '@/grading/compare';
 import { MAX_TOTAL, totalScore, type Dimension, type DimensionGrade, type Grade } from '@/grading/rubric.schema';
 import { rubrics } from '@/grading/rubrics';
 import { getScenario } from '@/scenarios';
-import { peopleIn, reactionMood } from '@/scenarios/people';
+import { peopleIn } from '@/scenarios/people';
 import { difficultySchema, type Difficulty } from '@/scenarios/schema';
 import { startSession } from '@/session/start';
 import { getTrack } from '@/tracks';
@@ -17,7 +17,7 @@ import { Button } from '@/ui/Button';
 import { Celebration } from '@/ui/Celebration';
 import { MockBanner } from '@/ui/MockBanner';
 import { PurchaseNotice } from '@/ui/PurchaseNotice';
-import { Room } from '@/ui/Room';
+import { RoomVerdicts } from '@/ui/RoomVerdicts';
 import { ScoreRing } from '@/ui/ScoreRing';
 import { Screen } from '@/ui/Screen';
 import { SkillBar } from '@/ui/SkillBar';
@@ -106,18 +106,17 @@ export default function Scorecard() {
             ) : null}
           </View>
         </View>
-        <View style={styles.reaction}>
-          <Room
-            people={peopleIn(scenario, attempt.difficulty)}
-            mood={reactionMood(score)}
-            size={32}
-            showNames={false}
-            reduceMotion={reduceMotion}
-          />
-          <Text style={[type.body, styles.keyLine]}>{keyLine(grade, track)}</Text>
-        </View>
+        <Text style={type.body}>{keyLine(grade, track)}</Text>
       </View>
 
+
+      <RoomVerdicts
+        people={peopleIn(scenario, attempt.difficulty)}
+        grade={grade}
+        previous={previous?.grade}
+        trackRubrics={track.rubrics}
+        reduceMotion={reduceMotion}
+      />
 
       {previous ? <WhatChanged jump={biggestJump(previous.grade, grade)} /> : null}
 
@@ -352,8 +351,6 @@ const styles = StyleSheet.create({
   footerRow: { flexDirection: 'row', justifyContent: 'space-around' },
   link: { minHeight: MIN_TARGET, justifyContent: 'center', paddingHorizontal: space.sm },
   linkText: { color: colors.primary, fontSize: 16, fontWeight: '700' },
-  reaction: { flexDirection: 'row', alignItems: 'center', gap: space.md, flexWrap: 'wrap' },
-  keyLine: { flex: 1, minWidth: 180 },
   card: {
     backgroundColor: colors.surface,
     borderRadius: 16,

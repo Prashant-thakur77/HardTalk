@@ -29,6 +29,7 @@ persona:
     - The team builds the ticketing platform for a chain of concert venues. Traffic spikes in
       the first minutes after a popular show goes on sale.
   asks_about: [A time something failed, Your own part in it]
+  cares_about: [ownership, star_structure]
   face: { skin: brown, hair: black, hair_style: bun, top: purple, glasses: false, beard: false, earrings: true }
   voice: { pitch: 1.1 }
 
@@ -43,6 +44,7 @@ panel:
       such as putting the load test in a release checklist.
     tone: Friendly, relaxed, curious.
     asks_about: [What failed technically, Catching it before launch]
+    cares_about: [evidence]
     face: { skin: tan, hair: grey, hair_style: short, top: blue, glasses: true, beard: true, earrings: false }
     voice: { pitch: 0.8 }
   - name: Grace
@@ -55,6 +57,7 @@ panel:
       more.
     tone: Warm, conversational, attentive.
     asks_about: [Why this team, What you want to learn]
+    cares_about: [answer_directness]
     face: { skin: deep, hair: dark_brown, hair_style: curly, top: green, glasses: false, beard: false, earrings: true }
     voice: { pitch: 1.3 }
 

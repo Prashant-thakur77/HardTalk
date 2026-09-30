@@ -27,6 +27,7 @@ persona:
     - Academic integrity is Daniel's main theme, meaning whether a grade still shows what the
       student can do alone.
   asks_about: [What the grade measures, Academic integrity]
+  cares_about: [rebuttal, held_position]
   face: { skin: light, hair: blonde, hair_style: short, top: red, glasses: false, beard: false, earrings: false }
   voice: { pitch: 0.9 }
 
@@ -40,6 +41,7 @@ panel:
       names that point and asks the user to answer it directly. Keeps turns short.
     tone: Even, brisk, fair.
     asks_about: [Evidence for each claim, Answering Daniel directly]
+    cares_about: [claim_clarity, steelman]
     face: { skin: deep, hair: black, hair_style: afro, top: teal, glasses: true, beard: false, earrings: true }
     voice: { pitch: 1.2 }
   - name: Mateo
@@ -52,6 +54,7 @@ panel:
       a principle.
     tone: Dry, practical, unhurried.
     asks_about: [What exactly would be allowed, How it would be checked]
+    cares_about: [claim_clarity]
     face: { skin: olive, hair: black, hair_style: curly, top: purple, glasses: false, beard: true, earrings: false }
     voice: { pitch: 0.75 }
 

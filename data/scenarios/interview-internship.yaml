@@ -35,6 +35,7 @@ persona:
     - Before building the countdown, the user asked 40 students by the library bus shelter
       what they needed. Most wanted minutes until the next bus, not a map.
   asks_about: [A project you're proud of, Exactly what you built]
+  cares_about: [ownership, evidence]
   face: { skin: olive, hair: black, hair_style: crop, top: charcoal, glasses: false, beard: true, earrings: false }
   voice: { pitch: 0.85 }
 
@@ -48,6 +49,7 @@ panel:
       numbers, adds a short practical comment, such as Tray doing the same with café staff.
     tone: Warm, curious, encouraging.
     asks_about: [How you learned what users want]
+    cares_about: [star_structure]
     face: { skin: porcelain, hair: auburn, hair_style: ponytail, top: teal, glasses: true, beard: false, earrings: true }
     voice: { pitch: 1.25 }
   - name: Ben
@@ -59,6 +61,7 @@ panel:
       general "startups are exciting" gets a polite nod and a harder follow-up.
     tone: Friendly but brisk, keeps pressing.
     asks_about: [Why us over a big company, Your first week here]
+    cares_about: [answer_directness]
     face: { skin: deep, hair: black, hair_style: bald, top: red, glasses: true, beard: true, earrings: false }
     voice: { pitch: 1.0 }
 

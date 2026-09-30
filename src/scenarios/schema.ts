@@ -1,5 +1,6 @@
 import { z } from 'zod';
 
+import { dimensionSchema } from '../grading/rubric.schema';
 import { trackIdSchema } from '../tracks/schema';
 
 export const difficultySchema = z.enum(['L1', 'L2', 'L3']);
@@ -24,6 +25,9 @@ export type Face = z.infer<typeof faceSchema>;
 /** What a person tends to ask about, shown on the brief so the user knows what to prepare. */
 const asksAboutSchema = z.array(z.string().min(1).max(40)).min(1).max(3);
 
+/** The skills a person judges you on: one or two of the track's rubrics. */
+export const caresAboutSchema = z.array(dimensionSchema).min(1).max(2);
+
 /** How a person sounds when mock mode reads their lines aloud. Live mode uses their ElevenLabs voice. */
 export const voiceSchema = z.strictObject({ pitch: z.number().min(0.5).max(2) });
 export type Voice = z.infer<typeof voiceSchema>;
@@ -47,6 +51,7 @@ export const panelistSchema = z.strictObject({
   view: z.string().min(1),
   tone: z.string().min(1),
   asks_about: asksAboutSchema.optional(),
+  cares_about: caresAboutSchema.optional(),
   face: faceSchema.optional(),
   voice: voiceSchema.optional(),
 });
@@ -68,6 +73,7 @@ export const scenarioFieldsSchema = z.strictObject({
     tone: z.string().min(1),
     context: z.array(z.string().min(1)).min(1),
     asks_about: asksAboutSchema.optional(),
+    cares_about: caresAboutSchema.optional(),
     face: faceSchema.optional(),
     voice: voiceSchema.optional(),
   }),

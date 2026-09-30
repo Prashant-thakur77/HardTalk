@@ -60,6 +60,15 @@ describe('data/scenarios', () => {
     }
   });
 
+  it('only judges people on skills their track actually scores', () => {
+    for (const scenario of scenarios) {
+      const rubrics = tracks.find((track) => track.id === scenario.track)!.rubrics;
+      for (const person of [scenario.persona, ...scenario.panel]) {
+        for (const id of person.cares_about ?? []) expect(rubrics, `${scenario.id}: ${person.name}`).toContain(id);
+      }
+    }
+  });
+
   it('gives everyone in a room a voice pitch of their own', () => {
     for (const scenario of scenarios) {
       const pitches = [scenario.persona, ...scenario.panel].map((person) => person.voice?.pitch);

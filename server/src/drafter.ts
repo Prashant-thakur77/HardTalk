@@ -27,7 +27,9 @@ const { type, schema } = betaZodOutputFormat(draftSchema);
  */
 export function claudeDrafter(options: DrafterOptions) {
   return async (track: Track, source: string): Promise<Scenario> => {
-    const system = drafterConfig.instructions.replace('{{practising}}', track.practising.trim());
+    const system = drafterConfig.instructions
+      .replace('{{practising}}', track.practising.trim())
+      .replace('{{rubrics}}', track.rubrics.join(', '));
     const request = drafterConfig.request.replace('{{track}}', track.name).replace('{{source}}', source.trim());
 
     let feedback: string | null = null;
@@ -54,6 +56,12 @@ export function claudeDrafter(options: DrafterOptions) {
       const draft = draftSchema.safeParse(raw);
       if (!draft.success) {
         feedback = `Your previous answer broke these rules:\n${prettifyError(draft.error)}`;
+        continue;
+      }
+      const people = [draft.data.persona, ...draft.data.panel];
+      const offTrack = people.flatMap((person) => person.cares_about).filter((id) => !track.rubrics.includes(id));
+      if (offTrack.length > 0) {
+        feedback = `cares_about may only use ${track.rubrics.join(', ')}; you used ${offTrack.join(', ')}.`;
         continue;
       }
       try {
