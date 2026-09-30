@@ -211,7 +211,10 @@ export default function Session() {
               </Text>
               {width >= 360
                 ? Array.from({ length: scenario.max_user_turns }, (_, index) => (
-                    <View key={index} style={[styles.dot, index < userTurns && styles.dotDone]} />
+                    <View
+                  key={index}
+                  style={[styles.dot, index < userTurns && styles.dotDone, index === userTurns && styles.dotNow]}
+                />
                   ))
                 : null}
             </View>
@@ -307,6 +310,9 @@ export default function Session() {
                       </Text>
                     </Pressable>
                   ) : null}
+                  {config.mock ? (
+                    <Text style={type.caption}>In mock mode the replies follow the recording, whatever you type.</Text>
+                  ) : null}
                   <View style={styles.composer}>
                     <View style={styles.inputBox}>
                       <TextInput
@@ -383,6 +389,7 @@ const styles = StyleSheet.create({
   turnText: { fontSize: 13, fontWeight: '700', color: colors.textMuted, marginRight: space.xs },
   dot: { width: 9, height: 9, borderRadius: 5, backgroundColor: colors.track },
   dotDone: { backgroundColor: colors.primary },
+  dotNow: { backgroundColor: colors.surface, borderWidth: 2, borderColor: colors.primary },
   captions: { flex: 1 },
   captionsContent: { padding: space.md, gap: space.sm },
   line: { flexDirection: 'row', alignItems: 'flex-end', gap: space.xs, maxWidth: '92%' },

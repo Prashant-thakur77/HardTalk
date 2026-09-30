@@ -1,6 +1,6 @@
 import { Redirect, router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
-import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { AccessibilityInfo, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { usePreferences } from '@/a11y/preferences';
 import { config } from '@/config';
@@ -60,6 +60,10 @@ export default function NewCustomScenario() {
   // Set when what was written reads like real distress: nothing is drafted or saved, the text
   // stays so a false alarm can be reworded, and support is one tap away.
   const [safetyHold, setSafetyHold] = useState(false);
+  const holdForSafety = () => {
+    setSafetyHold(true);
+    AccessibilityInfo.announceForAccessibility('This wasn’t turned into a practice. Support is one tap away.');
+  };
   const [form, setForm] = useState<Omit<CustomScenarioForm, 'track'>>({
     title: '',
     personaName: '',
@@ -82,7 +86,7 @@ export default function NewCustomScenario() {
       setDraft(await draftScenario(track, source));
     } catch (error) {
       if (error instanceof NotScoredForSafety) {
-        setSafetyHold(true);
+        holdForSafety();
         return;
       }
       setDraftError(error instanceof Error ? error.message : String(error));
@@ -93,7 +97,7 @@ export default function NewCustomScenario() {
 
   const saveDescribed = async () => {
     if (Object.values(form).some((answer) => isDistressLine(answer))) {
-      setSafetyHold(true);
+      holdForSafety();
       return;
     }
     const parsed = customScenarioFormSchema.safeParse({ ...form, track });
@@ -109,9 +113,26 @@ export default function NewCustomScenario() {
   const sourceLength = source.trim().length;
   const missing = FIELDS.filter((field) => errors[field.key]).length;
 
+  const hold = safetyHold ? (
+    <View style={styles.hold}>
+      <Text style={styles.holdTitle}>This wasn’t turned into a practice</Text>
+      <Text style={type.body}>
+        Some of it reads like someone may be in real distress, so nothing was drafted or saved. If it’s about you,
+        support is one tap away. If it’s a topic (a mental-health product, say), reword it and try again.
+      </Text>
+      <Button
+        label="Talk to someone"
+        variant="secondary"
+        onPress={() => router.push({ pathname: '/support', params: { reason: 'pasted' } })}
+        hint="Free, confidential support lines"
+      />
+    </View>
+  ) : null;
+
   const footer =
     mode === 'describe' ? (
       <>
+        {hold}
         {missing > 0 ? (
           <Text style={styles.error} accessibilityLiveRegion="assertive">
             {missing === 1 ? 'One answer is missing, marked in red.' : `${missing} answers are missing, marked in red.`}
@@ -128,6 +149,7 @@ export default function NewCustomScenario() {
       </>
     ) : (
       <>
+        {hold}
         {draftError ? (
           <Text style={styles.error} accessibilityLiveRegion="assertive">
             {draftError}
@@ -150,25 +172,6 @@ export default function NewCustomScenario() {
   return (
     <Screen footer={footer}>
       <PurchaseNotice />
-      {safetyHold ? (
-        <View style={styles.hold} accessibilityLiveRegion="assertive">
-          <Text style={styles.holdTitle}>This wasn’t turned into a practice</Text>
-          <Text style={type.body}>
-            Some of it reads like someone may be in real distress, so HardTalk won’t roleplay it. Nothing was drafted
-            or saved.
-          </Text>
-          <Text style={type.body}>
-            If it’s about you, free and confidential support is one tap away. If it’s a topic in a posting or pitch
-            (a mental-health product, say), reword those lines and try again.
-          </Text>
-          <Button
-            label="Talk to someone"
-            variant="secondary"
-            onPress={() => router.push({ pathname: '/support', params: { reason: 'pasted' } })}
-            hint="Free, confidential support lines"
-          />
-        </View>
-      ) : null}
       {draft ? (
         <>
           <Text style={styles.eyebrow}>Your panel is ready</Text>
@@ -189,7 +192,10 @@ export default function NewCustomScenario() {
             label="How do you want to set it up?"
             segments={MODES.map((option) => ({ value: option.value, name: option.label, description: option.description }))}
             selected={mode}
-            onSelect={setMode}
+            onSelect={(next) => {
+              setMode(next);
+              setSafetyHold(false);
+            }}
           />
           <View style={styles.field}>
             <Text style={styles.label}>What kind of practice?</Text>
@@ -223,7 +229,10 @@ export default function NewCustomScenario() {
                 <Pressable
                   accessibilityRole="button"
                   accessibilityLabel={`Use the sample: ${sampleFor(track).label}`}
-                  onPress={() => setSource(sampleFor(track).source.trim())}
+                  onPress={() => {
+                    setSource(sampleFor(track).source.trim());
+                    setSafetyHold(false);
+                  }}
                   style={styles.link}>
                   <Text style={styles.linkText}>Use the sample: {sampleFor(track).label}</Text>
                 </Pressable>

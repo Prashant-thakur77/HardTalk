@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { colors, scoreColors } from '../theme';
+import { colors, scoreColors, scoreStrokes } from '../theme';
 
 /** WCAG 2.2 relative luminance and contrast ratio. */
 function luminance(hex: string): number {
@@ -36,10 +36,11 @@ const textPairs: [string, string, string][] = [
   ['"Try saying" callout', colors.text, '#EAF5EF'],
   ['stance label on card', colors.warning, colors.surface],
   ['"asks about" topic tag', colors.text, colors.track],
+  ['"Unconvinced" verdict chip', colors.warning, colors.notice],
   ['score 3 skill number on page', colors.good, colors.background],
   ['"This time" label in What changed', colors.success, '#EAF5EF'],
   ['track tab label', colors.text, colors.surface],
-  ['selected track tab label', colors.onPrimary, colors.primary],
+  ['selected track tab and segment label', colors.primary, colors.quote],
   ['speaking name under a face', colors.primary, colors.surface],
   ...Object.entries(scoreColors).map(
     ([score, color]) => [`score ${score} on card`, color, colors.surface] as [string, string, string],
@@ -56,6 +57,9 @@ describe('colour contrast (WCAG 2.2)', () => {
     ['unselected control border on card', colors.borderStrong, colors.surface],
     ['selected control border', colors.primary, colors.quote],
     ['track tab border', colors.borderStrong, colors.background],
+    ...Object.entries(scoreStrokes).map(
+      ([score, color]) => [`score ${score} ring and bar stroke on card`, color, colors.surface] as [string, string, string],
+    ),
   ])('%s is at least 3:1 (1.4.11)', (_, border, background) => {
     expect(contrast(border, background)).toBeGreaterThanOrEqual(3);
   });

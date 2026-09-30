@@ -37,6 +37,7 @@ export default function ScenarioBrief() {
 
   const liveOnly = config.mock && isCustomScenario(scenario.id) && !hasRecording(scenario.id);
   const people = peopleIn(scenario, difficulty);
+  const factsTitle = people.length > 1 ? 'What everyone knows' : 'What you both know';
   const track = getTrack(scenario.track);
 
   return (
@@ -71,10 +72,10 @@ export default function ScenarioBrief() {
           accessibilityRole="button"
           accessibilityState={{ expanded: showFacts }}
           aria-expanded={showFacts}
-          accessibilityLabel={`What you both know, ${scenario.persona.context.length} facts`}
+          accessibilityLabel={`${factsTitle}, ${scenario.persona.context.length} ${scenario.persona.context.length === 1 ? 'fact' : 'facts'}`}
           onPress={() => setShowFacts((open) => !open)}
           style={styles.factsHead}>
-          <Text style={styles.label}>What you both know</Text>
+          <Text style={styles.label}>{factsTitle}</Text>
           <Text style={styles.chevron}>{showFacts ? '⌃' : `${scenario.persona.context.length} ${scenario.persona.context.length === 1 ? 'fact' : 'facts'} ⌄`}</Text>
         </Pressable>
         {showFacts

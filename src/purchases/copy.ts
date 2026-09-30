@@ -11,7 +11,9 @@ export const paywallCopySchema = z.strictObject({
   custom_scenario: reasonCopy,
   unlocked: z.string().min(1),
   features: z.array(z.string()).min(1),
-  plans: z.array(z.strictObject({ id: z.string(), label: z.string(), price: z.string(), note: z.string().optional() })),
+  plans: z.array(
+    z.strictObject({ id: z.string(), label: z.string(), price: z.string(), short: z.string(), note: z.string().optional() }),
+  ),
 });
 
 const copy = paywallCopySchema.parse(paywallData);

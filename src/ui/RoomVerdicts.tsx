@@ -7,10 +7,10 @@ import { reactionOf, VERDICT, type Person, type Verdict } from '@/scenarios/peop
 import { Face } from './Face';
 import { colors, shadow, space, type } from './theme';
 
-const TONE: Record<Verdict, string> = {
-  won: colors.success,
-  unsure: colors.textMuted,
-  unconvinced: colors.warning,
+const CHIP: Record<Verdict, { color: string; backgroundColor: string }> = {
+  won: { color: colors.success, backgroundColor: '#EAF5EF' },
+  unsure: { color: colors.text, backgroundColor: colors.track },
+  unconvinced: { color: colors.warning, backgroundColor: colors.notice },
 };
 
 interface RoomVerdictsProps {
@@ -39,24 +39,23 @@ export function RoomVerdicts({ people, grade, previous, trackRubrics, reduceMoti
       <Text style={styles.label}>How the room took it</Text>
       {people.length > 1 ? <Text style={type.heading}>You won over {won} of {people.length}</Text> : null}
       {reactions.map(({ person, now, before }) => {
-        const basis = now.basis.map((item) => `${rubrics[item.dimension].name} ${item.score}/4`).join(', ');
+        const cares = now.basis.map((item) => rubrics[item.dimension].name);
+        const basis = cares.length > 1 ? `${cares.slice(0, -1).join(', ')} and ${cares.at(-1)}` : (cares[0] ?? '');
         const changed = before && before !== now.verdict ? `, was ${VERDICT[before].label.toLowerCase()}` : '';
         return (
           <View
             key={person.name}
             style={styles.row}
             accessible
-            accessibilityLabel={`${person.name}: ${VERDICT[now.verdict].label}${changed}. Judges ${basis}.`}>
+            accessibilityLabel={`${person.name}: ${VERDICT[now.verdict].label}${changed}. Cares about ${basis}.`}>
             <Face face={person.face} mood={VERDICT[now.verdict].mood} size={44} reduceMotion={reduceMotion} />
             <View style={styles.text}>
               <View style={styles.nameRow}>
                 <Text style={styles.name}>{person.name}</Text>
-                <Text style={[styles.verdict, { color: TONE[now.verdict] }]}>{VERDICT[now.verdict].label}</Text>
+                <Text style={[styles.chip, CHIP[now.verdict]]}>{VERDICT[now.verdict].label}</Text>
+                {changed ? <Text style={type.caption}>was {VERDICT[before!].label.toLowerCase()}</Text> : null}
               </View>
-              <Text style={type.caption}>
-                Judges {basis}
-                {changed ? ` · was ${VERDICT[before!].label.toLowerCase()}` : ''}
-              </Text>
+              <Text style={type.caption}>Cares about {basis}</Text>
             </View>
           </View>
         );
@@ -80,5 +79,5 @@ const styles = StyleSheet.create({
   text: { flex: 1, gap: 2 },
   nameRow: { flexDirection: 'row', alignItems: 'baseline', gap: space.sm, flexWrap: 'wrap' },
   name: { fontSize: 17, fontWeight: '700', color: colors.text },
-  verdict: { fontSize: 15, fontWeight: '800' },
+  chip: { fontSize: 14, fontWeight: '800', borderRadius: 999, paddingHorizontal: 10, paddingVertical: 2, overflow: 'hidden' },
 });

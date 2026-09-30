@@ -49,8 +49,8 @@ export const scoreColors: Record<number, string> = {
 export const scoreStrokes: Record<number, string> = {
   1: '#DC2626',
   2: '#D97706',
-  3: '#4D7C0F',
-  4: '#15803D',
+  3: '#5B9A0B',
+  4: '#166534',
 };
 
 export const space = { xs: 4, sm: 8, md: 16, lg: 24, xl: 32 } as const;

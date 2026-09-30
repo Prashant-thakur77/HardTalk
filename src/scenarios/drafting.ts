@@ -2,7 +2,7 @@ import draftsData from '@data/mock/drafts.yaml';
 import { z } from 'zod';
 
 import { config } from '@/config';
-import { isDistressLine, NotScoredForSafety } from '@/safety';
+import { isDistressDocument, NotScoredForSafety } from '@/safety';
 import { trackIdSchema, type TrackId } from '@/tracks/schema';
 
 import { draftSchema, scenarioFromDraft } from './draft';
@@ -31,7 +31,7 @@ export const sampleScenarioId = (track: TrackId) => `custom-sample-${track}`;
 export async function draftScenario(track: TrackId, source: string): Promise<Scenario> {
   // The same on-device check as every spoken line: pasted text that sounds like distress is not
   // drafted, in mock mode or live. The describe form runs the same check before saving.
-  if (isDistressLine(source)) throw new NotScoredForSafety();
+  if (isDistressDocument(source)) throw new NotScoredForSafety();
   if (config.mock) return scenarioFromDraft(sampleFor(track).draft, track, Date.now(), sampleScenarioId(track));
 
   const response = await fetch(`${config.serverUrl}/scenario/draft`, {

@@ -3,9 +3,9 @@
 Live plan for HardTalk. Rewritten from SCORECARD.md at the end of every round, not from the
 previous plan. Every item names the criterion it moves (CLAUDE.md §3).
 
-**Round 14 score: 12/20** (C1 2 · C2 4 · C3 3 · C4 3), flat for the ninth round. Mock mode and the
-code are clean (1,326 tests, five browser flows with zero errors); the score is capped by C1 and C3,
-which only the owner's phone session can move. Round 14's defects D-094..D-100 are fixed or in hand.
+**Round 16 score: 12/20** (C1 2 · C2 4 · C3 3 · C4 3), flat for the eleventh round: mock mode and the
+code hold (1,331+ tests, eight browser flows, zero errors). The cap is C1 and C3, which only the
+owner's phone session moves. The UX judge has the product at 8.5/10 and the UI at 8/10.
 
 ## Now (rounds 13–15): bring the real one, then harden it
 

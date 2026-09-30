@@ -20,7 +20,7 @@ import { Face } from '@/ui/Face';
 import { MockBanner } from '@/ui/MockBanner';
 import { PurchaseNotice } from '@/ui/PurchaseNotice';
 import { Screen } from '@/ui/Screen';
-import { colors, MIN_TARGET, shadow, space, type } from '@/ui/theme';
+import { colors, MIN_TARGET, scoreColors, shadow, space, type } from '@/ui/theme';
 import { TrackTabs } from '@/ui/TrackTabs';
 
 export default function ScenarioList() {
@@ -98,8 +98,8 @@ export default function ScenarioList() {
             </View>
           ) : null}
           {tries > 0 ? (
-            <View style={[styles.chip, styles.chipGood]}>
-              <Text style={[styles.chipText, styles.chipGoodText]}>
+            <View style={styles.chip}>
+              <Text style={[styles.chipText, { color: scoreColors[Math.max(1, Math.round((best / MAX_TOTAL) * 4))] }]}>
                 Best {best}/{MAX_TOTAL}
               </Text>
             </View>
@@ -128,18 +128,7 @@ export default function ScenarioList() {
       <MockBanner compact />
       {last && lastScenario ? (
         <View style={styles.continue}>
-          <View style={styles.continueHead}>
-            <Text style={styles.continueLabel}>Pick up where you left off</Text>
-            {pro ? (
-              <Pressable
-                accessibilityRole="button"
-                accessibilityLabel="Your progress"
-                onPress={() => router.push('/history')}
-                hitSlop={8}>
-                <Text style={styles.headLink}>Your progress ›</Text>
-              </Pressable>
-            ) : null}
-          </View>
+          <Text style={styles.continueLabel}>Pick up where you left off</Text>
           <Text style={styles.continueTitle}>{lastScenario.title}</Text>
           <View style={styles.faces}>
             {peopleIn(lastScenario, last.difficulty).map((person, index) => (
@@ -156,6 +145,15 @@ export default function ScenarioList() {
             hint={lastScenario.title}
             onPress={() => void startSession(lastScenario.id, last.difficulty, last.mode, 'push')}
           />
+          {pro ? (
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Your progress"
+              onPress={() => router.push('/history')}
+              style={styles.progressLink}>
+              <Text style={styles.headLink}>Your progress ›</Text>
+            </Pressable>
+          ) : null}
         </View>
       ) : null}
       {lastOwn ? (
@@ -301,7 +299,6 @@ const styles = StyleSheet.create({
   bring: { backgroundColor: colors.quote, borderRadius: 16, padding: space.md, gap: space.sm },
   continueLabel: { fontSize: 13, fontWeight: '800', color: colors.primary, textTransform: 'uppercase', letterSpacing: 0.5 },
   continueTitle: { fontSize: 18, lineHeight: 24, fontWeight: '700', color: colors.text },
-  continueHead: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: space.sm },
   headLink: { color: colors.primary, fontSize: 15, fontWeight: '700' },
   realOne: {
     backgroundColor: colors.surface,
@@ -316,8 +313,6 @@ const styles = StyleSheet.create({
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: space.xs + 2 },
   chip: { backgroundColor: colors.quote, borderRadius: 999, paddingHorizontal: 10, paddingVertical: 4 },
   chipText: { color: colors.primary, fontSize: 13, fontWeight: '700' },
-  chipGood: { backgroundColor: '#E3F2EA' },
-  chipGoodText: { color: colors.success },
   actions: { gap: space.sm, marginTop: space.sm },
   link: { minHeight: MIN_TARGET, alignItems: 'center', justifyContent: 'center' },
   linkText: { color: colors.primary, fontSize: 16, fontWeight: '600', textDecorationLine: 'underline' },

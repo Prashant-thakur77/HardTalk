@@ -45,6 +45,7 @@ export const mockPurchases: PurchasesProvider = {
           reason: context.reason,
           scenarioTitle: context.scenarioTitle ?? '',
           scoreLine: context.scoreLine ?? '',
+          track: context.track ?? '',
         },
       });
     }),

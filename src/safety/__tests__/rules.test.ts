@@ -3,7 +3,7 @@ import { join } from 'node:path';
 import YAML from 'yaml';
 import { describe, expect, it } from 'vitest';
 
-import { detectDistress, isStopRequest, safetyConfigSchema } from '../rules';
+import { detectDistress, detectDistressInDocument, isStopRequest, safetyConfigSchema } from '../rules';
 
 const config = safetyConfigSchema.parse(
   YAML.parse(readFileSync(join(__dirname, '../../../data/safety.yaml'), 'utf8')),
@@ -591,3 +591,22 @@ describe('data/safety.yaml', () => {
     expect(config.resources.filter((resource) => resource.url).length).toBeGreaterThanOrEqual(3);
   });
 });
+
+describe('detectDistressInDocument (pasted postings, pitches and motions)', () => {
+  it.each([
+    'Registered Nurse, Acute Mental Health. You will care for patients at risk of suicide and self-harm, and write safety plans with them.',
+    'SafeSpace is a suicide prevention startup. Our model flags self-harm risk in student messages and routes them to counsellors. We have 12 campus pilots.',
+    'Motion: This House would require universities to screen every student for suicide risk.',
+    'We built MindSteady, an app for students with anxiety and depression. Our ask is $200k to reach five more campuses.',
+  ])('does not block a document about a hard topic: %s', (text) => {
+    expect(detectDistressInDocument(text, config)).toBe(false);
+  });
+
+  it.each([
+    "We built MindSteady for students. Honestly I don't want to be alive anymore.",
+    "Junior developer role, Harbourline Health. I have the pills ready and I'm going to kill myself tonight.",
+  ])('still catches someone describing their own distress inside a document: %s', (text) => {
+    expect(detectDistressInDocument(text, config)).toBe(true);
+  });
+});
+

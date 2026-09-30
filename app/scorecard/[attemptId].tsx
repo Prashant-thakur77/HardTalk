@@ -105,7 +105,7 @@ export default function Scorecard() {
                 <Text style={styles.fromTo}>
                   {previousScore} → {score}
                 </Text>
-                <Delta before={previousScore} after={score} large />
+                <Delta before={previousScore} after={score} />
               </View>
             ) : null}
           </View>
@@ -135,6 +135,7 @@ export default function Scorecard() {
       <Text style={type.heading} accessibilityRole="header">
         Your four skills
       </Text>
+      {previous ? <Text style={type.caption}>Faint segments are last time; solid ones are what you gained.</Text> : null}
       {track.rubrics.map((dimension) => {
         const result = grade.dimensions[dimension];
         return result ? (
@@ -243,7 +244,7 @@ function WhatChanged({ jump }: { jump: Jump | null }) {
   const thisTime = jump.afterQuote ? `“${jump.afterQuote}”` : 'Nothing the grader could quote.';
   return (
     <View
-      style={[styles.card, styles.changed]}
+      style={styles.card}
       accessible
       accessibilityLabel={`Biggest jump: ${name}, ${jump.before} to ${jump.after}. Last time you said: ${lastTime} This time you said: ${thisTime}`}>
       <Text style={styles.nextLabel}>What changed</Text>
@@ -329,12 +330,12 @@ function DimensionCard({
   );
 }
 
-function Delta({ before, after, large = false }: { before: number; after: number; large?: boolean }) {
+function Delta({ before, after }: { before: number; after: number }) {
   const delta = after - before;
   const color = delta > 0 ? colors.success : delta < 0 ? colors.danger : colors.textMuted;
   return (
     <View style={[styles.delta, { borderColor: color }]}>
-      <Text style={[styles.deltaText, large && styles.deltaLarge, { color }]}>{signed(delta)}</Text>
+      <Text style={[styles.deltaText, { color }]}>{signed(delta)}</Text>
     </View>
   );
 }
@@ -368,7 +369,6 @@ const styles = StyleSheet.create({
     ...shadow,
   },
   next: { backgroundColor: colors.quote, borderColor: colors.quote },
-  changed: { borderColor: colors.success, borderWidth: 1.5 },
   compare: { gap: 2, borderRadius: 10, padding: space.sm + 2, backgroundColor: colors.background },
   compareNow: { backgroundColor: '#EAF5EF' },
   compareLabel: { fontSize: 13, fontWeight: '700', color: colors.textMuted, textTransform: 'uppercase' },
@@ -397,8 +397,7 @@ const styles = StyleSheet.create({
   better: { gap: 4, backgroundColor: '#EAF5EF', borderRadius: 10, padding: space.sm + 4 },
   betterLabel: { fontSize: 13, fontWeight: '700', color: colors.success, textTransform: 'uppercase' },
   delta: { borderWidth: 1.5, borderRadius: 8, paddingHorizontal: 6, paddingVertical: 1, marginLeft: space.xs },
-  deltaText: { fontSize: 15, fontWeight: '700' },
-  deltaLarge: { fontSize: 22 },
+  deltaText: { fontSize: 22, fontWeight: '700' },
   transcript: { gap: space.sm },
   speaker: { fontWeight: '700' },
 });

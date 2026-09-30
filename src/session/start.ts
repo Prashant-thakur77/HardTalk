@@ -27,11 +27,13 @@ export async function startSession(
   router[navigation]({ pathname: '/session/[id]', params: { id: scenarioId, difficulty, mode } });
 }
 
-/** "Create your own scenario" is Pro. Free users see the paywall first; nothing else opens it. */
-/** Opens the custom scenario form on the track the user was browsing, after the paywall if needed. */
+/**
+ * "Create your own scenario" is Pro: free users see the paywall first, with an example from the
+ * track they were browsing. Then the form opens on that track.
+ */
 export async function openCustomScenario(track: TrackId): Promise<void> {
   if (!isPro()) {
-    await presentPaywall(paywallContext('custom_scenario', getAttempts(), titleOf));
+    await presentPaywall({ ...paywallContext('custom_scenario', getAttempts(), titleOf), track });
     if (!isPro()) return;
   }
   router.push({ pathname: '/custom/new', params: { track } });

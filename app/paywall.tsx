@@ -7,6 +7,7 @@ import { paywallCopy } from '@/purchases/copy';
 import { scenarioFromDraft } from '@/scenarios/draft';
 import { sampleFor, sampleScenarioId } from '@/scenarios/drafting';
 import { peopleIn } from '@/scenarios/people';
+import { trackIdSchema } from '@/tracks/schema';
 import { resolveMockPaywall } from '@/purchases/mock';
 import type { PaywallOutcome, PaywallReason } from '@/purchases/types';
 import { Button } from '@/ui/Button';
@@ -20,7 +21,7 @@ import { colors, MIN_TARGET, radius, space, type } from '@/ui/theme';
  * clearly labelled, with nothing charged. Live mode never routes here.
  */
 export default function MockPaywall() {
-  const params = useLocalSearchParams<{ reason: PaywallReason; scenarioTitle: string; scoreLine: string }>();
+  const params = useLocalSearchParams<{ reason: PaywallReason; scenarioTitle: string; scoreLine: string; track: string }>();
   const copy = paywallCopy({
     reason: params.reason === 'custom_scenario' ? 'custom_scenario' : 'session_limit',
     scenarioTitle: params.scenarioTitle || null,
@@ -28,7 +29,7 @@ export default function MockPaywall() {
   });
   const [plan, setPlan] = useState(copy.plans[0]?.id);
   const [restored, setRestored] = useState<string | null>(null);
-  const sample = sampleFor('interview');
+  const sample = sampleFor(trackIdSchema.catch('interview').parse(params.track));
   const examplePeople = peopleIn(scenarioFromDraft(sample.draft, sample.track, 0, sampleScenarioId(sample.track)), 'L1');
   const chosen = copy.plans.find((option) => option.id === plan);
   const resolved = useRef(false);
@@ -51,7 +52,7 @@ export default function MockPaywall() {
       footer={
         <>
           <Button
-            label={`Start Pro · ${chosen?.price ?? ''} (mock)`}
+            label={`Start Pro · ${chosen?.short ?? ''} (mock)`}
             onPress={() => close('purchased')}
           />
           <View style={styles.links}>

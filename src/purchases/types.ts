@@ -1,3 +1,5 @@
+import type { TrackId } from '../tracks/schema';
+
 /** Why the paywall is opening. These are the only two places it ever opens. */
 export type PaywallReason = 'session_limit' | 'custom_scenario';
 
@@ -8,6 +10,8 @@ export interface PaywallContext {
   scenarioTitle: string | null;
   /** e.g. "7 → 14 out of 16" (same difficulty only), or null before any graded attempt on it. */
   scoreLine: string | null;
+  /** The track the user was browsing, so "Create your own" shows an example from it. */
+  track?: TrackId;
 }
 
 export type PaywallOutcome = 'purchased' | 'restored' | 'cancelled' | 'error';

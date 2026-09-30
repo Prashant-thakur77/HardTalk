@@ -161,3 +161,22 @@ export function detectDistress(
   if (!config.distress_ambiguous.some((pattern) => new RegExp(pattern).test(line))) return false;
   return !config.line_idioms.some((idiom) => new RegExp(`^(?:${idiom})$`).test(line));
 }
+
+/** Words only a person speaking about themselves uses: "I", "I'm", "me", "my", "myself"… */
+const FIRST_PERSON = /\b(i|i'm|i've|i'd|i'll|me|my|myself|mine)\b/;
+
+/**
+ * For a pasted document (a job posting, a pitch, a motion) rather than a spoken line. Documents
+ * name hard topics in the third person ("a startup for students who self-harm", "care for
+ * patients at risk of suicide"); people describe their own distress in the first person singular.
+ * So only first-person sentences are checked, each with the same rules as a spoken line.
+ */
+export function detectDistressInDocument(
+  text: string,
+  config: Pick<SafetyConfig, 'distress_explicit' | 'distress_ambiguous' | 'line_idioms'>,
+): boolean {
+  return sentences(text)
+    .filter((sentence) => FIRST_PERSON.test(sentence))
+    .some((sentence) => detectDistress(sentence, config));
+}
+
