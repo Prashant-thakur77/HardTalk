@@ -37,11 +37,7 @@ export function RoomVerdicts({ people, grade, previous, trackRubrics, reduceMoti
   return (
     <View style={styles.card}>
       <Text style={styles.label}>How the room took it</Text>
-      <Text style={type.heading}>
-        {people.length === 1
-          ? `${people[0]!.name}: ${VERDICT[reactions[0]!.now.verdict].label.toLowerCase()}`
-          : `You won over ${won} of ${people.length}`}
-      </Text>
+      {people.length > 1 ? <Text style={type.heading}>You won over {won} of {people.length}</Text> : null}
       {reactions.map(({ person, now, before }) => {
         const basis = now.basis.map((item) => `${rubrics[item.dimension].name} ${item.score}/4`).join(', ');
         const changed = before && before !== now.verdict ? `, was ${VERDICT[before].label.toLowerCase()}` : '';

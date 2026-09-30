@@ -15,11 +15,21 @@ interface RoomProps {
   size?: number;
   /** Names under the faces. Off where the speaker is already named in text nearby. */
   showNames?: boolean;
+  /** Everyone the same size; otherwise the lead persona is drawn a little larger. */
+  uniform?: boolean;
   reduceMotion?: boolean;
 }
 
 /** Everyone in the conversation, side by side, with the speaker animated. Names are in text. */
-export function Room({ people, speaking = null, mood, size = 56, showNames = true, reduceMotion = false }: RoomProps) {
+export function Room({
+  people,
+  speaking = null,
+  mood,
+  size = 56,
+  showNames = true,
+  uniform = false,
+  reduceMotion = false,
+}: RoomProps) {
   return (
     <View style={styles.row}>
       {people.map((person, index) => (
@@ -27,7 +37,7 @@ export function Room({ people, speaking = null, mood, size = 56, showNames = tru
           <Face
             face={person.face}
             mood={mood ?? person.mood}
-            size={index === 0 ? size : Math.round(size * 0.82)}
+            size={index === 0 || uniform ? size : Math.round(size * 0.82)}
             speaking={speaking === person.name}
             reduceMotion={reduceMotion}
           />

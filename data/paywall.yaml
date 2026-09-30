@@ -25,5 +25,5 @@ features:
 # conversation coming up; annual is for people who keep practising.
 plans:
   - { id: annual, label: Annual, price: "$29.99 a year", note: Save 50% }
-  - { id: weekly, label: Interview week, price: "$2.99 for 7 days", note: For one conversation coming up }
+  - { id: weekly, label: Interview week, price: "$2.99 a week", note: "For one conversation coming up. Renews weekly until you cancel" }
   - { id: monthly, label: Monthly, price: "$4.99 a month" }

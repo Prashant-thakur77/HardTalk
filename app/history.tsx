@@ -12,6 +12,21 @@ import { Screen } from '@/ui/Screen';
 import { SkillBar } from '@/ui/SkillBar';
 import { colors, MIN_TARGET, radius, space, type } from '@/ui/theme';
 
+const OUTCOME_STYLE = {
+  well: { color: colors.success, backgroundColor: '#EAF5EF' },
+  mixed: { color: colors.text, backgroundColor: colors.track },
+  not_yet: { color: colors.warning, backgroundColor: colors.notice },
+} as const;
+
+/** "Today", "Yesterday", or the date. */
+function dayLabel(time: number, now = new Date()): string {
+  const day = (date: Date) => new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime();
+  const daysAgo = Math.round((day(now) - day(new Date(time))) / 86_400_000);
+  if (daysAgo === 0) return 'Today';
+  if (daysAgo === 1) return 'Yesterday';
+  return new Date(time).toLocaleDateString();
+}
+
 /**
  * Progress history (Pro): every graded attempt, grouped by conversation, oldest first, with
  * each skill's first score against its latest, so the growth is visible at a glance.
@@ -44,7 +59,9 @@ export default function History() {
               {getScenario(scenarioId)?.title ?? 'Deleted scenario'}
             </Text>
             {outcomes[scenarioId] ? (
-              <Text style={styles.outcome}>The real one: {outcomeLabel(outcomes[scenarioId]!.outcome)}</Text>
+              <Text style={[styles.outcome, OUTCOME_STYLE[outcomes[scenarioId]!.outcome]]}>
+                The real one: {outcomeLabel(outcomes[scenarioId]!.outcome)}
+              </Text>
             ) : null}
             {list.length > 1 ? (
               <View style={styles.progress}>
@@ -91,7 +108,7 @@ export default function History() {
                   <Text style={type.body}>
                     Attempt {attempt.number} · {attempt.difficulty}
                   </Text>
-                  <Text style={type.caption}>{new Date(attempt.createdAt).toLocaleDateString()}</Text>
+                  <Text style={type.caption}>{dayLabel(attempt.createdAt)}</Text>
                 </View>
                 <Text style={styles.score}>
                   {total(attempt.grade)}/{MAX_TOTAL} ›
@@ -125,7 +142,7 @@ const styles = StyleSheet.create({
   score: { fontSize: 17, fontWeight: '700', color: colors.primary },
   progress: { flexDirection: 'row', alignItems: 'baseline', gap: space.sm, flexWrap: 'wrap' },
   pressed: { opacity: 0.6 },
-  outcome: { alignSelf: 'flex-start', fontSize: 14, fontWeight: '700', color: colors.success, backgroundColor: '#EAF5EF', borderRadius: 999, paddingHorizontal: 10, paddingVertical: 4, overflow: 'hidden' },
+  outcome: { alignSelf: 'flex-start', fontSize: 14, fontWeight: '700', borderRadius: 999, paddingHorizontal: 10, paddingVertical: 4, overflow: 'hidden' },
   fromTo: { fontSize: 24, fontWeight: '800', color: colors.text },
   skill: { gap: 4 },
   skillHead: { flexDirection: 'row', justifyContent: 'space-between' },

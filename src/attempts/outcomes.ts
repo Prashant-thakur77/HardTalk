@@ -39,6 +39,14 @@ export async function recordOutcome(scenarioId: string, outcome: Outcome, now = 
   await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(outcomes));
 }
 
+/** Takes an answer back, so it can be given again. */
+export async function clearOutcome(scenarioId: string): Promise<void> {
+  const rest = { ...outcomes };
+  delete rest[scenarioId];
+  publish(rest);
+  await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(outcomes));
+}
+
 /** Deleting practice history deletes these too: they are part of the same private record. */
 export async function deleteAllOutcomes(): Promise<void> {
   publish({});

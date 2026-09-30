@@ -13,7 +13,6 @@ import { difficultySchema, type Difficulty } from '@/scenarios/schema';
 import { startSession } from '@/session/start';
 import { getTrack } from '@/tracks';
 import { Button } from '@/ui/Button';
-import { ChoiceGroup } from '@/ui/ChoiceGroup';
 import { MockBanner } from '@/ui/MockBanner';
 import { PurchaseNotice } from '@/ui/PurchaseNotice';
 import { RoomCard } from '@/ui/RoomCard';
@@ -32,8 +31,7 @@ export default function ScenarioBrief() {
   const { speechRate, reduceMotion } = usePreferences();
   const [difficulty, setDifficulty] = useState<Difficulty>('L1');
   const [mode, setMode] = useState<SessionMode>('voice');
-  // In an interview these facts are your own story, so they start open.
-  const [showFacts, setShowFacts] = useState(() => getScenario(id)?.track === 'interview');
+  const [showFacts, setShowFacts] = useState(false);
 
   if (!scenario) return <Text style={type.body}>Scenario not found.</Text>;
 
@@ -67,10 +65,12 @@ export default function ScenarioBrief() {
         <Text style={styles.label}>Your goal</Text>
         <Text style={styles.goalText}>{scenario.user_goal}</Text>
       </View>
+      <RoomCard people={people} reduceMotion={reduceMotion} />
       <View style={styles.facts}>
         <Pressable
           accessibilityRole="button"
           accessibilityState={{ expanded: showFacts }}
+          aria-expanded={showFacts}
           accessibilityLabel={`What you both know, ${scenario.persona.context.length} facts`}
           onPress={() => setShowFacts((open) => !open)}
           style={styles.factsHead}>
@@ -98,23 +98,25 @@ export default function ScenarioBrief() {
         selected={difficulty}
         onSelect={setDifficulty}
       />
-      <ChoiceGroup label="How do you want to practise?" choices={MODES} selected={mode} onSelect={setMode} horizontal />
-
-      <RoomCard people={people} reduceMotion={reduceMotion} />
+      <Segmented<SessionMode>
+        label="How do you want to practise?"
+        segments={MODES.map((option) => ({ value: option.value, name: option.label, description: option.description }))}
+        selected={mode}
+        onSelect={setMode}
+      />
+      {mode === 'voice' ? (
+        <Segmented
+          label={people.length > 1 ? 'How fast they speak' : `${scenario.persona.name}'s speaking pace`}
+          segments={SPEECH_RATES.map((rate) => ({ value: rate.value, name: rate.label }))}
+          selected={speechRate}
+          onSelect={(rate) => void setSpeechRate(rate)}
+        />
+      ) : null}
       {track.tip ? (
         <View style={styles.goal}>
           <Text style={styles.label}>Tip</Text>
           <Text style={type.body}>{track.tip}</Text>
         </View>
-      ) : null}
-      {mode === 'voice' ? (
-        <ChoiceGroup
-          label={people.length > 1 ? 'How fast they speak' : `${scenario.persona.name}'s speaking pace`}
-          choices={SPEECH_RATES.map((rate) => ({ value: rate.value, label: rate.label }))}
-          selected={speechRate}
-          onSelect={(rate) => void setSpeechRate(rate)}
-          horizontal
-        />
       ) : null}
       <MockBanner
         compact

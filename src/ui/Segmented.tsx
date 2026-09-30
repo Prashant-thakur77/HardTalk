@@ -2,17 +2,17 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { colors, MIN_TARGET, space, type } from './theme';
 
-export interface Segment<T extends string> {
+export interface Segment<T extends string | number> {
   value: T;
-  /** Short line on top, such as "L2". */
-  label: string;
-  /** Name under it, such as "Probing". */
+  /** Optional short line on top, such as "L2". */
+  label?: string;
+  /** The segment's name, such as "Probing". */
   name: string;
   /** Read by screen readers with the choice; shown only for the selected segment. */
-  description: string;
+  description?: string;
 }
 
-interface SegmentedProps<T extends string> {
+interface SegmentedProps<T extends string | number> {
   label: string;
   segments: readonly Segment<T>[];
   selected: T;
@@ -20,7 +20,7 @@ interface SegmentedProps<T extends string> {
 }
 
 /** A compact radio group: equal segments in one row, and only the chosen one explained. */
-export function Segmented<T extends string>({ label, segments, selected, onSelect }: SegmentedProps<T>) {
+export function Segmented<T extends string | number>({ label, segments, selected, onSelect }: SegmentedProps<T>) {
   const chosen = segments.find((segment) => segment.value === selected);
   return (
     <View style={styles.group}>
@@ -32,20 +32,22 @@ export function Segmented<T extends string>({ label, segments, selected, onSelec
           const checked = segment.value === selected;
           return (
             <Pressable
-              key={segment.value}
+              key={String(segment.value)}
               accessibilityRole="radio"
               accessibilityState={{ checked }}
               aria-checked={checked}
-              accessibilityLabel={`${segment.label} · ${segment.name}. ${segment.description}`}
+              accessibilityLabel={[segment.label ? `${segment.label} · ${segment.name}` : segment.name, segment.description]
+                .filter(Boolean)
+                .join('. ')}
               onPress={() => onSelect(segment.value)}
               style={[styles.segment, checked && styles.checked]}>
-              <Text style={[styles.top, checked && styles.onChecked]}>{segment.label}</Text>
+              {segment.label ? <Text style={[styles.top, checked && styles.onChecked]}>{segment.label}</Text> : null}
               <Text style={[styles.name, checked && styles.onChecked]}>{segment.name}</Text>
             </Pressable>
           );
         })}
       </View>
-      {chosen ? <Text style={type.caption}>{chosen.description}</Text> : null}
+      {chosen?.description ? <Text style={type.caption}>{chosen.description}</Text> : null}
     </View>
   );
 }

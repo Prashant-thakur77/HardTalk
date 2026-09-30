@@ -19,6 +19,7 @@ import { useConversation } from '@/session/useConversation';
 import { Button } from '@/ui/Button';
 import { Face } from '@/ui/Face';
 import { MockBanner } from '@/ui/MockBanner';
+import { PurchaseNotice } from '@/ui/PurchaseNotice';
 import { SendIcon } from '@/ui/icons';
 import { Room } from '@/ui/Room';
 import { colors, MIN_TARGET, radius, space, type } from '@/ui/theme';
@@ -207,6 +208,7 @@ export default function Session() {
             </Text>
             <MockBanner compact message={textOnly ? TYPED_MOCK_MESSAGE : undefined} />
           </View>
+          <PurchaseNotice />
           {safetyOffline ? (
             <Text style={type.caption} accessibilityLiveRegion="polite">
               The extra safety check on the server is offline. The on-device checks are still on.

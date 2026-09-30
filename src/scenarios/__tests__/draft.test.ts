@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
-import { draftSamples, sampleFor } from '@/scenarios/drafting';
+import { NotScoredForSafety } from '@/safety';
+import { draftSamples, draftScenario, sampleFor } from '@/scenarios/drafting';
 import { scenarioFromDraft } from '@/scenarios/draft';
 import { peopleIn } from '@/scenarios/people';
 import { scenarios } from '@/scenarios';
@@ -51,6 +52,11 @@ describe('drafted scenarios', () => {
         expect(builtIn.has(name), name).toBe(false);
       }
     }
+  });
+
+  it('never turns pasted text that sounds like distress into a practice', async () => {
+    const pasted = `${sampleFor('workplace').source} I don't want to be alive anymore.`;
+    await expect(draftScenario('workplace', pasted)).rejects.toBeInstanceOf(NotScoredForSafety);
   });
 
   it('finds the sample for a track', () => {

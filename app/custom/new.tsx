@@ -13,6 +13,7 @@ import {
 } from '@/scenarios/custom';
 import { MAX_SOURCE_CHARS, MIN_SOURCE_CHARS } from '@/scenarios/draft';
 import { draftScenario, sampleFor } from '@/scenarios/drafting';
+import { NotScoredForSafety } from '@/safety';
 import { peopleIn } from '@/scenarios/people';
 import type { Scenario } from '@/scenarios/schema';
 import { getTrack, tracks } from '@/tracks';
@@ -76,6 +77,10 @@ export default function NewCustomScenario() {
     try {
       setDraft(await draftScenario(track, source));
     } catch (error) {
+      if (error instanceof NotScoredForSafety) {
+        router.replace('/support');
+        return;
+      }
       setDraftError(error instanceof Error ? error.message : String(error));
     } finally {
       setDrafting(false);
@@ -244,7 +249,7 @@ const styles = StyleSheet.create({
   invalid: { borderColor: colors.danger, borderWidth: 2 },
   fieldError: { color: colors.danger, fontSize: 14, fontWeight: '600' },
   error: { ...type.body, color: colors.danger, fontWeight: '600' },
-  mockNote: { fontSize: 14, lineHeight: 19, fontWeight: '600', color: colors.onNotice, backgroundColor: colors.notice, borderRadius: radius, padding: space.sm },
+  mockNote: { fontSize: 14, lineHeight: 19, color: colors.textMuted, textAlign: 'center' },
   link: { minHeight: MIN_TARGET, justifyContent: 'center', alignItems: 'center' },
   linkText: { color: colors.primary, fontSize: 16, fontWeight: '700' },
 });

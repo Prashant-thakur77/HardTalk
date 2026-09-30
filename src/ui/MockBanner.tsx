@@ -34,6 +34,18 @@ export function MockBanner({ message = DEFAULT_MESSAGE, compact = false }: MockB
       </Pressable>
     );
   }
+  if (compact) {
+    return (
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel={message}
+        accessibilityHint="Folds this note away"
+        onPress={() => setOpen(false)}
+        style={styles.banner}>
+        <Text style={styles.text}>{message}</Text>
+      </Pressable>
+    );
+  }
   return (
     <View style={styles.banner} accessibilityRole="text">
       <Text style={styles.text}>{message}</Text>

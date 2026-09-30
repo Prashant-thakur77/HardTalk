@@ -3,11 +3,9 @@
 Live plan for HardTalk. Rewritten from SCORECARD.md at the end of every round, not from the
 previous plan. Every item names the criterion it moves (CLAUDE.md §3).
 
-**Round 12 score: 12/20** (C1 2 · C2 4 · C3 3 · C4 3), flat for the eighth round. The reviewer
-confirmed the tracks rewrite held: 1,235 tests pass, all four tracks run in mock mode with zero page
-errors, old saved attempts load. Its fixable findings (D-087, D-090 to D-092) are fixed; D-086 is
-fixed by pushing. The score is capped by C1 and C3, which only the owner-side phone session in Next
-can move.
+**Round 14 score: 12/20** (C1 2 · C2 4 · C3 3 · C4 3), flat for the ninth round. Mock mode and the
+code are clean (1,326 tests, five browser flows with zero errors); the score is capped by C1 and C3,
+which only the owner's phone session can move. Round 14's defects D-094..D-100 are fixed or in hand.
 
 ## Now (round 13): bring the real one
 
@@ -36,7 +34,7 @@ page errors; an independent UX re-score.
 
 ## Next
 
-4. **Owner-side, on a phone** [C1] [C3] — create the GitHub remote (D-006); dev build; one
+4. **Owner-side, on a phone** [C1] [C3] — dev build; one
    uncut L2 take; one Test Store purchase and one Restore after reinstall; `pnpm eval` with a key
    and paste the table into EVALS.md; two or three real testers for a quote. This is what closes
    D-001..D-004 and lifts C1 and C3.

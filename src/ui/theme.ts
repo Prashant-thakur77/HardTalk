@@ -13,8 +13,8 @@ export const colors = {
   userBubble: '#2445C8',
   quote: '#EEF1FB',
   success: '#12703F',
-  /** A 3 out of 4: good, and never the blue that means "tap me". */
-  good: '#0F766E',
+  /** A 3 out of 4: on the red → amber → lime → green ramp, and never the blue that means "tap me". */
+  good: '#3F6212',
   warning: '#8A4B00',
   danger: '#B42318',
   notice: '#FFF4D6',

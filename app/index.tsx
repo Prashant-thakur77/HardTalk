@@ -2,13 +2,14 @@ import { router } from 'expo-router';
 import { useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { deleteAllOutcomes, OUTCOMES, outcomeLabel, recordOutcome, useOutcomes } from '@/attempts/outcomes';
+import { clearOutcome, deleteAllOutcomes, OUTCOMES, outcomeLabel, recordOutcome, useOutcomes } from '@/attempts/outcomes';
 import { deleteAllAttempts, getGradedSessionsUsed, useAttempts } from '@/attempts/store';
 import { MAX_TOTAL, totalScore } from '@/grading/rubric.schema';
 import { restorePurchases, usePro } from '@/purchases';
 import { FREE_GRADED_SESSIONS } from '@/purchases/gates';
 import { safety } from '@/safety';
 import { getScenario, scenarios, useCustomScenarios } from '@/scenarios';
+import { isCustomScenario } from '@/scenarios/custom';
 import { peopleIn } from '@/scenarios/people';
 import type { Scenario } from '@/scenarios/schema';
 import { openCustomScenario, startSession } from '@/session/start';
@@ -67,7 +68,7 @@ export default function ScenarioList() {
       <Pressable
         key={scenario.id}
         accessibilityRole="button"
-        accessibilityLabel={`${scenario.title}. ${personaLine}.${tries ? ` ${tries} attempts.` : ''}`}
+        accessibilityLabel={`${scenario.title}. ${personaLine}.${tries ? ` ${tries} ${tries === 1 ? 'attempt' : 'attempts'}.` : ''}`}
         accessibilityHint="Opens the brief and difficulty choice"
         onPress={() => router.push({ pathname: '/scenario/[id]', params: { id: scenario.id } })}
         style={({ pressed }) => [styles.card, pressed && styles.pressed]}>
@@ -145,11 +146,28 @@ export default function ScenarioList() {
             hint={lastScenario.title}
             onPress={() => void startSession(lastScenario.id, last.difficulty, last.mode, 'push')}
           />
-          {outcomes[lastScenario.id] ? (
-            <Text style={type.caption}>The real one: {outcomeLabel(outcomes[lastScenario.id]!.outcome)}</Text>
+          {pro ? (
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Your progress"
+              onPress={() => router.push('/history')}
+              style={styles.progressLink}>
+              <Text style={styles.linkText}>Your progress ›</Text>
+            </Pressable>
+          ) : null}
+          {!isCustomScenario(lastScenario.id) ? null : outcomes[lastScenario.id] ? (
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={`The real one: ${outcomeLabel(outcomes[lastScenario.id]!.outcome)}. Change`}
+              onPress={() => void clearOutcome(lastScenario.id)}
+              style={styles.progressLink}>
+              <Text style={type.caption}>
+                The real one: {outcomeLabel(outcomes[lastScenario.id]!.outcome)} · <Text style={styles.linkText}>Change</Text>
+              </Text>
+            </Pressable>
           ) : (
             <View style={styles.checkin}>
-              <Text style={type.caption}>Had the real one yet? How did it go?</Text>
+              <Text style={type.caption}>When you’ve had the real one, how did it go?</Text>
               <View style={styles.checkinRow}>
                 {OUTCOMES.map((option) => (
                   <Pressable
@@ -193,9 +211,6 @@ export default function ScenarioList() {
       </View>
 
       <View style={styles.actions}>
-        {pro ? (
-          <Button label="Your progress" variant="secondary" onPress={() => router.push('/history')} />
-        ) : null}
         <Pressable
           accessibilityRole="button"
           accessibilityLabel="Restore purchases"
@@ -216,7 +231,7 @@ export default function ScenarioList() {
             }
             onPress={() => void deleteHistory()}
             style={styles.link}>
-            <Text style={[styles.linkText, confirmDelete && styles.danger]}>
+            <Text style={[styles.linkText, styles.muted, confirmDelete && styles.danger]}>
               {confirmDelete ? 'Tap again to delete all transcripts and scores' : 'Delete my practice history'}
             </Text>
           </Pressable>
@@ -262,18 +277,19 @@ const styles = StyleSheet.create({
     gap: space.sm,
     ...shadow,
   },
+  progressLink: { minHeight: MIN_TARGET, justifyContent: 'center', alignItems: 'center' },
   checkin: { gap: space.xs, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.border, paddingTop: space.sm },
   checkinRow: { flexDirection: 'row', flexWrap: 'wrap', gap: space.xs },
   checkinChip: {
     minHeight: MIN_TARGET,
     justifyContent: 'center',
-    paddingHorizontal: space.md,
+    paddingHorizontal: space.sm + 4,
     borderRadius: 999,
     borderWidth: 1.5,
     borderColor: colors.borderStrong,
     backgroundColor: colors.surface,
   },
-  checkinText: { fontSize: 15, fontWeight: '700', color: colors.text },
+  checkinText: { fontSize: 14, fontWeight: '700', color: colors.text },
   bring: { backgroundColor: colors.quote, borderRadius: 16, padding: space.md, gap: space.sm },
   continueLabel: { fontSize: 13, fontWeight: '800', color: colors.primary, textTransform: 'uppercase', letterSpacing: 0.5 },
   continueTitle: { fontSize: 17, fontWeight: '700', color: colors.text },
@@ -287,6 +303,7 @@ const styles = StyleSheet.create({
   actions: { gap: space.sm, marginTop: space.sm },
   link: { minHeight: MIN_TARGET, alignItems: 'center', justifyContent: 'center' },
   linkText: { color: colors.primary, fontSize: 16, fontWeight: '600', textDecorationLine: 'underline' },
+  muted: { color: colors.textMuted },
   danger: { color: colors.danger },
   disclaimer: { textAlign: 'center' },
 });

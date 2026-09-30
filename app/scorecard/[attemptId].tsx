@@ -23,12 +23,16 @@ import { Screen } from '@/ui/Screen';
 import { SkillBar } from '@/ui/SkillBar';
 import { colors, MIN_TARGET, scoreColors, shadow, space, type } from '@/ui/theme';
 
-/** A plain-words read of the total, calibrated to the rubric: most first tries land near 8. */
-function verdict(score: number): string {
+/**
+ * A plain-words read of the total, calibrated to the rubric (most first tries land near 8), and
+ * honest about a retry that went down.
+ */
+function verdict(score: number, previousScore: number | undefined): string {
+  if (previousScore !== undefined && score < previousScore) return 'Lower than last time. See what changed below.';
   if (score >= 14) return 'Strong. This would land.';
   if (score >= 11) return 'Solid. One or two things to sharpen.';
   if (score >= 8) return 'Getting there.';
-  return 'A typical first try.';
+  return previousScore === undefined ? 'A typical first try.' : 'Still early. Start with the open skill.';
 }
 
 function nextLevel(level: Difficulty): Difficulty | null {
@@ -95,7 +99,7 @@ export default function Scorecard() {
           <ScoreRing score={score} max={MAX_TOTAL} previous={previousScore} reduceMotion={reduceMotion} />
           <View style={styles.totalText}>
             <Text style={type.caption}>{scenario.title}</Text>
-            <Text style={styles.verdict}>{verdict(score)}</Text>
+            <Text style={styles.verdict}>{verdict(score, previousScore)}</Text>
             {previousScore !== undefined ? (
               <View style={styles.deltaRow}>
                 <Text style={styles.fromTo}>
@@ -275,32 +279,33 @@ function DimensionCard({
     <View style={styles.card}>
       <Pressable
         onPress={() => setOpen((current) => !current)}
-        style={styles.cardHeader}
+        style={styles.cardHead}
         accessibilityRole="button"
         accessibilityState={{ expanded: open }}
+        aria-expanded={open}
         accessibilityHint={open ? 'Hides the evidence' : 'Shows what you said, why, and a better line'}
         accessibilityLabel={
           previousScore === undefined
             ? `${label}: ${result.score} out of 4`
             : `${label}: ${result.score} out of 4, was ${previousScore}`
         }>
-        <View style={styles.cardTitle}>
-          {startOpen ? <Text style={styles.startHere}>Start here</Text> : null}
-          <Text style={type.heading}>{label}</Text>
-          <Text style={styles.framework}>{rubric.framework.name}</Text>
+        {startOpen ? <Text style={styles.startHere}>Start here</Text> : null}
+        <View style={styles.cardHeader}>
+          <Text style={[type.heading, styles.cardTitle]}>{label}</Text>
+          <View style={styles.scoreRow}>
+            {previousScore !== undefined ? (
+              <>
+                <Text style={[styles.score, { color: scoreColors[previousScore] }]}>{previousScore}</Text>
+                <Text style={styles.arrow}>→</Text>
+              </>
+            ) : null}
+            <Text style={[styles.score, { color: scoreColors[result.score] }]}>{result.score}</Text>
+            <Text style={styles.scoreMax}>/4</Text>
+            {previousScore !== undefined ? <Delta before={previousScore} after={result.score} /> : null}
+            <Text style={styles.chevron}>{open ? '⌃' : '⌄'}</Text>
+          </View>
         </View>
-        <View style={styles.scoreRow}>
-          {previousScore !== undefined ? (
-            <>
-              <Text style={[styles.score, { color: scoreColors[previousScore] }]}>{previousScore}</Text>
-              <Text style={styles.arrow}>→</Text>
-            </>
-          ) : null}
-          <Text style={[styles.score, { color: scoreColors[result.score] }]}>{result.score}</Text>
-          <Text style={styles.scoreMax}>/4</Text>
-          {previousScore !== undefined ? <Delta before={previousScore} after={result.score} /> : null}
-          <Text style={styles.chevron}>{open ? '⌃' : '⌄'}</Text>
-        </View>
+        <Text style={styles.framework}>{rubric.framework.name}</Text>
       </Pressable>
       <SkillBar score={result.score} previous={previousScore} />
 
@@ -349,7 +354,7 @@ const styles = StyleSheet.create({
   fromTo: { fontSize: 26, fontWeight: '800', color: colors.text },
   stacked: { flexDirection: 'column', alignItems: 'flex-start' },
   footerRow: { flexDirection: 'row', justifyContent: 'space-around' },
-  link: { minHeight: MIN_TARGET, justifyContent: 'center', paddingHorizontal: space.sm },
+  link: { minHeight: MIN_TARGET, justifyContent: 'center', alignItems: 'center', paddingHorizontal: space.sm },
   linkText: { color: colors.primary, fontSize: 16, fontWeight: '700' },
   card: {
     backgroundColor: colors.surface,
@@ -369,8 +374,9 @@ const styles = StyleSheet.create({
   muted: { color: colors.textMuted },
   nowText: { fontSize: 17, lineHeight: 24, fontWeight: '600', color: colors.text },
   nextLabel: { fontSize: 13, fontWeight: '800', color: colors.primary, textTransform: 'uppercase', letterSpacing: 0.5 },
-  cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  cardTitle: { flexShrink: 1, gap: 2 },
+  cardHead: { gap: 2 },
+  cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: space.sm },
+  cardTitle: { flexShrink: 1 },
   framework: { fontSize: 13, color: colors.textMuted },
   scoreRow: { flexDirection: 'row', alignItems: 'center', gap: space.xs },
   score: { fontSize: 26, fontWeight: '700' },

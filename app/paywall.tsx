@@ -1,7 +1,8 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 
+import { restorePurchases } from '@/purchases';
 import { paywallCopy } from '@/purchases/copy';
 import { scenarioFromDraft } from '@/scenarios/draft';
 import { sampleFor, sampleScenarioId } from '@/scenarios/drafting';
@@ -12,7 +13,7 @@ import { Button } from '@/ui/Button';
 import { ChoiceGroup } from '@/ui/ChoiceGroup';
 import { Room } from '@/ui/Room';
 import { Screen } from '@/ui/Screen';
-import { colors, radius, space, type } from '@/ui/theme';
+import { colors, MIN_TARGET, radius, space, type } from '@/ui/theme';
 
 /**
  * Mock-mode stand-in for RevenueCat's paywall: the same copy and the same two entry points,
@@ -26,6 +27,7 @@ export default function MockPaywall() {
     scoreLine: params.scoreLine || null,
   });
   const [plan, setPlan] = useState(copy.plans[0]?.id);
+  const [restored, setRestored] = useState<string | null>(null);
   const sample = sampleFor('interview');
   const examplePeople = peopleIn(scenarioFromDraft(sample.draft, sample.track, 0, sampleScenarioId(sample.track)), 'L1');
   const chosen = copy.plans.find((option) => option.id === plan);
@@ -52,7 +54,23 @@ export default function MockPaywall() {
             label={`Start Pro, ${chosen?.label.toLowerCase() ?? 'annual'} (mock purchase)`}
             onPress={() => close('purchased')}
           />
-          <Button label="Not now" variant="secondary" onPress={() => close('cancelled')} />
+          <View style={styles.links}>
+            <Pressable accessibilityRole="button" accessibilityLabel="Not now" onPress={() => close('cancelled')} style={styles.link}>
+              <Text style={styles.linkText}>Not now</Text>
+            </Pressable>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Restore purchases"
+              onPress={() => void restorePurchases().then(setRestored)}
+              style={styles.link}>
+              <Text style={styles.linkText}>Restore purchases</Text>
+            </Pressable>
+          </View>
+          {restored ? (
+            <Text style={type.caption} accessibilityLiveRegion="polite">
+              {restored}
+            </Text>
+          ) : null}
         </>
       }>
       <View style={styles.notice} accessibilityRole="text">
@@ -68,7 +86,7 @@ export default function MockPaywall() {
       {params.reason === 'custom_scenario' ? (
         <View style={styles.example}>
           <Text style={styles.exampleLabel}>For example, from {sample.label.toLowerCase()}</Text>
-          <Room people={examplePeople} size={44} />
+          <Room people={examplePeople} size={44} uniform />
           {examplePeople.map((person) => (
             <Text key={person.name} style={type.caption}>
               {person.name} will ask about {person.asksAbout[0]?.toLowerCase()}
@@ -90,9 +108,10 @@ export default function MockPaywall() {
 
       <View style={styles.features}>
         {copy.features.map((feature) => (
-          <Text key={feature} style={type.body}>
-            ✓ {feature}
-          </Text>
+          <View key={feature} style={styles.feature}>
+            <Text style={styles.tick}>✓</Text>
+            <Text style={[type.body, styles.featureText]}>{feature}</Text>
+          </View>
         ))}
       </View>
     </Screen>
@@ -106,4 +125,10 @@ const styles = StyleSheet.create({
   noticeText: { color: colors.onNotice, fontSize: 14, lineHeight: 19, fontWeight: '500' },
   score: { fontSize: 17, fontWeight: '700', color: colors.text },
   features: { gap: space.xs },
+  feature: { flexDirection: 'row', gap: space.sm },
+  tick: { fontSize: 17, fontWeight: '800', color: colors.success, lineHeight: 23 },
+  featureText: { flex: 1 },
+  links: { flexDirection: 'row', justifyContent: 'space-around' },
+  link: { minHeight: MIN_TARGET, justifyContent: 'center', paddingHorizontal: space.sm },
+  linkText: { color: colors.primary, fontSize: 16, fontWeight: '700' },
 });

@@ -2,6 +2,7 @@ import draftsData from '@data/mock/drafts.yaml';
 import { z } from 'zod';
 
 import { config } from '@/config';
+import { isDistressLine, NotScoredForSafety } from '@/safety';
 import { trackIdSchema, type TrackId } from '@/tracks/schema';
 
 import { draftSchema, scenarioFromDraft } from './draft';
@@ -28,6 +29,9 @@ export const sampleScenarioId = (track: TrackId) => `custom-sample-${track}`;
  * for this track's sample, whatever was pasted, so the screen says so.
  */
 export async function draftScenario(track: TrackId, source: string): Promise<Scenario> {
+  // The same on-device check as every spoken line: text that sounds like distress is never
+  // turned into a roleplay, in mock mode or live.
+  if (isDistressLine(source)) throw new NotScoredForSafety();
   if (config.mock) return scenarioFromDraft(sampleFor(track).draft, track, Date.now(), sampleScenarioId(track));
 
   const response = await fetch(`${config.serverUrl}/scenario/draft`, {
@@ -35,7 +39,8 @@ export async function draftScenario(track: TrackId, source: string): Promise<Sce
     headers: { 'content-type': 'application/json' },
     body: JSON.stringify({ track, source }),
   });
-  const body = (await response.json()) as { scenario?: unknown; error?: string };
+  const body = (await response.json()) as { scenario?: unknown; error?: string; safety?: boolean };
+  if (body.safety) throw new NotScoredForSafety();
   if (!response.ok) throw new Error(body.error ?? `Drafting failed (${response.status}).`);
   return scenarioSchema.parse(body.scenario);
 }
