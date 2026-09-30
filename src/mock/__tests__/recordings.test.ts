@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import { scoredDimensions, totalScore } from '@/grading/rubric.schema';
 import { userText } from '@/grading/transcript';
-import { getRecording } from '@/mock/recordings';
+import { getRecording, matchesRecording } from '@/mock/recordings';
 import { isDistressLine, isStopLine } from '@/safety';
 import { scenarios } from '@/scenarios';
 import { scenarioFromDraft } from '@/scenarios/draft';
@@ -58,4 +58,12 @@ describe('mock recordings', () => {
       expect(totalScore(getRecording(scenario.id, 2).grade)).toBeGreaterThan(totalScore(getRecording(scenario.id, 1).grade));
     });
   }
+
+  it('only treats a typed conversation as the recording when every user line is the recorded one', () => {
+    const recorded = getRecording('pr-blocking-release', 1).turns;
+    expect(matchesRecording('pr-blocking-release', 1, recorded)).toBe(true);
+    const own = recorded.map((turn) => (turn.speaker === 'user' ? { ...turn, text: 'My own words.' } : turn));
+    expect(matchesRecording('pr-blocking-release', 1, own)).toBe(false);
+    expect(matchesRecording('pr-blocking-release', 1, recorded.slice(0, 2))).toBe(false);
+  });
 });

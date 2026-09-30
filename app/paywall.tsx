@@ -4,9 +4,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { restorePurchases } from '@/purchases';
 import { paywallCopy } from '@/purchases/copy';
-import { scenarioFromDraft } from '@/scenarios/draft';
-import { sampleFor, sampleScenarioId } from '@/scenarios/drafting';
-import { peopleIn } from '@/scenarios/people';
+import { samplePanel } from '@/scenarios/drafting';
 import { trackIdSchema } from '@/tracks/schema';
 import { resolveMockPaywall } from '@/purchases/mock';
 import type { PaywallOutcome, PaywallReason } from '@/purchases/types';
@@ -29,8 +27,7 @@ export default function MockPaywall() {
   });
   const [plan, setPlan] = useState(copy.plans[0]?.id);
   const [restored, setRestored] = useState<string | null>(null);
-  const sample = sampleFor(trackIdSchema.catch('interview').parse(params.track));
-  const examplePeople = peopleIn(scenarioFromDraft(sample.draft, sample.track, 0, sampleScenarioId(sample.track)), 'L1');
+  const { label: sampleLabel, people: examplePeople } = samplePanel(trackIdSchema.catch('interview').parse(params.track));
   const chosen = copy.plans.find((option) => option.id === plan);
   const resolved = useRef(false);
 
@@ -80,14 +77,14 @@ export default function MockPaywall() {
           Mock paywall. The live app shows RevenueCat&apos;s paywall with this copy. Nothing is charged here.
         </Text>
       </View>
-      <Text style={type.title} accessibilityRole="header">
+      <Text style={styles.headline} accessibilityRole="header">
         {copy.headline}
       </Text>
       <Text style={type.body}>{copy.body}</Text>
       {copy.score ? <Text style={styles.score}>{copy.score}</Text> : null}
       {params.reason === 'custom_scenario' ? (
         <View style={styles.example}>
-          <Text style={styles.exampleLabel}>For example, from {sample.label.toLowerCase()}</Text>
+          <Text style={styles.exampleLabel}>For example, from {sampleLabel.toLowerCase()}</Text>
           <Room people={examplePeople} size={44} uniform />
           {examplePeople.map((person) => (
             <Text key={person.name} style={type.caption}>
@@ -126,6 +123,7 @@ const styles = StyleSheet.create({
   notice: { backgroundColor: colors.notice, borderRadius: radius, padding: space.sm + 4 },
   noticeText: { color: colors.onNotice, fontSize: 14, lineHeight: 19, fontWeight: '500' },
   score: { fontSize: 17, fontWeight: '700', color: colors.text },
+  headline: { fontSize: 26, lineHeight: 32, fontWeight: '800', color: colors.text },
   features: { gap: space.xs },
   feature: { flexDirection: 'row', gap: space.sm },
   tick: { fontSize: 17, fontWeight: '800', color: colors.success, lineHeight: 23 },

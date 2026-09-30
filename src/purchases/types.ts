@@ -12,6 +12,8 @@ export interface PaywallContext {
   scoreLine: string | null;
   /** The track the user was browsing, so "Create your own" shows an example from it. */
   track?: TrackId;
+  /** That example in one line, for RevenueCat's paywall: the panel drafted from a sample. */
+  example?: string;
 }
 
 export type PaywallOutcome = 'purchased' | 'restored' | 'cancelled' | 'error';

@@ -36,11 +36,11 @@ const MODES = [
 ] as const;
 
 const FIELDS: { key: Field; label: string; placeholder: string }[] = [
-  { key: 'title', label: 'What is the conversation?', placeholder: 'e.g. Ask my lead for a raise' },
+  { key: 'title', label: 'What is the conversation?', placeholder: 'e.g. Ask for a raise, or defend my thesis' },
   { key: 'personaName', label: 'Who is it with?', placeholder: 'e.g. Dana' },
-  { key: 'personaRole', label: 'Their role', placeholder: 'e.g. Engineering lead' },
-  { key: 'userGoal', label: 'What do you need from them?', placeholder: 'e.g. A clear answer before the review cycle' },
-  { key: 'pushback', label: 'What pushback do you expect?', placeholder: 'e.g. Budgets are frozen until next year' },
+  { key: 'personaRole', label: 'Their role', placeholder: 'e.g. Engineering lead, or angel investor' },
+  { key: 'userGoal', label: 'What do you need from them?', placeholder: 'e.g. A clear yes, or a second meeting' },
+  { key: 'pushback', label: 'What pushback do you expect?', placeholder: 'e.g. Budgets are frozen, or we have seen this before' },
 ];
 
 /**

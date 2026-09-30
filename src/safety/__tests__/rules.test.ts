@@ -518,6 +518,9 @@ describe('accepted false positives', () => {
     'It hit me hard.',
     'This scope change pushed me to the limit.',
     'QA is having a panic attack about Friday.',
+    // A spoken line is checked as a line, not as a document: a founder pitching a wellbeing
+    // product out loud pauses the practice. Pasted pitches are drafted (detectDistressInDocument).
+    'Our model flags suicide risk in student messages.',
     'Alex is going to have a panic attack when he sees the burndown.',
     // Idioms that no whole-line template covers, so they pause the practice.
     'It hit me last night that we never scoped it.',
@@ -598,6 +601,8 @@ describe('detectDistressInDocument (pasted postings, pitches and motions)', () =
     'SafeSpace is a suicide prevention startup. Our model flags self-harm risk in student messages and routes them to counsellors. We have 12 campus pilots.',
     'Motion: This House would require universities to screen every student for suicide risk.',
     'We built MindSteady, an app for students with anxiety and depression. Our ask is $200k to reach five more campuses.',
+    'Our Phase I pilot, i.e. twelve campuses, cut reported self-harm incidents among students by a third.',
+    'Clinical Nurse\nCare for patients at risk of suicide\nWrite safety plans with the team',
   ])('does not block a document about a hard topic: %s', (text) => {
     expect(detectDistressInDocument(text, config)).toBe(false);
   });
@@ -605,6 +610,7 @@ describe('detectDistressInDocument (pasted postings, pitches and motions)', () =
   it.each([
     "We built MindSteady for students. Honestly I don't want to be alive anymore.",
     "Junior developer role, Harbourline Health. I have the pills ready and I'm going to kill myself tonight.",
+    "Honestly, don't want to be alive anymore. Going to end it all tonight, the pills are ready.",
   ])('still catches someone describing their own distress inside a document: %s', (text) => {
     expect(detectDistressInDocument(text, config)).toBe(true);
   });

@@ -12,15 +12,16 @@ Restore purchases is on the home screen, and the entitlement listener in `src/pu
 ## Dashboard steps
 
 1. Create a project and add the Test Store app. Copy its public API key (it starts with `test_`).
-2. Products: create `hardtalk_pro_weekly` ($2.99 a week), `hardtalk_pro_monthly` ($4.99 a month) and `hardtalk_pro_annual` ($29.99 a year) in the Test Store, all attached to the `pro` entitlement. The weekly plan is the "Interview week": practice comes in bursts before one real conversation, so it matches how people actually need Pro.
+2. Products: create `hardtalk_pro_weekly` ($2.99 a week), `hardtalk_pro_monthly` ($4.99 a month) and `hardtalk_pro_annual` ($29.99 a year) in the Test Store, all attached to the `pro` entitlement. The weekly plan is the "One-week pass": practice comes in bursts before one real conversation, so it matches how people actually need Pro.
 3. Entitlements: create `pro` and attach all three products.
-4. Offerings: make `default` the current offering, with a Weekly package (`$rc_weekly`), a Monthly package (`$rc_monthly`) and an Annual package (`$rc_annual`). On the V2 paywall, label the weekly one "Interview week".
+4. Offerings: make `default` the current offering, with a Weekly package (`$rc_weekly`), a Monthly package (`$rc_monthly`) and an Annual package (`$rc_annual`). On the V2 paywall, label the weekly one "One-week pass".
 5. Paywalls: create one V2 paywall on `default`. The app writes the words for each moment from `data/paywall.yaml` and passes them as custom variables, so this one paywall says the right thing at both entry points. Add these custom variables, with the defaults shown:
 
    | Variable | Default | Filled with |
    | --- | --- | --- |
    | `headline` | `HardTalk Pro` | "Keep practising "…"" or "Rehearse the conversation you're actually dreading" |
    | `body` | `Unlimited practice, your own scenarios, and your progress over time.` | The reason-specific line |
+   | `example` | leave empty | At "Create your own": a panel drafted from a sample of the track the user was browsing, in one line. Empty at the session limit |
    | `score_line` | leave empty | "Your score on it so far: 7 → 14 out of 16." or empty on a fresh install |
 
    Lay the paywall out as: headline `{{ custom.headline }}`, body `{{ custom.body }}`, a highlighted line `{{ custom.score_line }}`, then the three features (Unlimited graded sessions and retries; A panel built from your real job posting, pitch or motion; Progress history across every attempt) and the three packages. `scenario_title` and `reason` are also sent, if you want them in the layout.

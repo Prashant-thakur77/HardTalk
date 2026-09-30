@@ -51,6 +51,7 @@ export function createRevenueCat(apiKey: string): PurchasesProvider {
           score_line: CustomVariableValue.string(copy.score ?? ''),
           scenario_title: CustomVariableValue.string(context.scenarioTitle ?? ''),
           reason: CustomVariableValue.string(context.reason),
+          example: CustomVariableValue.string(context.example ?? ''),
         },
       });
       return OUTCOMES[result];

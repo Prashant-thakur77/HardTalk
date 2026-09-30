@@ -159,9 +159,11 @@ export default function ScenarioList() {
       {lastOwn ? (
         <View style={styles.realOne}>
           <Text style={styles.continueLabel}>The real one</Text>
-          <Text style={type.body} numberOfLines={2}>
-            {lastOwn.title}
-          </Text>
+          {lastOwn.id === lastScenario?.id ? null : (
+            <Text style={type.body} numberOfLines={2}>
+              {lastOwn.title}
+            </Text>
+          )}
           {outcomes[lastOwn.id] ? (
             <Pressable
               accessibilityRole="button"

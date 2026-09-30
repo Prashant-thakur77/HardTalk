@@ -20,6 +20,7 @@ import { config } from '@/config';
 import { gradeConversation } from '@/grading';
 import type { Turn } from '@/grading/transcript';
 import { checkDistressRemotely, isDistressLine, isStopLine, NotScoredForSafety } from '@/safety';
+import { matchesRecording } from '@/mock/recordings';
 import { getScenario } from '@/scenarios';
 import { peopleIn } from '@/scenarios/people';
 import { difficultySchema } from '@/scenarios/schema';
@@ -42,7 +43,7 @@ const IOS_NAV_BAR = 44;
 const LINE = 23;
 
 const TYPED_MOCK_MESSAGE =
-  'Mock mode, typed: the persona and the grade are recorded, so the recorded line (one tap away) is what scores here, and your own words score lower. Live mode answers and grades your own words. Type “stop” to end without a score.';
+  'Mock mode, typed: the persona and the grade are recorded, so only the recorded lines (one tap away) are scored here; a conversation in your own words is not scored or counted. Live mode answers and grades your own words. Type “stop” to end without a score.';
 
 /** `speakerName` is whoever in the room holds the floor: the lead persona or a panelist. */
 function statusLabel(state: SessionState, speakerName: string, textOnly: boolean): string {
@@ -74,6 +75,7 @@ export default function Session() {
   const { width } = useWindowDimensions();
   const [grading, setGrading] = useState(false);
   const [gradeError, setGradeError] = useState<string | null>(null);
+  const [ungradable, setUngradable] = useState(false);
   const [draft, setDraft] = useState('');
   const [suggestion, setSuggestion] = useState<string | null>(null);
   const [inputHeight, setInputHeight] = useState(2 * LINE);
@@ -132,6 +134,12 @@ export default function Session() {
     onEnd: (reason, transcript) => {
       turnHaptic('ended');
       if (reason === 'user_stopped') return;
+      // Mock mode can only grade the recorded lines: a typed conversation in your own words is
+      // not given the recording's grade, and does not use a free session.
+      if (config.mock && textOnly && !matchesRecording(scenario?.id ?? '', attempt, transcript)) {
+        setUngradable(true);
+        return;
+      }
       ended.current = { reason, transcript };
       score();
     },
@@ -212,9 +220,9 @@ export default function Session() {
               {width >= 360
                 ? Array.from({ length: scenario.max_user_turns }, (_, index) => (
                     <View
-                  key={index}
-                  style={[styles.dot, index < userTurns && styles.dotDone, index === userTurns && styles.dotNow]}
-                />
+                      key={index}
+                      style={[styles.dot, index < userTurns && styles.dotDone, index === userTurns && styles.dotNow]}
+                    />
                   ))
                 : null}
             </View>
@@ -275,6 +283,15 @@ export default function Session() {
               <Button label="Try scoring again" onPress={score} />
               <Button label="Back to conversations" variant="secondary" onPress={() => router.dismissTo('/')} />
             </>
+          ) : ungradable ? (
+            <>
+              <Text style={type.body} accessibilityLiveRegion="polite">
+                Mock mode can only grade the recorded lines, and you used your own words, so this wasn’t scored or
+                counted. Live mode grades what you actually say.
+              </Text>
+              <Button label="Try again" onPress={() => void startSession(scenario.id, difficulty, mode, 'replace')} />
+              <Button label="Back to conversations" variant="secondary" onPress={() => router.dismissTo('/')} />
+            </>
           ) : stoppedEarly ? (
             <>
               <Text style={type.body} accessibilityLiveRegion="polite">
@@ -311,7 +328,9 @@ export default function Session() {
                     </Pressable>
                   ) : null}
                   {config.mock ? (
-                    <Text style={type.caption}>In mock mode the replies follow the recording, whatever you type.</Text>
+                    <Text style={type.caption}>
+                      In mock mode the replies follow the recording, and only the recorded lines are scored.
+                    </Text>
                   ) : null}
                   <View style={styles.composer}>
                     <View style={styles.inputBox}>

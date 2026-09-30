@@ -7,7 +7,7 @@ previous plan. Every item names the criterion it moves (CLAUDE.md §3).
 code hold (1,331+ tests, eight browser flows, zero errors). The cap is C1 and C3, which only the
 owner's phone session moves. The UX judge has the product at 8.5/10 and the UI at 8/10.
 
-## Now (rounds 13–15): bring the real one, then harden it
+## Now (rounds 13–17): bring the real one, then harden it
 
 Evidence from past winners (Shipaton 2025: Payout, Heartbeat Hero; Gemini API Competition:
 Vite Vere) is that entries win by helping one person with their own real problem. HardTalk made

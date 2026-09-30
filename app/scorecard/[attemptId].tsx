@@ -20,7 +20,7 @@ import { PurchaseNotice } from '@/ui/PurchaseNotice';
 import { RoomVerdicts } from '@/ui/RoomVerdicts';
 import { ScoreRing } from '@/ui/ScoreRing';
 import { Screen } from '@/ui/Screen';
-import { SkillBar } from '@/ui/SkillBar';
+import { SKILL_KEY, SkillBar } from '@/ui/SkillBar';
 import { colors, MIN_TARGET, scoreColors, shadow, space, type } from '@/ui/theme';
 
 /**
@@ -135,7 +135,7 @@ export default function Scorecard() {
       <Text style={type.heading} accessibilityRole="header">
         Your four skills
       </Text>
-      {previous ? <Text style={type.caption}>Faint segments are last time; solid ones are what you gained.</Text> : null}
+      {previous ? <Text style={type.caption}>{SKILL_KEY}</Text> : null}
       {track.rubrics.map((dimension) => {
         const result = grade.dimensions[dimension];
         return result ? (
@@ -152,7 +152,7 @@ export default function Scorecard() {
         compact
         message={
           attempt.mode === 'text'
-            ? 'Mock mode: this is the recorded grade, checked against what you typed. It cannot grade new words, so any line you changed scores lower here. Live mode grades what you type.'
+            ? 'Mock mode: this is the recorded grade for the recorded lines you sent, checked against them. Live mode grades what you type.'
             : 'Mock mode: this is the recorded example grade for this replay, checked against the transcript below. Live mode grades what you actually say.'
         }
       />
@@ -332,6 +332,7 @@ function DimensionCard({
 
 function Delta({ before, after }: { before: number; after: number }) {
   const delta = after - before;
+  if (delta === 0) return null;
   const color = delta > 0 ? colors.success : delta < 0 ? colors.danger : colors.textMuted;
   return (
     <View style={[styles.delta, { borderColor: color }]}>

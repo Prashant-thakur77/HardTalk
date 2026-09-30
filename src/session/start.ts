@@ -7,6 +7,7 @@ import { paywallContext, shouldGateNewSession } from '@/purchases/gates';
 import { getScenario } from '@/scenarios';
 import type { Difficulty } from '@/scenarios/schema';
 import type { TrackId } from '@/tracks/schema';
+import { sampleLine } from '@/scenarios/drafting';
 
 const titleOf = (id: string) => getScenario(id)?.title ?? 'this conversation';
 
@@ -33,7 +34,7 @@ export async function startSession(
  */
 export async function openCustomScenario(track: TrackId): Promise<void> {
   if (!isPro()) {
-    await presentPaywall({ ...paywallContext('custom_scenario', getAttempts(), titleOf), track });
+    await presentPaywall({ ...paywallContext('custom_scenario', getAttempts(), titleOf), track, example: sampleLine(track) });
     if (!isPro()) return;
   }
   router.push({ pathname: '/custom/new', params: { track } });

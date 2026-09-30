@@ -6,6 +6,7 @@ import { isDistressDocument, NotScoredForSafety } from '@/safety';
 import { trackIdSchema, type TrackId } from '@/tracks/schema';
 
 import { draftSchema, scenarioFromDraft } from './draft';
+import { peopleIn } from './people';
 import { scenarioSchema, type Scenario } from './schema';
 
 const samplesSchema = z.object({
@@ -19,6 +20,19 @@ export function sampleFor(track: TrackId) {
   const sample = draftSamples.find((candidate) => candidate.track === track);
   if (!sample) throw new Error(`No sample draft for track "${track}"`);
   return sample;
+}
+
+/** The sample panel for a track, as the people in it and what each will ask about. */
+export function samplePanel(track: TrackId) {
+  const sample = sampleFor(track);
+  return { label: sample.label, people: peopleIn(scenarioFromDraft(sample.draft, track, 0, sampleScenarioId(track)), 'L1') };
+}
+
+/** One line for a paywall that cannot draw faces: "From a debate society motion: Elena asks about…". */
+export function sampleLine(track: TrackId): string {
+  const { label, people } = samplePanel(track);
+  const asks = people.map((person) => `${person.name} asks about ${person.asksAbout[0]?.toLowerCase() ?? 'your answers'}`);
+  return `For example, from ${label.charAt(0).toLowerCase()}${label.slice(1)}: ${asks.join('; ')}.`;
 }
 
 /** Mock mode's drafted sample keeps one id per track, so its recorded replay can be found. */

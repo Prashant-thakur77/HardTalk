@@ -2,6 +2,9 @@ import { StyleSheet, View } from 'react-native';
 
 import { colors, scoreStrokes } from './theme';
 
+/** How to read a bar after a retry. Shown wherever bars compare two tries. */
+export const SKILL_KEY = 'Faint steps you already had last time, solid steps are new, dashed steps were lost.';
+
 /**
  * Four steps for a 1–4 score. After a retry, what you already had is drawn faint and the gain in
  * full colour; a drop shows the lost steps outlined.

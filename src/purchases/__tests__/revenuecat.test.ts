@@ -74,6 +74,7 @@ describe('RevenueCat provider', () => {
         score_line: { type: 'string', value: 'Your score on it so far: 6 → 14 out of 16.' },
         scenario_title: { type: 'string', value: "Your teammate's PR is blocking the release" },
         reason: { type: 'string', value: 'session_limit' },
+        example: { type: 'string', value: '' },
       },
     });
   });

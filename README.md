@@ -13,7 +13,7 @@ You say it out loud to a room of AI personas who push back, each with their own 
 - **Bring the real one (Pro).** Paste the job posting you are applying to, your pitch, or the motion, and HardTalk drafts a panel for that exact moment: who is in the room, what each will push on, and what you need to leave with.
 - **The whole loop works with a screen reader and no audio**, and saying "stop" ends it at once, unscored.
 
-![HardTalk in mock mode: a pitch panel of Maya, Leo and Kenji; the retry goes from 6 to 14 and wins over all three; then a pasted job posting becomes a new panel](docs/demo.gif)
+![HardTalk in mock mode: a pitch panel of Maya, Leo and Kenji; the retry goes from 6 to 14 and wins over all three; then a pasted pitch becomes a new panel](docs/demo.gif)
 
 ## Who it is for, and why it matters
 
@@ -31,7 +31,7 @@ You say it out loud to a room of AI personas who push back, each with their own 
 | [PitchDesk](https://pitchdesk.in/) | AI investor panel for pitches | Per-minute packs | Also interviews, debates and work; evidence-checked scores |
 | [Big Interview](https://www.biginterview.com/pricing/personal) | Video lessons and AI feedback | $39 a month | A live, voiced conversation that pushes back |
 
-**Business model.** Free: every built-in scenario and three graded sessions. Pro through RevenueCat: an **Interview week** plan ($2.99 a week, renewing until you cancel) for one real conversation coming up, because practice comes in bursts; monthly ($4.99) and annual ($29.99) for people who keep practising. That is below the Education category's median prices ($9.99 a month, $44.99 a year) in RevenueCat's [State of Subscription Apps 2026](https://www.revenuecat.com/state-of-subscription-apps-2026-education), which also puts freemium apps at about 2.1% of downloads converting to paid within 35 days: the number to beat.
+**Business model.** Free: every built-in scenario and three graded sessions. Pro through RevenueCat: a **One-week pass** ($2.99 a week, renewing until you cancel) for one real conversation coming up, because practice comes in bursts; monthly ($4.99) and annual ($29.99) for people who keep practising. That is below the Education category's median prices ($9.99 a month, $44.99 a year) in RevenueCat's [State of Subscription Apps 2026](https://www.revenuecat.com/state-of-subscription-apps-2026-education), which also puts freemium apps at about 2.1% of downloads converting to paid within 35 days: the number to beat.
 
 **Closing the loop.** After you practise one of your own scenarios, the app asks how the real conversation went (it went well, mixed, not this time), and your progress shows it beside your scores. It stays on the device.
 
@@ -79,7 +79,7 @@ flowchart LR
 
 The app never holds a provider key. `/server` mints a short-lived ElevenLabs conversation token and runs the grader. The persona and the grader are deliberately different model families (Gemini inside ElevenLabs, Claude for grading), so the grader never marks its own roleplay.
 
-Scores have to be grounded. `src/grading/evidence.ts` checks that every quote behind a score above 1 appears in one of the user's own turns as whole words, and is either a full sentence or at least three words long. The grader gets one retry with the bad quotes named; anything still ungrounded is lowered to 1 and the scorecard says why. Mock mode runs its recorded grades through the same check. You can watch it in typed mode: rewrite a prefilled line and its quotes disappear from the scorecard; a score left with no quote you actually said drops to 1, because a recorded grade has no evidence for words it never saw. A score that still has another real quote keeps it. Only live mode can grade a better line.
+Scores have to be grounded. `src/grading/evidence.ts` checks that every quote behind a score above 1 appears in one of the user's own turns as whole words, and is either a full sentence or at least three words long. The grader gets one retry with the bad quotes named; anything still ungrounded is lowered to 1 and the scorecard says why. Mock mode runs its recorded grades through the same check. A recorded grade only describes the recorded lines, so a typed mock conversation in your own words is not scored at all, and does not use a free session; only live mode grades your own words.
 
 ## Where to look
 
