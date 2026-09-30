@@ -15,3 +15,9 @@ key_line:
   from: ask_made
 custom_opening_line: Hey, you wanted to talk?
 paste_label: "Describe the situation in your own words: who, what happened, and what you need."
+describe_examples:
+  title: "Ask my lead for a raise"
+  name: "Dana"
+  role: "Engineering lead"
+  goal: "A clear answer before the review cycle"
+  pushback: "Budgets are frozen until next year"

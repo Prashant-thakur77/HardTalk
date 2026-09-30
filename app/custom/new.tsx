@@ -17,7 +17,7 @@ import { isDistressLine, NotScoredForSafety } from '@/safety';
 import { peopleIn } from '@/scenarios/people';
 import type { Scenario } from '@/scenarios/schema';
 import { getTrack, tracks } from '@/tracks';
-import { trackIdSchema, type TrackId } from '@/tracks/schema';
+import { trackIdSchema, type Track, type TrackId } from '@/tracks/schema';
 import { Button } from '@/ui/Button';
 import { Segmented } from '@/ui/Segmented';
 import { MockBanner } from '@/ui/MockBanner';
@@ -35,12 +35,13 @@ const MODES = [
   { value: 'describe', label: 'Describe it', description: 'Answer five short questions instead.' },
 ] as const;
 
-const FIELDS: { key: Field; label: string; placeholder: string }[] = [
-  { key: 'title', label: 'What is the conversation?', placeholder: 'e.g. Ask for a raise, or defend my thesis' },
-  { key: 'personaName', label: 'Who is it with?', placeholder: 'e.g. Dana' },
-  { key: 'personaRole', label: 'Their role', placeholder: 'e.g. Engineering lead, or angel investor' },
-  { key: 'userGoal', label: 'What do you need from them?', placeholder: 'e.g. A clear yes, or a second meeting' },
-  { key: 'pushback', label: 'What pushback do you expect?', placeholder: 'e.g. Budgets are frozen, or we have seen this before' },
+/** The five answers; each placeholder is an example from the chosen track (data/tracks/*.yaml). */
+const FIELDS: { key: Field; label: string; example: keyof Track['describe_examples'] }[] = [
+  { key: 'title', label: 'What is the conversation?', example: 'title' },
+  { key: 'personaName', label: 'Who is it with?', example: 'name' },
+  { key: 'personaRole', label: 'Their role', example: 'role' },
+  { key: 'userGoal', label: 'What do you need from them?', example: 'goal' },
+  { key: 'pushback', label: 'What pushback do you expect?', example: 'pushback' },
 ];
 
 /**
@@ -79,11 +80,12 @@ export default function NewCustomScenario() {
     router.replace({ pathname: '/scenario/[id]', params: { id: scenario.id } });
   };
 
-  const build = async () => {
+  const build = async (aboutTopic = false) => {
     setDrafting(true);
     setDraftError(null);
     try {
-      setDraft(await draftScenario(track, source));
+      setDraft(await draftScenario(track, source, aboutTopic));
+      setSafetyHold(false);
     } catch (error) {
       if (error instanceof NotScoredForSafety) {
         holdForSafety();
@@ -95,8 +97,8 @@ export default function NewCustomScenario() {
     }
   };
 
-  const saveDescribed = async () => {
-    if (Object.values(form).some((answer) => isDistressLine(answer))) {
+  const saveDescribed = async (aboutTopic = false) => {
+    if (!aboutTopic && Object.values(form).some((answer) => isDistressLine(answer))) {
       holdForSafety();
       return;
     }
@@ -117,14 +119,19 @@ export default function NewCustomScenario() {
     <View style={styles.hold}>
       <Text style={styles.holdTitle}>This wasn’t turned into a practice</Text>
       <Text style={type.body}>
-        Some of it reads like someone may be in real distress, so nothing was drafted or saved. If it’s about you,
-        support is one tap away. If it’s a topic (a mental-health product, say), reword it and try again.
+        Some of it reads like someone may be in real distress, so nothing was drafted or saved yet. If it’s about you,
+        support is one tap away.
       </Text>
       <Button
         label="Talk to someone"
-        variant="secondary"
         onPress={() => router.push({ pathname: '/support', params: { reason: 'pasted' } })}
         hint="Free, confidential support lines"
+      />
+      <Button
+        label="It’s a topic, not about me"
+        variant="secondary"
+        onPress={() => void (mode === 'paste' ? build(true) : saveDescribed(true))}
+        hint="For a nursing posting or a wellbeing product: builds it anyway"
       />
     </View>
   ) : null;
@@ -252,7 +259,7 @@ export default function NewCustomScenario() {
                     accessibilityHint={error}
                     aria-invalid={Boolean(error)}
                     value={form[field.key]}
-                    placeholder={field.placeholder}
+                    placeholder={`e.g. ${getTrack(track).describe_examples[field.example]}`}
                     placeholderTextColor={colors.textMuted}
                     onChangeText={(value) => {
                       setForm((current) => ({ ...current, [field.key]: value }));

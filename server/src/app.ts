@@ -4,7 +4,7 @@ import { z } from 'zod';
 import { gradeTranscript, GradingError, type GradeModel } from '../../src/grading/grade';
 import { trackGradeSchema } from '../../src/grading/rubric.schema';
 import { turnSchema } from '../../src/grading/transcript';
-import { detectDistress, detectDistressInDocument } from '../../src/safety/rules';
+import { detectDistress } from '../../src/safety/rules';
 import { MAX_SOURCE_CHARS, MIN_SOURCE_CHARS } from '../../src/scenarios/draft';
 import { scenarioSchema, type Scenario } from '../../src/scenarios/schema';
 import { trackIdSchema, type Track } from '../../src/tracks/schema';
@@ -101,13 +101,19 @@ export function createApp(services: Services) {
   app.post('/scenario/draft', async (c) => {
     if (!services.draftScenario) return c.json({ error: 'Drafting is not configured on this server.' }, 503);
     const body = z
-      .strictObject({ track: trackIdSchema, source: z.string().trim().min(MIN_SOURCE_CHARS).max(MAX_SOURCE_CHARS) })
+      .strictObject({
+        track: trackIdSchema,
+        source: z.string().trim().min(MIN_SOURCE_CHARS).max(MAX_SOURCE_CHARS),
+        /** The user confirmed the flagged words are a topic in the text, not about them. */
+        aboutTopic: z.boolean().default(false),
+      })
       .safeParse(await c.req.json().catch(() => null));
     if (!body.success) {
       return c.json({ error: `Expected { track, source } with ${MIN_SOURCE_CHARS}–${MAX_SOURCE_CHARS} characters.` }, 400);
     }
-    // Pasted text that sounds like distress is not turned into a roleplay.
-    if (detectDistressInDocument(body.data.source, safetyConfig)) {
+    // Pasted text that sounds like distress is not turned into a roleplay unless the user has said
+    // it is a topic (a nursing posting, a wellbeing pitch), not about them.
+    if (!body.data.aboutTopic && detectDistress(body.data.source, safetyConfig)) {
       return c.json({ error: 'This text was not drafted.', safety: true }, 422);
     }
     try {

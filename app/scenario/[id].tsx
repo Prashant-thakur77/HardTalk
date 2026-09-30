@@ -3,8 +3,10 @@ import { useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { setSpeechRate, SPEECH_RATES, usePreferences } from '@/a11y/preferences';
-import type { SessionMode } from '@/attempts/store';
+import { getGradedSessionsUsed, type SessionMode } from '@/attempts/store';
 import { config } from '@/config';
+import { usePro } from '@/purchases';
+import { FREE_GRADED_SESSIONS } from '@/purchases/gates';
 import { getScenario } from '@/scenarios';
 import { hasRecording } from '@/mock/recordings';
 import { isCustomScenario } from '@/scenarios/custom';
@@ -29,6 +31,7 @@ export default function ScenarioBrief() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const scenario = getScenario(id);
   const { speechRate, reduceMotion } = usePreferences();
+  const pro = usePro();
   const [difficulty, setDifficulty] = useState<Difficulty>('L1');
   const [mode, setMode] = useState<SessionMode>('voice');
   const [showFacts, setShowFacts] = useState(false);
@@ -44,6 +47,9 @@ export default function ScenarioBrief() {
     <Screen
       footer={
         <>
+          {!pro && getGradedSessionsUsed() >= FREE_GRADED_SESSIONS ? (
+            <Text style={type.caption}>Your three free graded sessions are used, so starting opens Pro.</Text>
+          ) : null}
           {liveOnly ? (
             <Text style={type.caption}>
               Your own scenarios run live, with your microphone. Mock mode replays only the built-in conversations and the drafted samples.

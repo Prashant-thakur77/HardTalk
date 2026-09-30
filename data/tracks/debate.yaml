@@ -15,6 +15,12 @@ key_line:
   from: claim_clarity
 custom_opening_line: Go ahead, make your case. I'm not convinced yet.
 paste_label: "Paste the motion, your side, and any context you've been given."
+describe_examples:
+  title: "Defend my side of the motion on AI in exams"
+  name: "Clara"
+  role: "Opposing speaker"
+  goal: "Win the room on my main claim"
+  pushback: "Bans are the only way to keep exams fair"
 tip: >-
   To cut in, say "hang on" or "let me answer that". "Stop" on its own, as in "Stop, you're
   twisting it", ends the practice unscored, because stop always works.

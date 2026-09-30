@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { NotScoredForSafety } from '@/safety';
-import { draftSamples, draftScenario, sampleFor } from '@/scenarios/drafting';
+import { draftSamples, draftScenario, lowerFirst, sampleFor, sampleLine } from '@/scenarios/drafting';
 import { scenarioFromDraft } from '@/scenarios/draft';
 import { peopleIn } from '@/scenarios/people';
 import { scenarios } from '@/scenarios';
@@ -57,6 +57,23 @@ describe('drafted scenarios', () => {
   it('never turns pasted text that sounds like distress into a practice', async () => {
     const pasted = `${sampleFor('workplace').source} I don't want to be alive anymore.`;
     await expect(draftScenario('workplace', pasted)).rejects.toBeInstanceOf(NotScoredForSafety);
+  });
+
+  it('holds a nursing posting too, and drafts it once the user says it is a topic, not about them', async () => {
+    const posting = `${sampleFor('interview').source} You will care for patients at risk of suicide and self-harm.`;
+    await expect(draftScenario('interview', posting)).rejects.toBeInstanceOf(NotScoredForSafety);
+    await expect(draftScenario('interview', posting, true)).resolves.toMatchObject({ track: 'interview' });
+  });
+
+  it("describes each track's sample panel in one line for RevenueCat, names and capitals intact", () => {
+    for (const sample of draftSamples) {
+      const line = sampleLine(sample.track);
+      expect(line.startsWith(`For example, from ${lowerFirst(sample.label)}: `)).toBe(true);
+      for (const person of [sample.draft.persona, ...sample.draft.panel]) {
+        expect(line).toContain(`${person.name} asks about ${lowerFirst(person.asks_about[0]!)}`);
+      }
+    }
+    expect(lowerFirst('Covering settlement in November')).toBe('covering settlement in November');
   });
 
   it('finds the sample for a track', () => {

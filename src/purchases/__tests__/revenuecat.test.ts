@@ -94,7 +94,8 @@ describe('RevenueCat provider', () => {
       scoreLine: null,
     });
     const variables = (rc.paywallParams as { customVariables: Record<string, { value: string }> }).customVariables;
-    expect(variables.headline!.value).toBe('Practise "Push back on a mid-sprint scope change" with Pro');
+    expect(variables.headline!.value).toBe('Start this one with Pro');
+    expect(variables.body!.value).toContain('"Push back on a mid-sprint scope change"');
     expect(variables.body!.value).not.toMatch(/retry is usually/);
   });
 

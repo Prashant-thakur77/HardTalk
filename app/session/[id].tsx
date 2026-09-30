@@ -78,6 +78,8 @@ export default function Session() {
   const [ungradable, setUngradable] = useState(false);
   const [draft, setDraft] = useState('');
   const [suggestion, setSuggestion] = useState<string | null>(null);
+  // Mock mode: set the moment a typed line leaves the recording, so the user knows at once.
+  const [offScript, setOffScript] = useState(false);
   const [inputHeight, setInputHeight] = useState(2 * LINE);
   const ended = useRef<{ reason: Exclude<EndReason, 'user_stopped'>; transcript: Turn[] } | null>(null);
   const scroll = useRef<ScrollView>(null);
@@ -185,6 +187,7 @@ export default function Session() {
   const canSend = textOnly && state.status === 'listening' && draft.trim().length > 0;
   const send = () => {
     if (!canSend) return;
+    if (config.mock && suggestion && draft.trim() !== suggestion.trim()) setOffScript(true);
     sendText(draft.trim());
     setDraft('');
     setInputHeight(2 * LINE);
@@ -328,8 +331,10 @@ export default function Session() {
                     </Pressable>
                   ) : null}
                   {config.mock ? (
-                    <Text style={type.caption}>
-                      In mock mode the replies follow the recording, and only the recorded lines are scored.
+                    <Text style={[type.caption, offScript && styles.offScript]} accessibilityLiveRegion="polite">
+                      {offScript
+                        ? 'That line isn’t the recorded one, so this mock run won’t be scored or counted. Restart to use the recorded lines.'
+                        : 'In mock mode the replies follow the recording, and only the recorded lines are scored.'}
                     </Text>
                   ) : null}
                   <View style={styles.composer}>
@@ -426,6 +431,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.quote,
   },
   suggestionText: { fontSize: 14, fontWeight: '600', color: colors.primary },
+  offScript: { color: colors.onNotice, backgroundColor: colors.notice, borderRadius: radius, padding: space.sm, overflow: 'hidden' },
   typedStatus: { fontSize: 15, fontWeight: '700', color: colors.primary },
   composer: { flexDirection: 'row', alignItems: 'flex-end', gap: space.sm },
   // The border and padding sit on the box, so the text area clips at whole lines: two when

@@ -249,6 +249,14 @@ describe('POST /scenario/draft', () => {
     expect(draftScenario).not.toHaveBeenCalled();
   });
 
+  it('drafts flagged text once the user has said it is a topic, not about them', async () => {
+    const draftScenario = vi.fn().mockResolvedValue({ id: 'custom-x-1' });
+    const posting = `${source} You will care for patients at risk of suicide and self-harm.`;
+    const app = createApp({ draftScenario });
+    expect((await post(app, { track: 'interview', source: posting }, '/scenario/draft')).status).toBe(422);
+    expect((await post(app, { track: 'interview', source: posting, aboutTopic: true }, '/scenario/draft')).status).toBe(200);
+  });
+
   it('passes on why a draft failed', async () => {
     const draftScenario = vi.fn().mockRejectedValue(new DraftError('The panel could not be drafted.'));
     const { status, json } = await post(createApp({ draftScenario }), { track: 'pitch', source }, '/scenario/draft');

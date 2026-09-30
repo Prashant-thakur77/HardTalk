@@ -20,7 +20,7 @@ import { PurchaseNotice } from '@/ui/PurchaseNotice';
 import { RoomVerdicts } from '@/ui/RoomVerdicts';
 import { ScoreRing } from '@/ui/ScoreRing';
 import { Screen } from '@/ui/Screen';
-import { SKILL_KEY, SkillBar } from '@/ui/SkillBar';
+import { SkillBar, skillKey } from '@/ui/SkillBar';
 import { colors, MIN_TARGET, scoreColors, shadow, space, type } from '@/ui/theme';
 
 /**
@@ -135,7 +135,7 @@ export default function Scorecard() {
       <Text style={type.heading} accessibilityRole="header">
         Your four skills
       </Text>
-      {previous ? <Text style={type.caption}>{SKILL_KEY}</Text> : null}
+      {previous ? <Text style={type.caption}>{skillKey('last time')}</Text> : null}
       {track.rubrics.map((dimension) => {
         const result = grade.dimensions[dimension];
         return result ? (

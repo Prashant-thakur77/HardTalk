@@ -2,28 +2,29 @@ import { StyleSheet, View } from 'react-native';
 
 import { colors, scoreStrokes } from './theme';
 
-/** How to read a bar after a retry. Shown wherever bars compare two tries. */
-export const SKILL_KEY = 'Faint steps you already had last time, solid steps are new, dashed steps were lost.';
+/** How to read a bar that compares two tries: `since` is "last time" or "your first try". */
+export const skillKey = (since: string) =>
+  `Faint steps you already had ${since}, solid steps are new, dashed steps were lost.`;
 
 /**
- * Four steps for a 1–4 score. After a retry, what you already had is drawn faint and the gain in
- * full colour; a drop shows the lost steps outlined.
+ * Four steps for a 1–4 score. Compared with an earlier try, the steps you kept are faint, the steps
+ * you gained are solid, and the steps you lost are dashed; alone, every step you scored is solid.
  */
 export function SkillBar({ score, previous }: { score: number; previous?: number }) {
   return (
     <View style={styles.row} accessible={false}>
       {[1, 2, 3, 4].map((step) => {
         const filled = step <= score;
-        const wasFilled = previous !== undefined && step <= previous && !filled;
-        const alreadyHad = previous !== undefined && previous < score && step <= previous;
+        const kept = previous !== undefined && step <= Math.min(score, previous);
+        const lost = previous !== undefined && step > score && step <= previous;
         return (
           <View
             key={step}
             style={[
               styles.step,
               filled && { backgroundColor: scoreStrokes[score] },
-              alreadyHad && { opacity: 0.45 },
-              wasFilled && { borderColor: colors.borderStrong, borderWidth: 2, borderStyle: 'dashed' },
+              kept && { opacity: 0.45 },
+              lost && { borderColor: colors.borderStrong, borderWidth: 2, borderStyle: 'dashed' },
             ]}
           />
         );

@@ -7,8 +7,8 @@ session_limit:
   score: "Your score on it so far: {{score_line}}."
 # At the limit, starting a conversation you have not practised yet.
 session_limit_new:
-  headline: Practise "{{scenario_title}}" with Pro
-  body: You've used your three free graded sessions. Pro keeps every conversation open, with as many retries as you need.
+  headline: Start this one with Pro
+  body: You've used your three free graded sessions. Pro opens "{{scenario_title}}" and every other conversation, with as many retries as you need.
   score: ""
 custom_scenario:
   headline: Rehearse the one you’re actually dreading
@@ -25,5 +25,5 @@ features:
 # conversation coming up; annual is for people who keep practising.
 plans:
   - { id: annual, label: Annual, price: "$29.99 a year", short: "$29.99/yr", note: Save 50% }
-  - { id: weekly, label: One-week pass, price: "$2.99 a week", short: "$2.99/wk", note: "For one conversation coming up. Renews weekly until you cancel" }
+  - { id: weekly, label: Weekly, price: "$2.99 a week", short: "$2.99/wk", note: "For one conversation coming up. Renews weekly until you cancel" }
   - { id: monthly, label: Monthly, price: "$4.99 a month", short: "$4.99/mo" }

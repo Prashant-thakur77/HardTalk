@@ -15,3 +15,9 @@ key_line:
   from: evidence
 custom_opening_line: Thanks for coming in. Shall we get started?
 paste_label: "Paste the job posting you're applying to."
+describe_examples:
+  title: "My final-round interview at a fintech"
+  name: "Omar"
+  role: "Hiring manager"
+  goal: "An offer, or a clear next step"
+  pushback: "You have not worked on a team this size"

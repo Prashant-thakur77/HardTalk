@@ -4,7 +4,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { restorePurchases } from '@/purchases';
 import { paywallCopy } from '@/purchases/copy';
-import { samplePanel } from '@/scenarios/drafting';
+import { lowerFirst, samplePanel } from '@/scenarios/drafting';
 import { trackIdSchema } from '@/tracks/schema';
 import { resolveMockPaywall } from '@/purchases/mock';
 import type { PaywallOutcome, PaywallReason } from '@/purchases/types';
@@ -84,11 +84,11 @@ export default function MockPaywall() {
       {copy.score ? <Text style={styles.score}>{copy.score}</Text> : null}
       {params.reason === 'custom_scenario' ? (
         <View style={styles.example}>
-          <Text style={styles.exampleLabel}>For example, from {sampleLabel.toLowerCase()}</Text>
+          <Text style={styles.exampleLabel}>For example, from {lowerFirst(sampleLabel)}</Text>
           <Room people={examplePeople} size={44} uniform />
           {examplePeople.map((person) => (
             <Text key={person.name} style={type.caption}>
-              {person.name} will ask about {person.asksAbout[0]?.toLowerCase()}
+              {person.name} will ask about {lowerFirst(person.asksAbout[0] ?? '')}
             </Text>
           ))}
         </View>

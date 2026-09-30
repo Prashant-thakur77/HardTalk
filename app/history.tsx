@@ -9,7 +9,7 @@ import { usePro } from '@/purchases';
 import { getScenario } from '@/scenarios';
 import { Button } from '@/ui/Button';
 import { Screen } from '@/ui/Screen';
-import { SKILL_KEY, SkillBar } from '@/ui/SkillBar';
+import { SkillBar, skillKey } from '@/ui/SkillBar';
 import { colors, MIN_TARGET, radius, space, type } from '@/ui/theme';
 
 const OUTCOME_STYLE = {
@@ -77,7 +77,7 @@ export default function History() {
                 {latest}/{MAX_TOTAL} · 1 attempt. Retry it to see your progress here.
               </Text>
             )}
-            {list.length > 1 ? <Text style={type.caption}>{SKILL_KEY}</Text> : null}
+            {list.length > 1 ? <Text style={type.caption}>{skillKey('your first try')}</Text> : null}
             {list.length > 1
               ? scoredDimensions(latestGrade).map(([dimension, result]) => {
                   const before = firstGrade.dimensions[dimension]?.score;

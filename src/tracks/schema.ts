@@ -31,6 +31,14 @@ export const trackSchema = z
     custom_opening_line: z.string().min(1),
     /** What to paste to have a panel drafted for it: the prompt above the text box. */
     paste_label: z.string().min(1),
+    /** Placeholder examples for the five-answer "Describe it" form, in this track's terms. */
+    describe_examples: z.strictObject({
+      title: z.string().min(1),
+      name: z.string().min(1),
+      role: z.string().min(1),
+      goal: z.string().min(1),
+      pushback: z.string().min(1),
+    }),
     /** One practical tip shown on the brief, for habits of this kind of conversation. */
     tip: z.string().min(1).optional(),
   })

@@ -161,27 +161,3 @@ export function detectDistress(
   if (!config.distress_ambiguous.some((pattern) => new RegExp(pattern).test(line))) return false;
   return !config.line_idioms.some((idiom) => new RegExp(`^(?:${idiom})$`).test(line));
 }
-
-/** Someone speaking about themselves: "I", "I'm", "me", "my"… but not "i.e." or "Phase I". */
-const FIRST_PERSON = /\b(i'm|i've|i'd|i'll|me|my|myself|mine)\b|(?<!\b(?:phase|type|part|stage|grade|class|level) )\bi\b(?!\.)/;
-
-/** A sentence plainly about other people or an organisation: "our model", "patients", "they". */
-const ABOUT_OTHERS =
-  /\b(we|our|us|they|their|them|you|your|he|she|his|her|patients?|students?|users?|people|clients?|customers?|candidates?|members?|staff|teams?|company|universit(?:y|ies)|house|motion|product|app|model|startup)\b/;
-
-/**
- * For a pasted document (a job posting, a pitch, a motion) rather than a spoken line. Documents
- * name hard topics about other people ("care for patients at risk of suicide", "our model flags
- * self-harm risk"), so a sentence plainly about others, with no first-person singular, is not
- * held. Every other sentence is checked with the same rules as a spoken line, including ones with
- * the subject dropped ("Going to end it all tonight"), because that is how people write about
- * themselves.
- */
-export function detectDistressInDocument(
-  text: string,
-  config: Pick<SafetyConfig, 'distress_explicit' | 'distress_ambiguous' | 'line_idioms'>,
-): boolean {
-  return sentences(text)
-    .filter((sentence) => FIRST_PERSON.test(sentence) || !ABOUT_OTHERS.test(sentence))
-    .some((sentence) => detectDistress(sentence, config));
-}

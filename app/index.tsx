@@ -109,6 +109,38 @@ export default function ScenarioList() {
     );
   };
 
+  const checkin = lastOwn ? (
+    <>
+      {outcomes[lastOwn.id] ? (
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={`How it went: ${outcomeLabel(outcomes[lastOwn.id]!.outcome)}. Change`}
+          onPress={() => void clearOutcome(lastOwn.id)}
+          style={styles.progressLink}>
+          <Text style={type.caption}>
+            {outcomeLabel(outcomes[lastOwn.id]!.outcome)} · <Text style={styles.headLink}>Change</Text>
+          </Text>
+        </Pressable>
+      ) : (
+        <>
+          <Text style={type.caption}>When you’ve had it, how did it go?</Text>
+          <View style={styles.checkinRow}>
+            {OUTCOMES.map((option) => (
+              <Pressable
+                key={option.value}
+                accessibilityRole="button"
+                accessibilityLabel={`The real one: ${option.label}`}
+                onPress={() => void recordOutcome(lastOwn.id, option.value)}
+                style={({ pressed }) => [styles.checkinChip, pressed && styles.pressed]}>
+                <Text style={styles.checkinText}>{option.label}</Text>
+              </Pressable>
+            ))}
+          </View>
+        </>
+      )}
+    </>
+  ) : null;
+
   return (
     <Screen>
       <View style={styles.hero}>
@@ -154,43 +186,16 @@ export default function ScenarioList() {
               <Text style={styles.headLink}>Your progress ›</Text>
             </Pressable>
           ) : null}
+          {lastOwn?.id === lastScenario.id ? checkin : null}
         </View>
       ) : null}
-      {lastOwn ? (
+      {lastOwn && lastOwn.id !== lastScenario?.id ? (
         <View style={styles.realOne}>
           <Text style={styles.continueLabel}>The real one</Text>
-          {lastOwn.id === lastScenario?.id ? null : (
-            <Text style={type.body} numberOfLines={2}>
-              {lastOwn.title}
-            </Text>
-          )}
-          {outcomes[lastOwn.id] ? (
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel={`How it went: ${outcomeLabel(outcomes[lastOwn.id]!.outcome)}. Change`}
-              onPress={() => void clearOutcome(lastOwn.id)}
-              style={styles.progressLink}>
-              <Text style={type.caption}>
-                {outcomeLabel(outcomes[lastOwn.id]!.outcome)} · <Text style={styles.headLink}>Change</Text>
-              </Text>
-            </Pressable>
-          ) : (
-            <>
-              <Text style={type.caption}>When you’ve had it, how did it go?</Text>
-              <View style={styles.checkinRow}>
-                {OUTCOMES.map((option) => (
-                  <Pressable
-                    key={option.value}
-                    accessibilityRole="button"
-                    accessibilityLabel={`The real one: ${option.label}`}
-                    onPress={() => void recordOutcome(lastOwn.id, option.value)}
-                    style={({ pressed }) => [styles.checkinChip, pressed && styles.pressed]}>
-                    <Text style={styles.checkinText}>{option.label}</Text>
-                  </Pressable>
-                ))}
-              </View>
-            </>
-          )}
+          <Text style={type.body} numberOfLines={2}>
+            {lastOwn.title}
+          </Text>
+          {checkin}
         </View>
       ) : null}
       <Text style={styles.section} accessibilityRole="header">
