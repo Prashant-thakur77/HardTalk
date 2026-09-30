@@ -34,6 +34,7 @@ When a line is flagged, the call ends and a calm support screen (`app/support.ts
 ## Data
 
 - Saved transcripts and scores are stored only on the device (AsyncStorage). There are no accounts and no cloud sync. "Delete my practice history" on the home screen removes all of them after a second tap.
+- If you tell the app how the real conversation went ("It went well", "Mixed", "Not this time"), that answer is stored on the device only, and "Delete my practice history" deletes it too.
 - In live mode the conversation itself leaves the device to be run and graded: audio and text go to ElevenLabs, and the text transcript goes to Anthropic through `/server`.
 - The app never records or saves audio. In live mode, audio streams to the ElevenLabs agent for the conversation. ElevenLabs keeps call audio and transcripts by default; `docs/DEVICE.md` says how to turn off audio saving and shorten retention on the agent. Grading sends the text transcript to Anthropic's API.
 - "Bring the real one" (Pro) sends the text the user pastes, such as a job posting, to Anthropic through `/server` to draft the panel. The draft is only saved if the user saves it, and then only on the device. Pasted text that trips the distress rules is not drafted. The drafter is told to invent names instead of using real people's (`data/prompts/drafter.yaml`) and to keep every level professional; the draft then passes the same scenario schema and persona guardrails as the built-ins.

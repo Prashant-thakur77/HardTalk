@@ -21,6 +21,9 @@ features:
   - Unlimited graded sessions and retries
   - A panel built from your real job posting, pitch or motion
   - Progress history across every attempt
+# Practice comes in bursts ("my interview is Friday"), so the week plan is for one real
+# conversation coming up; annual is for people who keep practising.
 plans:
   - { id: annual, label: Annual, price: "$29.99 a year", note: Save 50% }
+  - { id: weekly, label: Interview week, price: "$2.99 for 7 days", note: For one conversation coming up }
   - { id: monthly, label: Monthly, price: "$4.99 a month" }

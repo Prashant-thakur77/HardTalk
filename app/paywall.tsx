@@ -77,14 +77,6 @@ export default function MockPaywall() {
         </View>
       ) : null}
 
-      <View style={styles.features}>
-        {copy.features.map((feature) => (
-          <Text key={feature} style={type.body}>
-            ✓ {feature}
-          </Text>
-        ))}
-      </View>
-
       <ChoiceGroup
         label="Choose a plan"
         choices={copy.plans.map((option) => ({
@@ -94,8 +86,15 @@ export default function MockPaywall() {
         }))}
         selected={plan ?? ''}
         onSelect={setPlan}
-        horizontal
       />
+
+      <View style={styles.features}>
+        {copy.features.map((feature) => (
+          <Text key={feature} style={type.body}>
+            ✓ {feature}
+          </Text>
+        ))}
+      </View>
     </Screen>
   );
 }

@@ -2,6 +2,7 @@ import { router } from 'expo-router';
 import { useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
+import { deleteAllOutcomes, OUTCOMES, outcomeLabel, recordOutcome, useOutcomes } from '@/attempts/outcomes';
 import { deleteAllAttempts, getGradedSessionsUsed, useAttempts } from '@/attempts/store';
 import { MAX_TOTAL, totalScore } from '@/grading/rubric.schema';
 import { restorePurchases, usePro } from '@/purchases';
@@ -23,6 +24,7 @@ import { TrackTabs } from '@/ui/TrackTabs';
 
 export default function ScenarioList() {
   const attempts = useAttempts();
+  const outcomes = useOutcomes();
   const custom = useCustomScenarios();
   const pro = usePro();
   const [restoreMessage, setRestoreMessage] = useState<string | null>(null);
@@ -38,7 +40,7 @@ export default function ScenarioList() {
       setConfirmDelete(true);
       return;
     }
-    await deleteAllAttempts();
+    await Promise.all([deleteAllAttempts(), deleteAllOutcomes()]);
     setConfirmDelete(false);
   };
 
@@ -143,6 +145,25 @@ export default function ScenarioList() {
             hint={lastScenario.title}
             onPress={() => void startSession(lastScenario.id, last.difficulty, last.mode, 'push')}
           />
+          {outcomes[lastScenario.id] ? (
+            <Text style={type.caption}>The real one: {outcomeLabel(outcomes[lastScenario.id]!.outcome)}</Text>
+          ) : (
+            <View style={styles.checkin}>
+              <Text style={type.caption}>Had the real one yet? How did it go?</Text>
+              <View style={styles.checkinRow}>
+                {OUTCOMES.map((option) => (
+                  <Pressable
+                    key={option.value}
+                    accessibilityRole="button"
+                    accessibilityLabel={`The real one: ${option.label}`}
+                    onPress={() => void recordOutcome(lastScenario.id, option.value)}
+                    style={({ pressed }) => [styles.checkinChip, pressed && styles.pressed]}>
+                    <Text style={styles.checkinText}>{option.label}</Text>
+                  </Pressable>
+                ))}
+              </View>
+            </View>
+          )}
         </View>
       ) : null}
       <Text style={styles.section} accessibilityRole="header">
@@ -241,6 +262,18 @@ const styles = StyleSheet.create({
     gap: space.sm,
     ...shadow,
   },
+  checkin: { gap: space.xs, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.border, paddingTop: space.sm },
+  checkinRow: { flexDirection: 'row', flexWrap: 'wrap', gap: space.xs },
+  checkinChip: {
+    minHeight: MIN_TARGET,
+    justifyContent: 'center',
+    paddingHorizontal: space.md,
+    borderRadius: 999,
+    borderWidth: 1.5,
+    borderColor: colors.borderStrong,
+    backgroundColor: colors.surface,
+  },
+  checkinText: { fontSize: 15, fontWeight: '700', color: colors.text },
   bring: { backgroundColor: colors.quote, borderRadius: 16, padding: space.md, gap: space.sm },
   continueLabel: { fontSize: 13, fontWeight: '800', color: colors.primary, textTransform: 'uppercase', letterSpacing: 0.5 },
   continueTitle: { fontSize: 17, fontWeight: '700', color: colors.text },

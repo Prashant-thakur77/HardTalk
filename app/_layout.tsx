@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { View } from 'react-native';
 
 import { loadPreferences } from '@/a11y/preferences';
+import { loadOutcomes } from '@/attempts/outcomes';
 import { loadAttempts } from '@/attempts/store';
 import { initPurchases } from '@/purchases';
 import { loadCustomScenarios } from '@/scenarios/custom';
@@ -16,7 +17,7 @@ export default function RootLayout() {
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    Promise.allSettled([loadAttempts(), loadCustomScenarios(), loadPreferences(), initPurchases()]).then(() => setReady(true));
+    Promise.allSettled([loadAttempts(), loadOutcomes(), loadCustomScenarios(), loadPreferences(), initPurchases()]).then(() => setReady(true));
   }, []);
 
   if (!ready) return <View style={{ flex: 1, backgroundColor: colors.background }} />;

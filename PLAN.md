@@ -26,6 +26,10 @@ you practise our scenarios; this round makes it practise yours.
 3. **Positioning** [C4] — "The practice panel you don't have": README, home and paywall copy.
 4. **UX pass to 9** [C1] — a fresh audit after the feature, then fix what it finds.
 
+5. **Judged as a startup** [C3] [C4] — who you won over (per-panelist verdicts from the
+   scores each person cares about); an Interview week plan, because practice comes in bursts;
+   an on-device "how did the real one go?" check-in; the business case in the README, sourced.
+
 Acceptance: `pnpm test`, `pnpm lint`, `pnpm typecheck` clean; the draft endpoint is unit-tested
 with a fake model; the browser flow paste → preview → save → brief works in mock mode with zero
 page errors; an independent UX re-score.

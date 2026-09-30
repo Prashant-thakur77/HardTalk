@@ -1,6 +1,7 @@
 import { Redirect, router } from 'expo-router';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
+import { outcomeLabel, useOutcomes } from '@/attempts/outcomes';
 import { useAttempts } from '@/attempts/store';
 import { MAX_TOTAL, scoredDimensions, totalScore as total } from '@/grading/rubric.schema';
 import { rubrics } from '@/grading/rubrics';
@@ -18,6 +19,7 @@ import { colors, MIN_TARGET, radius, space, type } from '@/ui/theme';
 export default function History() {
   const pro = usePro();
   const attempts = useAttempts();
+  const outcomes = useOutcomes();
   if (!pro) return <Redirect href="/" />;
 
   const byScenario = [...new Set(attempts.map((attempt) => attempt.scenarioId))];
@@ -41,6 +43,9 @@ export default function History() {
             <Text style={type.heading} accessibilityRole="header">
               {getScenario(scenarioId)?.title ?? 'Deleted scenario'}
             </Text>
+            {outcomes[scenarioId] ? (
+              <Text style={styles.outcome}>The real one: {outcomeLabel(outcomes[scenarioId]!.outcome)}</Text>
+            ) : null}
             {list.length > 1 ? (
               <View style={styles.progress}>
                 <Text style={styles.fromTo}>
@@ -120,6 +125,7 @@ const styles = StyleSheet.create({
   score: { fontSize: 17, fontWeight: '700', color: colors.primary },
   progress: { flexDirection: 'row', alignItems: 'baseline', gap: space.sm, flexWrap: 'wrap' },
   pressed: { opacity: 0.6 },
+  outcome: { alignSelf: 'flex-start', fontSize: 14, fontWeight: '700', color: colors.success, backgroundColor: '#EAF5EF', borderRadius: 999, paddingHorizontal: 10, paddingVertical: 4, overflow: 'hidden' },
   fromTo: { fontSize: 24, fontWeight: '800', color: colors.text },
   skill: { gap: 4 },
   skillHead: { flexDirection: 'row', justifyContent: 'space-between' },
