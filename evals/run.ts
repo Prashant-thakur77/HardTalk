@@ -1,13 +1,13 @@
 /**
  * Grader calibration against the hand-labelled gold set.
  *
- *   pnpm eval               the Claude grader, 3 runs per transcript (needs ANTHROPIC_API_KEY)
+ *   pnpm eval               the configured grader, 3 runs per transcript (server/.env: Claude, or any
+ *                           OpenAI-compatible model such as Gemini or a local Ollama model)
  *   pnpm eval --runs 1      one run, about a third of the cost
  *   pnpm eval --baseline    an "always 2" rater, no key needed: the floor any grader must beat
  *
  * Prints a markdown table for EVALS.md and writes the raw scores to evals/results/.
  */
-import Anthropic from '@anthropic-ai/sdk';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -15,7 +15,9 @@ import { fileURLToPath } from 'node:url';
 import { gradeTranscript } from '../src/grading/grade';
 import { trackGradeSchema, type Dimension } from '../src/grading/rubric.schema';
 import { getScenario, getTrack, graderConfig } from '../server/src/data';
-import { claudeGradeModel } from '../server/src/grader';
+import { gradeModel } from '../server/src/grader';
+import type { JsonModel } from '../server/src/models';
+import { modelsFromEnv } from '../server/src/providers';
 import { GOLD_DIMENSIONS, loadGold, type GoldItem } from './gold';
 import { exactAgreement, quadraticKappa, stability, withinOne } from './metrics';
 
@@ -38,7 +40,8 @@ const failed = (outcome: Outcome): outcome is RunFailure => 'error' in outcome;
 const args = process.argv.slice(2);
 const baseline = args.includes('--baseline');
 const runs = baseline ? 1 : Number(args[args.indexOf('--runs') + 1] ?? 3) || 3;
-const model = process.env.GRADER_MODEL ?? 'claude-opus-5';
+const models = baseline ? null : modelsFromEnv();
+const model = models?.graderId ?? 'baseline';
 const effort = (process.env.GRADER_EFFORT ?? 'medium') as 'low' | 'medium' | 'high';
 const CONCURRENCY = 4;
 
@@ -56,20 +59,20 @@ async function pool<T, R>(items: T[], work: (item: T) => Promise<R>): Promise<R[
   return results;
 }
 
-async function gradeOnce(item: GoldItem, client: Anthropic): Promise<Outcome> {
+async function gradeOnce(item: GoldItem, grader: JsonModel): Promise<Outcome> {
   try {
-    return await gradeOrThrow(item, client);
+    return await gradeOrThrow(item, grader);
   } catch (error) {
     return { id: item.id, error: error instanceof Error ? error.message : String(error) };
   }
 }
 
-async function gradeOrThrow(item: GoldItem, client: Anthropic): Promise<RunResult> {
+async function gradeOrThrow(item: GoldItem, grader: JsonModel): Promise<RunResult> {
   const started = Date.now();
   const scenario = getScenario(item.scenarioId)!;
   const result = await gradeTranscript({
     turns: item.turns,
-    callModel: claudeGradeModel({ client, model, effort }, scenario),
+    callModel: gradeModel(grader, effort, scenario),
     schema: trackGradeSchema(getTrack(scenario.track).rubrics),
     retryCopy: graderConfig.retry,
   });
@@ -84,7 +87,7 @@ const RESULTS_DIR = join(dirname(fileURLToPath(import.meta.url)), 'results');
 // gets its own timestamped file that a later run can never overwrite (git-ignored; add with -f).
 const resultsFile = join(
   RESULTS_DIR,
-  baseline ? 'baseline.json' : `${model}-${new Date().toISOString().replace(/[:.]/g, '-')}.json`,
+  baseline ? 'baseline.json' : `${model.replace(/[^a-z0-9.-]+/gi, '-')}-${new Date().toISOString().replace(/[:.]/g, '-')}.json`,
 );
 
 /** Rewritten after every run of this invocation, so a paid run survives a later failure. */
@@ -99,7 +102,7 @@ function save(label: string, gold: GoldItem[], runs: Outcome[][]) {
 async function main() {
   const allGold = loadGold();
   let outcomes: Outcome[][];
-  const label = baseline ? 'baseline: always 2' : `${model}, effort ${effort}, ${runs} run${runs > 1 ? 's' : ''}`;
+  const label = baseline ? 'baseline: always 2' : `${models?.name}, effort ${effort}, ${runs} run${runs > 1 ? 's' : ''}`;
 
   if (baseline) {
     outcomes = [
@@ -112,15 +115,15 @@ async function main() {
       })),
     ];
   } else {
-    if (!process.env.ANTHROPIC_API_KEY) {
-      console.error('pnpm eval needs ANTHROPIC_API_KEY (in server/.env or the environment). Try --baseline without one.');
+    if (!models) {
+      console.error('pnpm eval needs a grader in server/.env: ANTHROPIC_API_KEY, or MODEL_BASE_URL and GRADER_MODEL. Try --baseline without one.');
       process.exit(1);
     }
-    const client = new Anthropic();
+    const grader = models.grader;
     outcomes = [];
     for (let run = 1; run <= runs; run += 1) {
-      console.error(`run ${run}/${runs}: grading ${allGold.length} transcripts with ${model} (${effort})…`);
-      const results = await pool(allGold, (item) => gradeOnce(item, client));
+      console.error(`run ${run}/${runs}: grading ${allGold.length} transcripts with ${models.name} (${effort})…`);
+      const results = await pool(allGold, (item) => gradeOnce(item, grader));
       results.filter(failed).forEach((failure) => console.error(`  ${failure.id} failed: ${failure.error}`));
       outcomes.push(results);
       save(label, allGold, outcomes);

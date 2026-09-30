@@ -4,7 +4,10 @@ Mock mode (`pnpm dev`) needs none of this. Live mode uses your microphone, an El
 
 ## 1. Accounts and keys
 
-- An Anthropic API key for the grader.
+- A model for grading, drafting and the safety check. Any one of:
+  - An Anthropic API key (the default, and what the grader is calibrated on).
+  - A free Gemini API key from [Google AI Studio](https://aistudio.google.com/apikey), used through Gemini's OpenAI-compatible API. Then choose a non-Gemini LLM for the ElevenLabs agent in step 2, so the grader never marks its own model's roleplay.
+  - A local [Ollama](https://ollama.com) model, free and offline: `ollama pull qwen2.5:7b`. It needs about 6 GB of GPU memory, and grades more slowly and less reliably than a hosted model.
 - An ElevenLabs account with Agents enabled, and an API key.
 
 Keys go in `server/.env` only. The app talks to `/server`, which mints a short-lived voice token and runs grading, so no key is ever bundled into the app.
@@ -28,7 +31,8 @@ Copy the agent ID.
 
 ```sh
 cp server/.env.example server/.env
-# fill in ANTHROPIC_API_KEY, ELEVENLABS_API_KEY and ELEVENLABS_AGENT_ID
+# fill in ELEVENLABS_API_KEY and ELEVENLABS_AGENT_ID, and either ANTHROPIC_API_KEY
+# or MODEL_BASE_URL + GRADER_MODEL (+ MODEL_API_KEY for Gemini); examples are in the file
 pnpm start:server
 ```
 
@@ -52,6 +56,15 @@ pnpm android     # or: pnpm ios (needs Xcode)
 ```
 
 This compiles the development build and installs it. After the first build, `pnpm start:live` starts the bundler for the installed build.
+
+Without the Android SDK, build it in the cloud with EAS (a free Expo account; `eas.json` has the profile):
+
+```sh
+npx eas-cli@latest login
+npx eas-cli@latest build --profile development --platform android
+```
+
+When the build finishes, open its link on the phone and install the APK. Then run `pnpm start:live` on the computer and open HardTalk on the phone; it connects to the bundler on the same Wi-Fi, or add `--tunnel` if it cannot find it.
 
 On the Android emulator, enable "Virtual microphone uses host audio input" in the emulator settings, or use a real device.
 

@@ -122,8 +122,8 @@ Three graded sessions are free, in any track. Pro (the RevenueCat `pro` entitlem
 | Voice | ElevenLabs conversational agents over WebRTC (`@elevenlabs/react-native`, pinned), one voice per person | `src/voice/` |
 | Audio | `expo-audio`, `expo-speech` for mock mode, `expo-haptics` | `src/voice/mock.ts` |
 | Purchases | RevenueCat (`react-native-purchases`, `react-native-purchases-ui`), entitlement `pro`, remote paywall with custom variables | `src/purchases/` |
-| Grading and drafting | Claude with structured JSON output, a different model family from the persona | `server/src/grader.ts`, `server/src/drafter.ts` |
-| Server | Hono on Node, about 450 lines: token minting, grading, drafting, safety check, rate limit | `server/` |
+| Grading and drafting | Claude with structured JSON output by default, or any OpenAI-compatible model (Gemini, a local Ollama model), always a different family from the persona | `server/src/models.ts`, `server/src/grader.ts` |
+| Server | Hono on Node, about 600 lines: token minting, grading, drafting, safety check, rate limit | `server/` |
 | Data | YAML validated by zod 4, shared by the app and the server | `data/` |
 | Storage | On the device only (AsyncStorage); no accounts | `src/attempts/` |
 | Tests | Vitest unit tests, ESLint with zero warnings | `pnpm test`, `pnpm lint` |
@@ -156,7 +156,7 @@ Scores have to be grounded. `src/grading/evidence.ts` checks that every quote be
 | `src/ui/Face.tsx` | The drawn persona faces: SVG, no image assets, blinking and talking, stilled by Reduce Motion |
 | `src/purchases/` | RevenueCat entitlement, paywall with scenario-aware custom variables, restore, and the two paywall gates |
 | `src/safety/`, `data/safety.yaml` | Stop word, distress exit, crisis resources, disclaimer |
-| `server/` | Token minting, grading, panel drafting, safety refusal and a per-client rate limit, about 450 lines |
+| `server/` | Token minting, grading, panel drafting, safety refusal and a per-client rate limit, about 600 lines |
 | `evals/` | 30 hand-labelled workplace conversations and `pnpm eval`, which measures the grader against them ([EVALS.md](EVALS.md)); the other tracks have no gold set yet |
 | `app/` | Screens: scenarios, brief, live session, scorecard, paywall (mock mode), progress history, your own scenario |
 
@@ -170,10 +170,10 @@ Everything can be done by typing with a screen reader on and no audio. Turn chan
 
 ## Running it for real
 
-Live mode needs a development build on a phone (Expo Go cannot load the WebRTC modules), an ElevenLabs agent, an Anthropic API key and a RevenueCat Test Store key. The walkthroughs are [docs/DEVICE.md](docs/DEVICE.md) and [docs/REVENUECAT.md](docs/REVENUECAT.md). In short:
+Live mode needs a development build on a phone (Expo Go cannot load the WebRTC modules), an ElevenLabs agent, a grading model (an Anthropic API key, or free: a Gemini key or a local Ollama model) and a RevenueCat Test Store key. The walkthroughs are [docs/DEVICE.md](docs/DEVICE.md) and [docs/REVENUECAT.md](docs/REVENUECAT.md). In short:
 
 ```sh
-cp server/.env.example server/.env   # add ANTHROPIC_API_KEY, ELEVENLABS_API_KEY, ELEVENLABS_AGENT_ID
+cp server/.env.example server/.env   # ElevenLabs key and agent ID, plus a grading model (see the file)
 cp .env.example .env.local           # set EXPO_PUBLIC_MOCK=0, your computer's LAN IP, the RevenueCat test_ key
 pnpm start:server                    # grading + token minting on :8787
 pnpm android                         # builds and installs the dev build in live mode
