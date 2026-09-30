@@ -25,11 +25,12 @@ function yamlFiles(dir: string) {
 describe('data/scenarios', () => {
   const files = yamlFiles('scenarios');
 
-  it('ships the three workplace conversations and one per other track', () => {
+  it('ships the three workplace conversations and the pitch, interview and debate ones', () => {
     expect(files.map((file) => file.id).sort()).toEqual([
       'debate-ai-in-exams',
       'decline-extra-project',
       'interview-first-role',
+      'interview-internship',
       'mid-sprint-scope-change',
       'pitch-seed-round',
       'pr-blocking-release',

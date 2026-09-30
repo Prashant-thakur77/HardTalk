@@ -27,8 +27,8 @@ Pick a track (Workplace / Pitch Q&A / Interview / Debate) and a scenario
 ```
 
 **Tracks** (`data/tracks/*.yaml`, owner decision 2026-09-29): Workplace keeps the original three
-manager-framed conversations; Pitch Q&A, Interview and Debate each have one built-in scenario
-with a panel. Every track grades on exactly four framework-cited rubrics, so every total is
+manager-framed conversations; Pitch Q&A and Debate have one built-in scenario and Interview has
+two, each with a panel. Every track grades on exactly four framework-cited rubrics, so every total is
 out of 16.
 
 **Free:** every built-in scenario, 3 graded sessions.

@@ -1,0 +1,89 @@
+# Recorded conversations replayed in mock mode. Attempt 1 is a typical first try;
+# attempt 2 is the retry. Every evidence quote is a verbatim substring of a user turn.
+scenario_id: interview-internship
+attempts:
+  - end_reason: stop_condition
+    turns:
+      - { speaker: persona, text: "Hi, thanks for coming in. Tell us about a project you're proud of." }
+      - { speaker: user, text: "So, I've done a lot of projects, mostly for my courses. The one I like most is a bus app we made. It tracks the campus buses and people found it really useful." }
+      - { speaker: persona, text: "What exactly did you build yourself?" }
+      - { speaker: user, text: "We kind of all did everything, it was a team thing. We used React Native and a backend, and there were some bugs with the locations at one point but we sorted them out." }
+      - { speaker: persona, name: Nora, text: "I like that students actually use it. How did you work out what they wanted?" }
+      - { speaker: user, text: "We just figured it out as we went, and friends gave us feedback. A lot of people said they liked it." }
+      - { speaker: persona, text: "How many people use it?" }
+      - { speaker: user, text: "Quite a lot, I think. It's pretty popular on campus now." }
+      - { speaker: persona, name: Ben, text: "Why intern with us and not a big company? And what would you ship in your first week?" }
+      - { speaker: user, text: "I just want real experience, and startups are exciting. In my first week I'd probably learn the codebase and see where I can help." }
+      - { speaker: persona, text: "Okay. Thanks." }
+    grade:
+      dimensions:
+        answer_directness:
+          score: 2
+          evidence_quotes: ["The one I like most is a bus app we made."]
+          rationale: "You named the project only after a sentence about coursework, and your answer to Ben could have been about any startup."
+          better_line: "I'm proudest of a campus bus-tracker I built, and about 800 students use it every week."
+        star_structure:
+          score: 2
+          evidence_quotes: ["there were some bugs with the locations at one point but we sorted them out"]
+          rationale: "There was a real problem in there, but what went wrong, what you did and how it ended were all one vague clause."
+          better_line: "Buses showed in the wrong place, so I logged the raw timestamps, found a timezone bug in my backend and fixed it."
+        evidence:
+          score: 1
+          evidence_quotes: ["Quite a lot, I think."]
+          rationale: "When Ravi asked how many people use it, you had no number, and nothing else you said could be checked."
+          better_line: "About 800 students use it every week, and it's had zero wrong-location reports since the fix."
+        ownership:
+          score: 1
+          evidence_quotes: ["We kind of all did everything, it was a team thing."]
+          rationale: "Ravi asked what you built yourself and you answered with \"we\", so he still doesn't know which part was yours."
+          better_line: "My teammate built the screens; I wrote the live-location backend, and the timezone bug was mine."
+      key_line: "It's pretty popular on campus now."
+      safety_flag: false
+
+  - end_reason: stop_condition
+    turns:
+      - { speaker: persona, text: "Hi, thanks for coming in. Tell us about a project you're proud of." }
+      - { speaker: user, text: "I'm proudest of a campus bus-tracker I built, and about 800 students use it every week. It shows where each campus bus is and how many minutes until the next one." }
+      - { speaker: persona, text: "Built it how? Who did what?" }
+      - { speaker: user, text: "My teammate built the screens; I wrote the live-location backend, and the timezone bug was mine. It's a React Native app, and my Node server takes a location from each driver's phone every ten seconds." }
+      - { speaker: persona, text: "What timezone bug?" }
+      - { speaker: user, text: "After the clocks changed in October, buses showed in the wrong place for two days. I logged the raw timestamps and found my server was reading the phones' local times as UTC, so every update looked an hour old. I switched everything to UTC and added a test that runs across the clock change. Since the fix, it's had zero wrong-location reports in four months." }
+      - { speaker: persona, name: Nora, text: "I love that students rely on it. How did you learn what they wanted?" }
+      - { speaker: user, text: "I spent two mornings by the library bus shelter and asked 40 students what they needed. Most wanted minutes until the next bus, not a map, so I put a countdown on the home screen first." }
+      - { speaker: persona, name: Ben, text: "So why us, and not a big company? And what would you ship in your first week?" }
+      - { speaker: user, text: "Because Tray has the same problem I solved: telling a hungry student exactly when their order will be ready. In my first week I'd like to ship one small change end to end, like making the ready-time estimate update live, so I learn how you deploy." }
+      - { speaker: persona, text: "And what would you do differently on the bus app now?" }
+      - { speaker: user, text: "I'd store every time in UTC from day one. Now I test anything with times across a clock change before I ship it." }
+      - { speaker: persona, text: "Thanks. That's a clear answer." }
+    grade:
+      dimensions:
+        answer_directness:
+          score: 4
+          evidence_quotes:
+            - "I'm proudest of a campus bus-tracker I built, and about 800 students use it every week."
+            - "Because Tray has the same problem I solved"
+          rationale: "Your first sentence named the project and who uses it, and your first words to Ben were your reason for choosing this team."
+          better_line: "I'm proudest of the bus-tracker, and my part was the live-location backend."
+        star_structure:
+          score: 3
+          evidence_quotes:
+            - "I logged the raw timestamps and found my server was reading the phones' local times as UTC"
+            - "Since the fix, it's had zero wrong-location reports in four months."
+          rationale: "What went wrong, what you did and how it turned out were all there, but the bug only came up when Ravi asked, so the story arrived in pieces."
+          better_line: "After the October clock change, buses showed in the wrong place, so I traced it to my timestamps, fixed it, and it's been right since."
+        evidence:
+          score: 4
+          evidence_quotes:
+            - "about 800 students use it every week"
+            - "asked 40 students what they needed"
+          rationale: "Every claim had a number behind it, from weekly users to the students you asked and four months without a wrong location."
+          better_line: "Forty students by the library told me they wanted minutes, not a map."
+        ownership:
+          score: 4
+          evidence_quotes:
+            - "I wrote the live-location backend, and the timezone bug was mine."
+            - "Now I test anything with times across a clock change before I ship it."
+          rationale: "You said which part was yours, owned the bug without blaming anyone, and said what you now do differently."
+          better_line: "The bug was in my code, and now every time I store is in UTC."
+      key_line: "Since the fix, it's had zero wrong-location reports in four months."
+      safety_flag: false

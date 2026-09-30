@@ -1,6 +1,7 @@
 import debateAiInExams from '@data/mock/debate-ai-in-exams.yaml';
 import declineExtraProject from '@data/mock/decline-extra-project.yaml';
 import interviewFirstRole from '@data/mock/interview-first-role.yaml';
+import interviewInternship from '@data/mock/interview-internship.yaml';
 import midSprintScopeChange from '@data/mock/mid-sprint-scope-change.yaml';
 import pitchSeedRound from '@data/mock/pitch-seed-round.yaml';
 import prBlockingRelease from '@data/mock/pr-blocking-release.yaml';
@@ -27,6 +28,7 @@ const files = [
   midSprintScopeChange,
   pitchSeedRound,
   interviewFirstRole,
+  interviewInternship,
   debateAiInExams,
 ].map((raw) => recordingFileSchema.parse(raw));
 

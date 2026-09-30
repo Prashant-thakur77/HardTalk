@@ -1,6 +1,7 @@
 import debateAiInExams from '@data/scenarios/debate-ai-in-exams.yaml';
 import declineExtraProject from '@data/scenarios/decline-extra-project.yaml';
 import interviewFirstRole from '@data/scenarios/interview-first-role.yaml';
+import interviewInternship from '@data/scenarios/interview-internship.yaml';
 import midSprintScopeChange from '@data/scenarios/mid-sprint-scope-change.yaml';
 import pitchSeedRound from '@data/scenarios/pitch-seed-round.yaml';
 import prBlockingRelease from '@data/scenarios/pr-blocking-release.yaml';
@@ -16,6 +17,7 @@ export const scenarios: Scenario[] = [
   midSprintScopeChange,
   pitchSeedRound,
   interviewFirstRole,
+  interviewInternship,
   debateAiInExams,
 ].map((raw) => scenarioSchema.parse(raw));
 
