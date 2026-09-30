@@ -150,14 +150,16 @@ export default function ScenarioList() {
         {last ? null : (
           <Text style={styles.heroBody}>Say it out loud. Get a scorecard that quotes you. Try again.</Text>
         )}
-        <View style={styles.heroPill}>
-          <Text style={styles.heroPillText}>
-            {pro ? 'Pro · unlimited practice' : `${freeLeft} of ${FREE_GRADED_SESSIONS} free graded sessions left`}
-          </Text>
+        <View style={styles.heroRow}>
+          <View style={styles.heroPill}>
+            <Text style={styles.heroPillText}>
+              {pro ? 'Pro · unlimited practice' : `${freeLeft} of ${FREE_GRADED_SESSIONS} free graded sessions left`}
+            </Text>
+          </View>
+          <MockBanner compact />
         </View>
       </View>
       <PurchaseNotice />
-      <MockBanner compact />
       {last && lastScenario ? (
         <View style={styles.continue}>
           <Text style={styles.continueLabel}>Pick up where you left off</Text>
@@ -256,12 +258,11 @@ export default function ScenarioList() {
 }
 
 const styles = StyleSheet.create({
-  hero: { backgroundColor: colors.hero, borderRadius: 20, padding: space.md + 4, gap: space.sm, ...shadow },
-  tagline: { fontSize: 24, lineHeight: 30, fontWeight: '800', color: colors.onHero },
+  hero: { backgroundColor: colors.hero, borderRadius: 20, padding: space.md, gap: space.sm, ...shadow },
+  tagline: { fontSize: 21, lineHeight: 27, fontWeight: '800', color: colors.onHero },
+  heroRow: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: space.sm },
   heroBody: { fontSize: 16, lineHeight: 23, color: colors.onHeroMuted },
   heroPill: {
-    alignSelf: 'flex-start',
-    marginTop: space.xs,
     backgroundColor: 'rgba(255,255,255,0.14)',
     borderRadius: 999,
     paddingHorizontal: 12,

@@ -36,7 +36,7 @@ const cappedTurn = turnSchema.extend({ text: z.string().min(1).max(2000) });
 
 const gradeRequestSchema = z.intersection(
   scenarioRefSchema,
-  z.object({ turns: z.array(cappedTurn).min(1).max(40) }),
+  z.object({ turns: z.array(cappedTurn).min(1).max(40), topicConfirmed: z.boolean().default(false) }),
 );
 
 const NOT_SCORED = { error: 'This conversation was not scored.', safety: true } as const;
@@ -92,11 +92,14 @@ export function createApp(services: Services) {
     const scenario = resolveScenario(body.data);
     if (!scenario) return c.json({ error: 'Unknown scenario.' }, 404);
 
-    // A conversation where someone sounds genuinely distressed is never scored.
+    // A conversation where someone sounds genuinely distressed is never scored. The one
+    // exception is a practice the user built as a topic and confirmed line by line; the grader's
+    // own safety_flag still applies to it.
+    const topic = scenario.sensitive_topic && body.data.topicConfirmed;
     const distressed = body.data.turns.some(
       (turn) => turn.speaker === 'user' && detectDistress(turn.text, safetyConfig),
     );
-    if (distressed) return c.json(NOT_SCORED, 422);
+    if (distressed && !topic) return c.json(NOT_SCORED, 422);
 
     try {
       const result = await gradeTranscript({

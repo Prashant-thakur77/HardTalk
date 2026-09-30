@@ -17,7 +17,17 @@ export const safetyConfigSchema = z.strictObject({
   distress_explicit: z.array(z.string().min(1)).min(1),
   distress_ambiguous: z.array(z.string().min(1)),
   line_idioms: z.array(z.string().includes(' ')),
-  resources: z.array(z.strictObject({ name: z.string(), detail: z.string(), url: z.url().optional() })).min(1),
+  resources: z
+    .array(
+      z.strictObject({
+        name: z.string(),
+        detail: z.string(),
+        /** Digits only: the support screen dials it with one tap. */
+        phone: z.string().regex(/^\d+$/).optional(),
+        url: z.url().optional(),
+      }),
+    )
+    .min(1),
 });
 export type SafetyConfig = z.infer<typeof safetyConfigSchema>;
 

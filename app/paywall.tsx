@@ -48,6 +48,9 @@ export default function MockPaywall() {
     <Screen
       footer={
         <>
+          <View style={styles.notice} accessibilityRole="text">
+            <Text style={styles.noticeText}>Mock paywall: nothing is charged. The live app shows RevenueCat’s paywall with this copy.</Text>
+          </View>
           <Button
             label={`Start Pro · ${chosen?.short ?? ''} (mock)`}
             onPress={() => close('purchased')}
@@ -72,16 +75,19 @@ export default function MockPaywall() {
           ) : null}
         </>
       }>
-      <View style={styles.notice} accessibilityRole="text">
-        <Text style={styles.noticeText}>
-          Mock paywall. The live app shows RevenueCat&apos;s paywall with this copy. Nothing is charged here.
-        </Text>
-      </View>
       <Text style={styles.headline} accessibilityRole="header">
         {copy.headline}
       </Text>
       <Text style={type.body}>{copy.body}</Text>
       {copy.score ? <Text style={styles.score}>{copy.score}</Text> : null}
+      <View style={styles.features}>
+        {copy.features.map((feature) => (
+          <View key={feature} style={styles.feature}>
+            <Text style={styles.tick}>✓</Text>
+            <Text style={[type.body, styles.featureText]}>{feature}</Text>
+          </View>
+        ))}
+      </View>
       {params.reason === 'custom_scenario' ? (
         <View style={styles.example}>
           <Text style={styles.exampleLabel}>For example, from {lowerFirst(sampleLabel)}</Text>
@@ -105,14 +111,6 @@ export default function MockPaywall() {
         onSelect={setPlan}
       />
 
-      <View style={styles.features}>
-        {copy.features.map((feature) => (
-          <View key={feature} style={styles.feature}>
-            <Text style={styles.tick}>✓</Text>
-            <Text style={[type.body, styles.featureText]}>{feature}</Text>
-          </View>
-        ))}
-      </View>
     </Screen>
   );
 }

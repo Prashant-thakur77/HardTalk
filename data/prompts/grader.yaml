@@ -32,7 +32,10 @@ instructions: |
   Also report:
   - key_line: {{key_line}}, copied word for word from one USER turn, or null if there is none.
   - safety_flag: true if the user expressed distress, self-harm, or a real crisis rather
-    than practice. When true, still return scores but keep rationales neutral.
+    than practice. Talking about such a topic as the subject of the practice (a founder
+    pitching a suicide-prevention product, a nurse describing the patients they care for) is
+    not distress; the user speaking about their own crisis is. When true, still return
+    scores but keep rationales neutral.
 
   Scenario:
   {{scenario}}

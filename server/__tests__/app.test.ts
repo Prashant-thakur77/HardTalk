@@ -118,6 +118,20 @@ describe('POST /grade', () => {
     expect(callModel).not.toHaveBeenCalled();
   });
 
+  it('scores a practice built as a topic once the user confirmed each flagged line', async () => {
+    const callModel = vi.fn<GradeModel>().mockResolvedValue(grade);
+    const topicTurns = [...turns, { speaker: 'user', text: 'Our model flags suicide risk in student messages.' }];
+    const scenario = { ...custom, sensitive_topic: true };
+    const app = appWith(callModel);
+    expect((await post(app, { scenario, turns: topicTurns })).status).toBe(422);
+    expect(callModel).not.toHaveBeenCalled();
+    expect((await post(app, { scenario, turns: topicTurns, topicConfirmed: true })).status).toBe(200);
+    // Only the user's own practice can be a topic: the flag on anything else changes nothing.
+    callModel.mockClear();
+    expect((await post(app, { scenario: custom, turns: topicTurns, topicConfirmed: true })).status).toBe(422);
+    expect(callModel).not.toHaveBeenCalled();
+  });
+
   it('does not return a score when the grader raises the safety flag', async () => {
     const callModel = vi.fn<GradeModel>().mockResolvedValue({ ...grade, safety_flag: true });
     const { status, json } = await post(appWith(callModel), { scenarioId: 'pr-blocking-release', turns });

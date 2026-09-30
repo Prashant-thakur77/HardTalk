@@ -1,6 +1,45 @@
+<div align="center">
+
+<img src="assets/icon.png" alt="" width="96" height="96" />
+
 # HardTalk
 
-Practise the conversation before you have it.
+**Practise the conversation before you have it.**
+
+A mobile app where a panel of AI personas pushes back on your interview answers, your pitch, your debate
+or a hard talk at work, out loud. Then it scores you with quotes of your own words, and shows the score
+move when you try again.
+
+[![RevenueCat Shipaton 2026: Next Gen Award entry](https://img.shields.io/badge/RevenueCat_Shipaton_2026-Next_Gen_Award_entry-F25A5A)](#built-for-revenuecat-shipaton-2026)
+[![Licence: MIT](https://img.shields.io/badge/licence-MIT-2563EB)](LICENSE)
+[![Mock mode: zero keys](https://img.shields.io/badge/mock_mode-zero_keys,_zero_network-16A34A)](#see-it-in-60-seconds)
+
+[![Expo SDK 57](https://img.shields.io/badge/Expo_SDK-57-000020?logo=expo&logoColor=white)](https://docs.expo.dev/)
+[![React Native 0.86](https://img.shields.io/badge/React_Native-0.86-087EA4?logo=react&logoColor=white)](https://reactnative.dev/)
+[![TypeScript strict](https://img.shields.io/badge/TypeScript-strict-3178C6?logo=typescript&logoColor=white)](tsconfig.json)
+[![RevenueCat](https://img.shields.io/badge/RevenueCat-react--native--purchases_10-F25A5A)](docs/REVENUECAT.md)
+[![ElevenLabs](https://img.shields.io/badge/ElevenLabs-voice_agents-111111)](docs/DEVICE.md)
+[![Claude](https://img.shields.io/badge/Claude-grader_and_drafter-D97757?logo=anthropic&logoColor=white)](data/prompts/grader.yaml)
+[![Hono](https://img.shields.io/badge/Hono-server-E36002?logo=hono&logoColor=white)](server/)
+[![zod](https://img.shields.io/badge/zod-4-3E67B1?logo=zod&logoColor=white)](src/grading/rubric.schema.ts)
+[![Vitest](https://img.shields.io/badge/tested_with-Vitest-6E9F18?logo=vitest&logoColor=white)](#checks)
+
+</div>
+
+<table>
+  <tr>
+    <td align="center" width="33%"><img src="docs/screens/1-home.jpg" alt="Home: pick a track (Workplace, Pitch Q&amp;A, Interview, Debate) and a conversation" width="240" /><br /><sub><b>1. Pick a track</b></sub></td>
+    <td align="center" width="33%"><img src="docs/screens/2-brief.jpg" alt="Brief: your goal, and who is in the room with what each will ask about" width="240" /><br /><sub><b>2. Meet the room</b></sub></td>
+    <td align="center" width="33%"><img src="docs/screens/3-session.jpg" alt="Session: live captions from a three-person investor panel" width="240" /><br /><sub><b>3. Say it out loud</b></sub></td>
+  </tr>
+  <tr>
+    <td align="center"><img src="docs/screens/4-scorecard.jpg" alt="Scorecard: 6 to 14 out of 16 on the retry, and all three investors won over" width="240" /><br /><sub><b>4. See the score move</b></sub></td>
+    <td align="center"><img src="docs/screens/5-paywall.jpg" alt="Paywall with copy for the moment it opens, and a sample drafted panel" width="240" /><br /><sub><b>5. Pro, through RevenueCat</b></sub></td>
+    <td align="center"><img src="docs/screens/6-bring.jpg" alt="A panel drafted from a pasted job posting" width="240" /><br /><sub><b>6. Bring the real one</b></sub></td>
+  </tr>
+</table>
+
+## What it is
 
 HardTalk is the practice panel you don't have. It is for the spoken moments you only get one shot at: your first job interview, the Q&A after your first pitch, a debate, or telling a teammate their PR is blocking the release. It is built for students and people early in their careers, who rarely have a room of experienced people to rehearse with.
 
@@ -15,7 +54,18 @@ You say it out loud to a room of AI personas who push back, each with their own 
 
 ![HardTalk in mock mode: a pitch panel of Maya, Leo and Kenji; the retry goes from 6 to 14 and wins over all three; then a pasted pitch becomes a new panel](docs/demo.gif)
 
-## Who it is for, and why it matters
+## At a glance
+
+| | |
+| --- | --- |
+| **Problem** | The interviews, pitches and hard talks that shape an early career are spoken, high-stakes and one-shot, and there is nobody to rehearse with. |
+| **Who pays** | Final-year students, new graduates and student founders with a real conversation coming up. |
+| **Product** | A voiced AI panel that pushes back, a scorecard grounded in quotes of your own words, and a retry that shows the score move. |
+| **Why it is different** | A panel with different stances, not one chatbot; fourteen open rubrics that each cite a named framework; code, not the model, rejects any quote you didn't say. |
+| **Revenue** | Freemium through RevenueCat, entitlement `pro`: Weekly $2.99, Monthly $4.99, Annual $29.99. The paywall opens at two real boundaries only. |
+| **Status** | The whole loop runs in mock mode with no keys. The live loop is built and unit-tested, but not yet run on a phone ([DEFECTS.md](DEFECTS.md) D-001 to D-004). |
+
+## Business value
 
 **Who.** Final-year students and new graduates before their first interviews, student founders before their first investor Q&A, and new graduates before their first hard conversation at work. That is about 1.97 million US bachelor's graduates a year ([NCES, 2022–23](https://nces.ed.gov/programs/digest/d24/tables/dt24_322.20.asp)) and about 10.7 million graduates a year in India ([AISHE 2021–22](https://www.pib.gov.in/PressReleasePage.aspx?PRID=1999713)).
 
@@ -44,7 +94,7 @@ pnpm install
 pnpm dev        # then press w for the browser, or scan the QR code with Expo Go
 ```
 
-That is mock mode, and it needs no API keys, no microphone and no network. It replays recorded conversations through the same screens, captions and scorecard as the live app, reads each persona's lines aloud with the device's own speech engine at their own pitch, and a “Mock replay” label says so on every screen. Node 20 and pnpm 10 are the only requirements.
+That is mock mode, and it needs no API keys, no microphone and no network. It replays recorded conversations through the same screens, captions and scorecard as the live app, reads each persona's lines aloud with the device's own speech engine at their own pitch, and a “Mock replay” label says so on the home screen, the brief, every session and every scorecard. Node 20 and pnpm 10 are the only requirements.
 
 ## What happens in a session
 
@@ -65,6 +115,18 @@ That is mock mode, and it needs no API keys, no microphone and no network. It re
 Three graded sessions are free, in any track. Pro (the RevenueCat `pro` entitlement) adds unlimited grading, progress history, and your own scenarios: paste the real job posting, pitch or motion and a panel is drafted for it (`POST /scenario/draft`, prompt in `data/prompts/drafter.yaml`), or describe it in five answers. The paywall opens in exactly two places: starting a fourth graded session, and tapping "Create your own scenario". At the session limit its copy names the conversation you are starting and how your score has moved on it ("Keep practising 'Your teammate's PR is blocking the release'. Your score on it so far: 7 → 14 out of 16."); at "Create your own scenario" it says why you would write one. The words come from `data/paywall.yaml` and reach RevenueCat's paywall as custom variables. The free sessions are counted on the device, so deleting your history does not reset them; reinstalling does, because there are no accounts. Restore purchases is on the home screen and on the paywall.
 
 ## How it works
+
+| Layer | Technology | Where |
+| --- | --- | --- |
+| App | Expo SDK 57 development build, React Native 0.86, expo-router, TypeScript strict | `app/`, `src/` |
+| Voice | ElevenLabs conversational agents over WebRTC (`@elevenlabs/react-native`, pinned), one voice per person | `src/voice/` |
+| Audio | `expo-audio`, `expo-speech` for mock mode, `expo-haptics` | `src/voice/mock.ts` |
+| Purchases | RevenueCat (`react-native-purchases`, `react-native-purchases-ui`), entitlement `pro`, remote paywall with custom variables | `src/purchases/` |
+| Grading and drafting | Claude with structured JSON output, a different model family from the persona | `server/src/grader.ts`, `server/src/drafter.ts` |
+| Server | Hono on Node, about 450 lines: token minting, grading, drafting, safety check, rate limit | `server/` |
+| Data | YAML validated by zod 4, shared by the app and the server | `data/` |
+| Storage | On the device only (AsyncStorage); no accounts | `src/attempts/` |
+| Tests | Vitest unit tests, ESLint with zero warnings | `pnpm test`, `pnpm lint` |
 
 ```mermaid
 flowchart LR
@@ -128,9 +190,19 @@ pnpm eval        # grader vs hand labels: kappa, agreement, run-to-run stability
 
 [EVALS.md](EVALS.md) explains the gold set and the metrics, and is explicit about what has not been run yet.
 
-## How this was built
+## Built for RevenueCat Shipaton 2026
 
-HardTalk is my entry for the RevenueCat Shipaton 2026 Next Gen award. I built it with Claude Code in a loop: build one phase, then a separate reviewer pass acting as a tired, hostile judge clones the repo, tries to run it and scores it against the four judging criteria. The reviews are in [`review/`](review/), every finding is in [DEFECTS.md](DEFECTS.md), the score history is in [SCORECARD.md](SCORECARD.md), and [PLAN.md](PLAN.md) is re-planned from the scores after each round. [CLAUDE.md](CLAUDE.md) holds the rules the loop follows.
+HardTalk is my entry for the **Next Gen Award** (student category) of RevenueCat Shipaton 2026. Where to check each judging criterion:
+
+| Criterion | Where to look |
+| --- | --- |
+| Working and real | [See it in 60 seconds](#see-it-in-60-seconds) in mock mode; the live setup in [docs/DEVICE.md](docs/DEVICE.md); what has not run live yet in [DEFECTS.md](DEFECTS.md) |
+| Code quality | This README, the MIT [LICENSE](LICENSE), the architecture above, [Checks](#checks), and data kept in YAML under `data/` |
+| Thoughtful RevenueCat use | [`src/purchases/`](src/purchases/), [`data/paywall.yaml`](data/paywall.yaml) and [docs/REVENUECAT.md](docs/REVENUECAT.md): entitlement `pro`, two paywall gates, copy that names your scenario and score, entitlement flips live, Restore Purchases |
+| Does it matter | [The business case](#business-value), fourteen framework-cited rubrics in [`data/rubrics/`](data/rubrics/), the evidence gate, [SAFETY.md](SAFETY.md) and [ACCESSIBILITY.md](ACCESSIBILITY.md) |
+
+### How this was built
+ I built it with Claude Code in a loop: build one phase, then a separate reviewer pass acting as a tired, hostile judge clones the repo, tries to run it and scores it against the four judging criteria. The reviews are in [`review/`](review/), every finding is in [DEFECTS.md](DEFECTS.md), the score history is in [SCORECARD.md](SCORECARD.md), and [PLAN.md](PLAN.md) is re-planned from the scores after each round. [CLAUDE.md](CLAUDE.md) holds the rules the loop follows.
 
 ## Licence
 

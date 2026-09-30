@@ -69,7 +69,7 @@ describe('RevenueCat provider', () => {
     expect(rc.paywallParams).toEqual({
       requiredEntitlementIdentifier: 'pro',
       customVariables: {
-        headline: { type: 'string', value: `Keep practising "Your teammate's PR is blocking the release"` },
+        headline: { type: 'string', value: 'Keep practising “Your teammate\'s PR is blocking the release”' },
         body: { type: 'string', value: expect.stringContaining('three free graded sessions') },
         score_line: { type: 'string', value: 'Your score on it so far: 6 → 14 out of 16.' },
         scenario_title: { type: 'string', value: "Your teammate's PR is blocking the release" },
@@ -95,7 +95,7 @@ describe('RevenueCat provider', () => {
     });
     const variables = (rc.paywallParams as { customVariables: Record<string, { value: string }> }).customVariables;
     expect(variables.headline!.value).toBe('Start this one with Pro');
-    expect(variables.body!.value).toContain('"Push back on a mid-sprint scope change"');
+    expect(variables.body!.value).toContain('“Push back on a mid-sprint scope change”');
     expect(variables.body!.value).not.toMatch(/retry is usually/);
   });
 

@@ -424,7 +424,11 @@ describe('detectDistress', () => {
     "This is my last week, I've given my things away.",
     "Personally I've been cutting again and I don't know how to stop.",
     "I don't see a way out.",
-    "I'm writing a goodbye note tonight.",
+    "I'm writing a goodbye letter to my family.",
+    // Round 20 (D-130): close variants.
+    "I've stockpiled my sleeping pills.",
+    "I just don't see any way out, honestly.",
+    "There's no point going on with life.",
   ])('flags %j', (line) => expect(detectDistress(line, config)).toBe(true));
 
   it.each([
@@ -507,6 +511,13 @@ describe('detectDistress', () => {
     "I can't see a way out of this deadline without cutting scope.",
     "We've been cutting again and again at the budget.",
     "I'm writing a note to the team about the release.",
+    // Round 20 (D-130): work lines the round-19 rules wrongly flagged.
+    'I want it all to be over by Friday so we can ship.',
+    "There's no point going on until QA signs off.",
+    "I'm sick of living in spreadsheets.",
+    "I'm tired of living out of a suitcase for this job.",
+    "I've been cutting again at the backlog.",
+    "I'm writing a goodbye note to the team, it's my last week.",
   ])('does not flag the workplace idiom %j', (line) => expect(detectDistress(line, config)).toBe(false));
 });
 

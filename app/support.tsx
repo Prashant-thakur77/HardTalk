@@ -31,7 +31,7 @@ export default function Support() {
       </Text>
       <Text style={type.body}>
         {topic
-          ? 'Your practice is still saved for whenever you want it.'
+          ? 'Your practice is still here. Go back to it whenever you want, or not at all.'
           : pasted
           ? 'Nothing you wrote was turned into a practice or saved.'
           : chosen
@@ -45,6 +45,14 @@ export default function Support() {
         <View key={resource.name} style={styles.resource}>
           <Text style={type.heading}>{resource.name}</Text>
           <Text style={type.body}>{resource.detail}</Text>
+          {resource.phone ? (
+            <Button
+              label={`Call ${resource.phone}`}
+              hint={`Calls ${resource.name}`}
+              variant="secondary"
+              onPress={() => void Linking.openURL(`tel:${resource.phone}`)}
+            />
+          ) : null}
           {resource.url ? (
             <Pressable
               accessibilityRole="link"

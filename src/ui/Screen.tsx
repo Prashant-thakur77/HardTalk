@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import type { ReactNode, RefObject } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -7,12 +7,16 @@ import { colors, space } from './theme';
 interface ScreenProps {
   children: ReactNode;
   footer?: ReactNode;
+  /** For a screen that scrolls to one of its own sections. */
+  scrollRef?: RefObject<ScrollView | null>;
 }
 
-export function Screen({ children, footer }: ScreenProps) {
+export function Screen({ children, footer, scrollRef }: ScreenProps) {
   return (
     <SafeAreaView style={styles.safe} edges={['bottom']}>
-      <ScrollView contentContainerStyle={styles.content}>{children}</ScrollView>
+      <ScrollView ref={scrollRef} contentContainerStyle={styles.content}>
+        {children}
+      </ScrollView>
       {footer ? <View style={styles.footer}>{footer}</View> : null}
     </SafeAreaView>
   );

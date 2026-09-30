@@ -2,13 +2,13 @@
 # score_line to RevenueCat's remote paywall as custom variables (docs/REVENUECAT.md), so the two
 # entry points get their own words and the mock paywall shows exactly the same text.
 session_limit:
-  headline: Keep practising "{{scenario_title}}"
+  headline: Keep practising “{{scenario_title}}”
   body: You've used your three free graded sessions. The next retry is usually where the new line sticks.
   score: "Your score on it so far: {{score_line}}."
 # At the limit, starting a conversation you have not practised yet.
 session_limit_new:
   headline: Start this one with Pro
-  body: You've used your three free graded sessions. Pro opens "{{scenario_title}}" and every other conversation, with as many retries as you need.
+  body: You've used your three free graded sessions. Pro opens “{{scenario_title}}” and every other conversation, with as many retries as you need.
   score: ""
 custom_scenario:
   headline: Rehearse the one you’re actually dreading

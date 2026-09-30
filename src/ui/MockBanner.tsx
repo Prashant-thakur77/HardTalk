@@ -55,6 +55,7 @@ export function MockBanner({ message = DEFAULT_MESSAGE, compact = false }: MockB
 
 const styles = StyleSheet.create({
   banner: {
+    width: '100%',
     backgroundColor: colors.notice,
     borderRadius: radius,
     padding: space.sm + 4,

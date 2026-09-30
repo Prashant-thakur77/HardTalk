@@ -53,8 +53,12 @@ export function RoomVerdicts({ people, grade, previous, trackRubrics, reduceMoti
               <View style={styles.nameRow}>
                 <Text style={styles.name}>{person.name}</Text>
                 <Text style={[styles.chip, CHIP[now.verdict]]}>{VERDICT[now.verdict].label}</Text>
-                {changed ? <Text style={type.caption}>was {VERDICT[before!].label.toLowerCase()}</Text> : null}
               </View>
+              {changed ? (
+                <Text style={type.caption}>
+                  Was {VERDICT[before!].label.toLowerCase()} → {VERDICT[now.verdict].label.toLowerCase()}
+                </Text>
+              ) : null}
               {now.basis.length < trackRubrics.length ? <Text style={type.caption}>Cares about {basis}</Text> : null}
             </View>
           </View>

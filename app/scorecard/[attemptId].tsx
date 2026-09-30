@@ -79,15 +79,7 @@ export default function Scorecard() {
   return (
     <Screen
       footer={
-        <>
-        {outOfFree ? (
-          <Text style={[type.caption, styles.centred]}>
-            {lastFree
-              ? 'That was your last free graded session. The next one opens Pro.'
-              : 'Your free graded sessions are used, so the next one opens Pro.'}
-          </Text>
-        ) : null}
-        {up ? (
+        up ? (
           <>
             <Button
               label={`Try ${up} · ${scenario.difficulty_levels[up].name}`}
@@ -104,8 +96,7 @@ export default function Scorecard() {
             <Button label="Retry this conversation" onPress={retry} hint="Runs the same scenario again" />
             <Link label="Pick another conversation" onPress={() => router.dismissTo('/')} />
           </>
-        )}
-        </>
+        )
       }>
       <Stack.Screen options={{ title: `Attempt ${attempt.number} · ${attempt.difficulty}` }} />
       <PurchaseNotice />
@@ -146,7 +137,15 @@ export default function Scorecard() {
         personaName={scenario.persona.name}
         levelName={(level) => scenario.difficulty_levels[level].name}
         levelSummary={(level) => scenario.difficulty_levels[level].summary}
+        weakest={weakest && grade.dimensions[weakest] ? { dimension: weakest, grade: grade.dimensions[weakest]! } : null}
       />
+      {outOfFree ? (
+        <Text style={type.caption}>
+          {lastFree
+            ? 'That was your last free graded session. The next one opens Pro.'
+            : 'Your free graded sessions are used, so the next one opens Pro.'}
+        </Text>
+      ) : null}
 
       <Text style={type.heading} accessibilityRole="header">
         Your four skills
@@ -221,12 +220,14 @@ function NextStep({
   personaName,
   levelName,
   levelSummary,
+  weakest,
 }: {
   score: number;
   level: Difficulty;
   personaName: string;
   levelName: (level: Difficulty) => string;
   levelSummary: (level: Difficulty) => string;
+  weakest: { dimension: Dimension; grade: DimensionGrade } | null;
 }) {
   const up = nextLevel(level);
   if (score >= 12 && up) {
@@ -239,8 +240,15 @@ function NextStep({
       </View>
     );
   }
-  // After a weaker try the open skill card below already says where to start.
-  return null;
+  // After a weaker try, the weakest skill's better line, so the retry has one thing to change.
+  if (!weakest) return null;
+  return (
+    <View style={[styles.card, styles.next]}>
+      <Text style={styles.nextLabel}>Next time, try</Text>
+      <Text style={styles.quoteText}>“{weakest.grade.better_line}”</Text>
+      <Text style={type.caption}>Your weakest skill this time: {rubrics[weakest.dimension].name}.</Text>
+    </View>
+  );
 }
 
 /** A text button. `text` is a shorter visible form of the label, and always part of it (WCAG 2.5.3). */
@@ -374,7 +382,6 @@ const styles = StyleSheet.create({
   fromTo: { fontSize: 26, fontWeight: '800', color: colors.text },
   stacked: { flexDirection: 'column', alignItems: 'flex-start' },
   footerRow: { flexDirection: 'row', justifyContent: 'space-around' },
-  centred: { textAlign: 'center' },
   link: { minHeight: MIN_TARGET, justifyContent: 'center', alignItems: 'center', paddingHorizontal: space.sm },
   linkText: { color: colors.primary, fontSize: 16, fontWeight: '700' },
   card: {

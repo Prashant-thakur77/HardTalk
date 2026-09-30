@@ -1,6 +1,6 @@
 import { useLocalSearchParams } from 'expo-router';
-import { useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { useRef, useState } from 'react';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { setSpeechRate, SPEECH_RATES, usePreferences } from '@/a11y/preferences';
 import { getGradedSessionsUsed, type SessionMode } from '@/attempts/store';
@@ -36,6 +36,9 @@ export default function ScenarioBrief() {
   const [difficulty, setDifficulty] = useState<Difficulty>('L1');
   const [mode, setMode] = useState<SessionMode>('voice');
   const [showFacts, setShowFacts] = useState(false);
+  // The choices sit below the room, so the footer repeats them with a way back up.
+  const scroll = useRef<ScrollView>(null);
+  const choicesY = useRef(0);
 
   if (!scenario) return <Text style={type.body}>Scenario not found.</Text>;
 
@@ -43,11 +46,30 @@ export default function ScenarioBrief() {
   const people = peopleIn(scenario, difficulty);
   const factsTitle = people.length > 1 ? 'What everyone knows' : 'What you both know';
   const track = getTrack(scenario.track);
+  const modeLabel = MODES.find((option) => option.value === mode)!.label;
+  const pace = SPEECH_RATES.find((rate) => rate.value === speechRate)?.label;
+  const choices = [
+    `${difficulty} · ${scenario.difficulty_levels[difficulty].name}`,
+    modeLabel,
+    ...(mode === 'voice' && pace ? [`${pace} pace`] : []),
+  ].join(' · ');
 
   return (
     <Screen
+      scrollRef={scroll}
       footer={
         <>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={`${choices}. Change`}
+            accessibilityHint="Scrolls to the level and practice choices"
+            onPress={() => scroll.current?.scrollTo({ y: choicesY.current, animated: !reduceMotion })}
+            hitSlop={8}
+            style={styles.choices}>
+            <Text style={type.caption}>
+              {choices} · <Text style={styles.change}>Change</Text>
+            </Text>
+          </Pressable>
           {!pro && getGradedSessionsUsed() >= FREE_GRADED_SESSIONS ? (
             <Text style={type.caption}>Your three free graded sessions are used, so starting opens Pro.</Text>
           ) : null}
@@ -96,31 +118,33 @@ export default function ScenarioBrief() {
       </View>
       <PurchaseNotice />
 
-      <Segmented
-        label={`How hard should ${scenario.persona.name} push back?`}
-        segments={difficultySchema.options.map((option) => ({
-          value: option,
-          label: option,
-          name: scenario.difficulty_levels[option].name,
-          description: scenario.difficulty_levels[option].summary,
-        }))}
-        selected={difficulty}
-        onSelect={setDifficulty}
-      />
-      <Segmented<SessionMode>
-        label="How do you want to practise?"
-        segments={MODES.map((option) => ({ value: option.value, name: option.label, description: option.description }))}
-        selected={mode}
-        onSelect={setMode}
-      />
-      {mode === 'voice' ? (
+      <View style={styles.choiceGroup} onLayout={(event) => (choicesY.current = event.nativeEvent.layout.y)}>
         <Segmented
-          label={people.length > 1 ? 'How fast they speak' : `${scenario.persona.name}'s speaking pace`}
-          segments={SPEECH_RATES.map((rate) => ({ value: rate.value, name: rate.label }))}
-          selected={speechRate}
-          onSelect={(rate) => void setSpeechRate(rate)}
+          label={`How hard should ${scenario.persona.name} push back?`}
+          segments={difficultySchema.options.map((option) => ({
+            value: option,
+            label: option,
+            name: scenario.difficulty_levels[option].name,
+            description: scenario.difficulty_levels[option].summary,
+          }))}
+          selected={difficulty}
+          onSelect={setDifficulty}
         />
-      ) : null}
+        <Segmented<SessionMode>
+          label="How do you want to practise?"
+          segments={MODES.map((option) => ({ value: option.value, name: option.label, description: option.description }))}
+          selected={mode}
+          onSelect={setMode}
+        />
+        {mode === 'voice' ? (
+          <Segmented
+            label={people.length > 1 ? 'How fast they speak' : `${scenario.persona.name}'s speaking pace`}
+            segments={SPEECH_RATES.map((rate) => ({ value: rate.value, name: rate.label }))}
+            selected={speechRate}
+            onSelect={(rate) => void setSpeechRate(rate)}
+          />
+        ) : null}
+      </View>
       {track.tip ? (
         <View style={styles.goal}>
           <Text style={styles.label}>Tip</Text>
@@ -142,6 +166,9 @@ const styles = StyleSheet.create({
   facts: { borderRadius: 14, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface, paddingHorizontal: space.md, gap: space.xs },
   factsHead: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', minHeight: MIN_TARGET },
   chevron: { fontSize: 14, fontWeight: '700', color: colors.textMuted },
+  choiceGroup: { gap: space.md },
+  choices: { minHeight: 32, justifyContent: 'center', alignItems: 'center' },
+  change: { color: colors.primary, fontWeight: '700' },
   goalText: { fontSize: 17, lineHeight: 24, fontWeight: '600', color: colors.text },
   label: { fontSize: 13, fontWeight: '700', color: colors.primary, textTransform: 'uppercase' },
 });

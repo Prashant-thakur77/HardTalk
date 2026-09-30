@@ -89,22 +89,25 @@ export default function Session() {
   const savedId = useRef<string | null>(null);
   const [safetyOffline, setSafetyOffline] = useState(false);
   // A practice built as a topic (D-124): a flagged line asks whether it is about the user instead
-  // of ending the practice. Scoring waits for the answer.
+  // of ending the practice. Scoring, or showing a score already in flight, waits for the answer.
   const [askingIfPersonal, setAskingIfPersonal] = useState(false);
   const asking = useRef(false);
+  const topicConfirmed = useRef(false);
+  const scoring = useRef(false);
   const stopForSupport = useRef<() => void>(() => undefined);
   const personaName = scenario?.persona.name ?? 'The persona';
 
   const score = () => {
-    if (!ended.current || !scenario || asking.current) return;
+    if (!ended.current || !scenario || asking.current || scoring.current) return;
     if (flagged.current) {
       router.replace('/support');
       return;
     }
     const { reason, transcript } = ended.current;
+    scoring.current = true;
     setGrading(true);
     setGradeError(null);
-    gradeConversation({ scenarioId: scenario.id, attempt, turns: transcript })
+    gradeConversation({ scenarioId: scenario.id, attempt, turns: transcript, topicConfirmed: topicConfirmed.current })
       .then(async (grade) => {
         if (flagged.current) throw new NotScoredForSafety();
         const id = `${scenario.id}-${attempt}-${Date.now()}`;
@@ -120,16 +123,29 @@ export default function Session() {
           endReason: reason,
           createdAt: Date.now(),
         });
-        router.replace({ pathname: '/scorecard/[attemptId]', params: { attemptId: id } });
+        if (!asking.current) showScorecard();
       })
       .catch((error: unknown) => {
         if (error instanceof NotScoredForSafety) {
           router.replace('/support');
           return;
         }
+        scoring.current = false;
         setGrading(false);
         setGradeError(error instanceof Error ? error.message : String(error));
       });
+  };
+
+  const showScorecard = () => {
+    if (savedId.current) router.replace({ pathname: '/scorecard/[attemptId]', params: { attemptId: savedId.current } });
+  };
+
+  const carryOn = () => {
+    asking.current = false;
+    topicConfirmed.current = true;
+    setAskingIfPersonal(false);
+    if (savedId.current) showScorecard();
+    else score();
   };
 
   const { turns, state, stop, sendText, setVolume, suggestedReply } = useConversation({
@@ -299,15 +315,6 @@ export default function Session() {
               <Button label="Try scoring again" onPress={score} />
               <Button label="Back to conversations" variant="secondary" onPress={() => router.dismissTo('/')} />
             </>
-          ) : ungradable ? (
-            <>
-              <Text style={type.body} accessibilityLiveRegion="polite">
-                Mock mode can only grade the recorded lines, and you used your own words, so this wasn’t scored or
-                counted. Live mode grades what you actually say.
-              </Text>
-              <Button label="Try again" onPress={() => void startSession(scenario.id, difficulty, mode, 'replace')} />
-              <Button label="Back to conversations" variant="secondary" onPress={() => router.dismissTo('/')} />
-            </>
           ) : askingIfPersonal ? (
             <>
               <Text style={type.body} accessibilityLiveRegion="assertive">
@@ -317,12 +324,17 @@ export default function Session() {
               <Button
                 label="It’s the topic, carry on"
                 variant="secondary"
-                onPress={() => {
-                  asking.current = false;
-                  setAskingIfPersonal(false);
-                  score();
-                }}
+                onPress={carryOn}
               />
+            </>
+          ) : ungradable ? (
+            <>
+              <Text style={type.body} accessibilityLiveRegion="polite">
+                Mock mode can only grade the recorded lines, and you used your own words, so this wasn’t scored or
+                counted. Live mode grades what you actually say.
+              </Text>
+              <Button label="Try again" onPress={() => void startSession(scenario.id, difficulty, mode, 'replace')} />
+              <Button label="Back to conversations" variant="secondary" onPress={() => router.dismissTo('/')} />
             </>
           ) : stoppedEarly ? (
             <>
@@ -372,7 +384,7 @@ export default function Session() {
                         <Text style={styles.restart}>Restart with the recorded lines</Text>
                       </Pressable>
                     </View>
-                  ) : config.mock ? (
+                  ) : config.mock && userTurns === 0 ? (
                     <Text style={type.caption}>
                       In mock mode the replies follow the recording, and only the recorded lines are scored.
                     </Text>

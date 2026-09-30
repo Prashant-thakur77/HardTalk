@@ -32,7 +32,7 @@ type Field = Exclude<keyof CustomScenarioForm, 'track'>;
 type Mode = 'paste' | 'describe';
 
 const MODES = [
-  { value: 'paste', label: 'Paste it', description: 'Paste a job posting, your pitch or the motion, and a panel is built for it.' },
+  { value: 'paste', label: 'Paste it', description: 'Paste the real text, and a panel is built from it.' },
   { value: 'describe', label: 'Describe it', description: 'Answer five short questions instead.' },
 ] as const;
 
@@ -101,13 +101,14 @@ export default function NewCustomScenario() {
     }
   };
 
-  const saveDescribed = async (aboutTopic = false) => {
-    if (!aboutTopic && Object.values(form).some((answer) => isDistressLine(answer))) {
+  // Describe answers are the user's own conversation, so unlike a paste they have no topic override.
+  const saveDescribed = async () => {
+    if (Object.values(form).some((answer) => isDistressLine(answer))) {
       holdForSafety();
       return;
     }
     // Live mode also asks the server's model, as it does for every spoken line.
-    if (!aboutTopic && (await checkDistressRemotely(Object.values(form).join('\n'))).distress) {
+    if ((await checkDistressRemotely(Object.values(form).join('\n'))).distress) {
       holdForSafety();
       return;
     }
@@ -118,7 +119,7 @@ export default function NewCustomScenario() {
       setErrors(byField);
       return;
     }
-    await open(buildCustomScenario(parsed.data, Date.now(), aboutTopic));
+    await open(buildCustomScenario(parsed.data));
   };
 
   const sourceLength = source.trim().length;
@@ -128,15 +129,16 @@ export default function NewCustomScenario() {
     <View style={styles.hold}>
       <Text style={styles.holdTitle}>This wasn’t turned into a practice</Text>
       <Text style={type.caption}>
-        Some of it reads like real distress, so nothing was drafted or saved. If it’s about you, support is one tap
-        away.
+        {mode === 'paste'
+          ? 'It mentions things like suicide or harm, so nothing was built or saved yet. If it’s about you, support is one tap away. If it’s a topic you’re pitching, interviewing for or debating, you can still build it.'
+          : 'It mentions things like suicide or harm, so nothing was saved. These answers describe your own conversation, so if any of it is about you, support is one tap away. For a topic, such as a wellbeing pitch, use Paste it instead.'}
       </Text>
       <Button
         label="Talk to someone"
         onPress={() => router.push({ pathname: '/support', params: { reason: 'pasted' } })}
         hint="Free, confidential support lines"
       />
-      {confirmingTopic ? (
+      {mode === 'describe' ? null : confirmingTopic ? (
         <>
           <Text style={type.caption} accessibilityLiveRegion="polite">
             Only if none of it is about you. The brief will keep a support link, and if a line you say sounds
@@ -145,18 +147,16 @@ export default function NewCustomScenario() {
           <Button
             label="Build it as a topic"
             variant="secondary"
-            onPress={() => void (mode === 'paste' ? build(true) : saveDescribed(true))}
+            onPress={() => void build(true)}
           />
         </>
       ) : (
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel="It’s a topic, not about me"
-          accessibilityHint="Asks you to confirm before building it"
+        <Button
+          label="It’s a topic, not about me"
+          variant="secondary"
+          hint="Asks you to confirm before building it"
           onPress={() => setConfirmingTopic(true)}
-          style={styles.link}>
-          <Text style={styles.linkText}>It’s a topic, not about me</Text>
-        </Pressable>
+        />
       )}
     </View>
   ) : null;
@@ -221,23 +221,19 @@ export default function NewCustomScenario() {
         </>
       ) : (
         <>
+          <View style={styles.field}>
+            <Text style={styles.label}>What kind of practice?</Text>
+            <TrackTabs tracks={tracks} selected={track} onSelect={setTrack} />
+          </View>
           <Segmented<Mode>
             label="How do you want to set it up?"
-            segments={MODES.map((option) => ({
-              value: option.value,
-              name: option.label,
-              description: option.value === 'paste' ? getTrack(track).paste_label : option.description,
-            }))}
+            segments={MODES.map((option) => ({ value: option.value, name: option.label, description: option.description }))}
             selected={mode}
             onSelect={(next) => {
               setMode(next);
               setSafetyHold(false);
             }}
           />
-          <View style={styles.field}>
-            <Text style={styles.label}>What kind of practice?</Text>
-            <TrackTabs tracks={tracks} selected={track} onSelect={setTrack} />
-          </View>
           {mode === 'paste' ? (
             <View style={styles.field}>
               <Text style={styles.label} nativeID="label-source">
