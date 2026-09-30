@@ -1,4 +1,4 @@
-import type { ReactNode, RefObject } from 'react';
+import type { ReactNode } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -7,16 +7,12 @@ import { colors, space } from './theme';
 interface ScreenProps {
   children: ReactNode;
   footer?: ReactNode;
-  /** For screens that jump to a section, such as the scorecard's skill summary. */
-  scrollRef?: RefObject<ScrollView | null>;
 }
 
-export function Screen({ children, footer, scrollRef }: ScreenProps) {
+export function Screen({ children, footer }: ScreenProps) {
   return (
     <SafeAreaView style={styles.safe} edges={['bottom']}>
-      <ScrollView ref={scrollRef} contentContainerStyle={styles.content}>
-        {children}
-      </ScrollView>
+      <ScrollView contentContainerStyle={styles.content}>{children}</ScrollView>
       {footer ? <View style={styles.footer}>{footer}</View> : null}
     </SafeAreaView>
   );

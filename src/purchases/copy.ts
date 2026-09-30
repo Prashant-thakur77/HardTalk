@@ -31,7 +31,7 @@ export function paywallCopy(context: PaywallContext) {
   return {
     headline: fill(forReason.headline, context),
     body: fill(forReason.body, context),
-    score: context.scoreLine && context.scenarioTitle ? fill(forReason.score, context) : null,
+    score: forReason.score && context.scoreLine && context.scenarioTitle ? fill(forReason.score, context) : null,
     features: copy.features,
     plans: copy.plans,
   };

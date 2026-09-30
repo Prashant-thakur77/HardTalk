@@ -31,7 +31,7 @@ const IOS_NAV_BAR = 44;
 const LINE = 23;
 
 const TYPED_MOCK_MESSAGE =
-  'Mock mode, typed: your reply is prefilled with the recorded line, and the persona and the grade are recorded, so a line you change scores lower here. Live mode answers and grades your own words. Type “stop” to end without a score.';
+  'Mock mode, typed: the persona and the grade are recorded, so the recorded line (one tap away) is what scores here, and your own words score lower. Live mode answers and grades your own words. Type “stop” to end without a score.';
 
 /** `speakerName` is whoever in the room holds the floor: the lead persona or a panelist. */
 function statusLabel(state: SessionState, speakerName: string, textOnly: boolean): string {
@@ -63,6 +63,7 @@ export default function Session() {
   const [grading, setGrading] = useState(false);
   const [gradeError, setGradeError] = useState<string | null>(null);
   const [draft, setDraft] = useState('');
+  const [suggestion, setSuggestion] = useState<string | null>(null);
   const ended = useRef<{ reason: Exclude<EndReason, 'user_stopped'>; transcript: Turn[] } | null>(null);
   const scroll = useRef<ScrollView>(null);
   // Set when the server's distress check flags a line, possibly after the session has ended.
@@ -143,8 +144,8 @@ export default function Session() {
     onStateChange: (next, lastTurn) => {
       if (next.status !== 'listening') return;
       turnHaptic('your_turn');
-      // Offer the recorded line only into an empty box: never overwrite what the user typed.
-      setDraft((current) => (current.trim() ? current : (suggestedReply() ?? '')));
+      // Mock mode offers the recorded line as a chip; it never types for the user.
+      setSuggestion(suggestedReply());
       // In text mode nothing is heard, so the persona's line is read out; in voice mode the
       // persona has just finished speaking, so only the turn change is announced.
       const line =
@@ -173,7 +174,7 @@ export default function Session() {
 
   return (
     <SafeAreaView style={styles.safe} edges={['bottom']}>
-      <Stack.Screen options={{ title: `${getTrack(scenario.track).name} · ${scenario.persona.name}` }} />
+      <Stack.Screen options={{ title: `${getTrack(scenario.track).name} · ${people.map((person) => person.name).join(', ')}` }} />
       <KeyboardAvoidingView
         style={styles.safe}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
@@ -191,6 +192,9 @@ export default function Session() {
               style={styles.dots}
               accessible
               accessibilityLabel={`You have spoken ${userTurns} of ${scenario.max_user_turns} turns`}>
+              <Text style={styles.turnText}>
+                Turn {Math.min(userTurns + 1, scenario.max_user_turns)} of {scenario.max_user_turns}
+              </Text>
               {Array.from({ length: scenario.max_user_turns }, (_, index) => (
                 <View key={index} style={[styles.dot, index < userTurns && styles.dotDone]} />
               ))}
@@ -274,6 +278,18 @@ export default function Session() {
                   <Text style={styles.typedStatus} accessibilityLiveRegion="polite">
                     {status}
                   </Text>
+                  {suggestion && !draft && state.status === 'listening' ? (
+                    <Pressable
+                      accessibilityRole="button"
+                      accessibilityLabel="Use the recorded line"
+                      accessibilityHint={suggestion}
+                      onPress={() => setDraft(suggestion)}
+                      style={styles.suggestion}>
+                      <Text style={styles.suggestionText} numberOfLines={1}>
+                        Use the recorded line: “{suggestion}”
+                      </Text>
+                    </Pressable>
+                  ) : null}
                   <View style={styles.composer}>
                     <View style={styles.inputBox}>
                       <TextInput
@@ -339,7 +355,8 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
     overflow: 'hidden',
   },
-  dots: { flexDirection: 'row', gap: 5, paddingVertical: space.xs },
+  dots: { flexDirection: 'row', alignItems: 'center', gap: 5, paddingVertical: space.xs },
+  turnText: { fontSize: 13, fontWeight: '700', color: colors.textMuted, marginRight: space.xs },
   dot: { width: 9, height: 9, borderRadius: 5, backgroundColor: colors.track },
   dotDone: { backgroundColor: colors.primary },
   captions: { flex: 1 },
@@ -351,6 +368,14 @@ const styles = StyleSheet.create({
   userBubble: { backgroundColor: colors.userBubble, borderBottomRightRadius: 4 },
   speaker: { fontSize: 13, fontWeight: '700', color: colors.textMuted },
   userText: { color: colors.onPrimary },
+  suggestion: {
+    minHeight: MIN_TARGET,
+    justifyContent: 'center',
+    paddingHorizontal: space.md,
+    borderRadius: 999,
+    backgroundColor: colors.quote,
+  },
+  suggestionText: { fontSize: 14, fontWeight: '600', color: colors.primary },
   typedStatus: { fontSize: 15, fontWeight: '700', color: colors.primary },
   composer: { flexDirection: 'row', alignItems: 'flex-end', gap: space.sm },
   // The border and padding sit on the box, so the text area clips at whole lines: two when

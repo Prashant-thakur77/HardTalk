@@ -5,6 +5,10 @@ import interviewInternship from '@data/mock/interview-internship.yaml';
 import midSprintScopeChange from '@data/mock/mid-sprint-scope-change.yaml';
 import pitchSeedRound from '@data/mock/pitch-seed-round.yaml';
 import prBlockingRelease from '@data/mock/pr-blocking-release.yaml';
+import sampleDebate from '@data/mock/sample-debate.yaml';
+import sampleInterview from '@data/mock/sample-interview.yaml';
+import samplePitch from '@data/mock/sample-pitch.yaml';
+import sampleWorkplace from '@data/mock/sample-workplace.yaml';
 import { z } from 'zod';
 
 import { gradeSchema } from '@/grading/rubric.schema';
@@ -30,7 +34,14 @@ const files = [
   interviewFirstRole,
   interviewInternship,
   debateAiInExams,
+  sampleWorkplace,
+  samplePitch,
+  sampleInterview,
+  sampleDebate,
 ].map((raw) => recordingFileSchema.parse(raw));
+
+/** Whether mock mode can replay this scenario: every built-in, and the drafted samples. */
+export const hasRecording = (scenarioId: string) => files.some((file) => file.scenario_id === scenarioId);
 
 /**
  * Mock mode replays a typical first try on attempt 1 and the improved retry on every

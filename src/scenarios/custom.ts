@@ -61,8 +61,9 @@ export async function loadCustomScenarios(): Promise<void> {
   publish(parsed.success ? parsed.data : []);
 }
 
+/** Saves a scenario, replacing any saved one with the same id (a sample drafted twice). */
 export async function saveCustomScenario(scenario: Scenario): Promise<void> {
-  publish([...customScenarios, scenario]);
+  publish([...customScenarios.filter((saved) => saved.id !== scenario.id), scenario]);
   await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(customScenarios));
 }
 

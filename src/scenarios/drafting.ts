@@ -20,12 +20,15 @@ export function sampleFor(track: TrackId) {
   return sample;
 }
 
+/** Mock mode's drafted sample keeps one id per track, so its recorded replay can be found. */
+export const sampleScenarioId = (track: TrackId) => `custom-sample-${track}`;
+
 /**
  * Live: the server drafts a scenario from the pasted text with Claude. Mock: the recorded draft
  * for this track's sample, whatever was pasted, so the screen says so.
  */
 export async function draftScenario(track: TrackId, source: string): Promise<Scenario> {
-  if (config.mock) return scenarioFromDraft(sampleFor(track).draft, track);
+  if (config.mock) return scenarioFromDraft(sampleFor(track).draft, track, Date.now(), sampleScenarioId(track));
 
   const response = await fetch(`${config.serverUrl}/scenario/draft`, {
     method: 'POST',

@@ -3,10 +3,14 @@ import { useEffect, useRef, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
 import { paywallCopy } from '@/purchases/copy';
+import { scenarioFromDraft } from '@/scenarios/draft';
+import { sampleFor, sampleScenarioId } from '@/scenarios/drafting';
+import { peopleIn } from '@/scenarios/people';
 import { resolveMockPaywall } from '@/purchases/mock';
 import type { PaywallOutcome, PaywallReason } from '@/purchases/types';
 import { Button } from '@/ui/Button';
 import { ChoiceGroup } from '@/ui/ChoiceGroup';
+import { Room } from '@/ui/Room';
 import { Screen } from '@/ui/Screen';
 import { colors, radius, space, type } from '@/ui/theme';
 
@@ -22,6 +26,8 @@ export default function MockPaywall() {
     scoreLine: params.scoreLine || null,
   });
   const [plan, setPlan] = useState(copy.plans[0]?.id);
+  const sample = sampleFor('interview');
+  const examplePeople = peopleIn(scenarioFromDraft(sample.draft, sample.track, 0, sampleScenarioId(sample.track)), 'L1');
   const chosen = copy.plans.find((option) => option.id === plan);
   const resolved = useRef(false);
 
@@ -59,6 +65,17 @@ export default function MockPaywall() {
       </Text>
       <Text style={type.body}>{copy.body}</Text>
       {copy.score ? <Text style={styles.score}>{copy.score}</Text> : null}
+      {params.reason === 'custom_scenario' ? (
+        <View style={styles.example}>
+          <Text style={styles.exampleLabel}>For example, from {sample.label.toLowerCase()}</Text>
+          <Room people={examplePeople} size={44} />
+          {examplePeople.map((person) => (
+            <Text key={person.name} style={type.caption}>
+              {person.name} will ask about {person.asksAbout[0]?.toLowerCase()}
+            </Text>
+          ))}
+        </View>
+      ) : null}
 
       <View style={styles.features}>
         {copy.features.map((feature) => (
@@ -84,6 +101,8 @@ export default function MockPaywall() {
 }
 
 const styles = StyleSheet.create({
+  example: { backgroundColor: colors.quote, borderRadius: radius, padding: space.md, gap: space.xs },
+  exampleLabel: { fontSize: 13, fontWeight: '800', color: colors.primary, textTransform: 'uppercase' },
   notice: { backgroundColor: colors.notice, borderRadius: radius, padding: space.sm + 4 },
   noticeText: { color: colors.onNotice, fontSize: 14, lineHeight: 19, fontWeight: '500' },
   score: { fontSize: 17, fontWeight: '700', color: colors.text },

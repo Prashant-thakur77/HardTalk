@@ -6,6 +6,7 @@ import { setSpeechRate, SPEECH_RATES, usePreferences } from '@/a11y/preferences'
 import type { SessionMode } from '@/attempts/store';
 import { config } from '@/config';
 import { getScenario } from '@/scenarios';
+import { hasRecording } from '@/mock/recordings';
 import { isCustomScenario } from '@/scenarios/custom';
 import { peopleIn } from '@/scenarios/people';
 import { difficultySchema, type Difficulty } from '@/scenarios/schema';
@@ -34,7 +35,7 @@ export default function ScenarioBrief() {
 
   if (!scenario) return <Text style={type.body}>Scenario not found.</Text>;
 
-  const liveOnly = config.mock && isCustomScenario(scenario.id);
+  const liveOnly = config.mock && isCustomScenario(scenario.id) && !hasRecording(scenario.id);
   const people = peopleIn(scenario, difficulty);
   const track = getTrack(scenario.track);
 
@@ -44,7 +45,7 @@ export default function ScenarioBrief() {
         <>
           {liveOnly ? (
             <Text style={type.caption}>
-              Your own scenarios run live, with your microphone. Mock mode replays only the built-in conversations.
+              Your own scenarios run live, with your microphone. Mock mode replays only the built-in conversations and the drafted samples.
             </Text>
           ) : null}
           <Button

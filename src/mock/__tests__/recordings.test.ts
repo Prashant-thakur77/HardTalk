@@ -5,10 +5,18 @@ import { userText } from '@/grading/transcript';
 import { getRecording } from '@/mock/recordings';
 import { isDistressLine, isStopLine } from '@/safety';
 import { scenarios } from '@/scenarios';
+import { scenarioFromDraft } from '@/scenarios/draft';
+import { draftSamples, sampleScenarioId } from '@/scenarios/drafting';
 import { getTrack } from '@/tracks';
 
+/** The built-ins, plus the drafted samples that mock mode can also replay. */
+const replayable = [
+  ...scenarios,
+  ...draftSamples.map((sample) => scenarioFromDraft(sample.draft, sample.track, 0, sampleScenarioId(sample.track))),
+];
+
 describe('mock recordings', () => {
-  for (const scenario of scenarios) {
+  for (const scenario of replayable) {
     const panel = scenario.panel.map((member) => member.name);
 
     for (const attempt of [1, 2]) {

@@ -1,0 +1,80 @@
+# Recorded conversations replayed in mock mode for the Debate sample draft in
+# data/mock/drafts.yaml (This House would ban unpaid internships). Attempt 1 is a typical first
+# try; attempt 2 is the retry. Every evidence quote is a verbatim substring of a user turn.
+scenario_id: custom-sample-debate
+attempts:
+  - end_reason: stop_condition
+    turns:
+      - { speaker: persona, text: "Unpaid internships open doors that would otherwise stay shut. Ban them, and the door just closes. Tell me why I'm wrong." }
+      - { speaker: user, text: "Well, I just think unpaid internships are really unfair. It's not right that people have to work for free, and lots of students can't afford it." }
+      - { speaker: persona, name: Beatrix, text: "That's a claim about lots of students. What's your evidence? Elena, I'll want yours too." }
+      - { speaker: user, text: "Everyone knows it's mostly richer students who can do them. It's pretty obvious if you look around." }
+      - { speaker: persona, text: "So you'd close 35 placements at charities and arts groups that can't pay. How is that fairer?" }
+      - { speaker: user, text: "Honestly, if they can't pay people, maybe they shouldn't be taking interns. It's exploitation." }
+      - { speaker: persona, name: Rohan, text: "I'm with you. But who actually gets left out today, and what should small charities do?" }
+      - { speaker: user, text: "Students without money get left out. The charities would just have to find the money somehow." }
+      - { speaker: persona, name: Beatrix, text: "Elena's point was fewer opportunities, and you haven't answered it. And how would a ban work?" }
+      - { speaker: user, text: "I mean, maybe a ban goes too far. Maybe there could just be some rules about it instead." }
+      - { speaker: persona, text: "So we agree a ban goes too far. Thank you." }
+    grade:
+      dimensions:
+        claim_clarity:
+          score: 2
+          evidence_quotes: ["I just think unpaid internships are really unfair."]
+          rationale: "You said the internships were unfair but never said they should be banned, and when Beatrix asked for evidence you had the survey and didn't use it."
+          better_line: "Unpaid internships should be banned, because 63% of our members who did one could only afford it with family support."
+        rebuttal:
+          score: 2
+          evidence_quotes: ["if they can't pay people, maybe they shouldn't be taking interns"]
+          rationale: "Elena said a ban means fewer places, and you answered a harsher version of it, that those places shouldn't exist at all."
+          better_line: "A place most students can't afford isn't an opportunity for them, so the real choice is between unfair places and fair ones."
+        steelman:
+          score: 1
+          evidence_quotes: ["It's exploitation."]
+          rationale: "You never put Elena's case in your own words. Calling it exploitation told her you hadn't heard it."
+          better_line: "You're saying small charities can't pay, so a ban means fewer places, and I agree those places matter."
+        held_position:
+          score: 1
+          evidence_quotes: ["I mean, maybe a ban goes too far."]
+          rationale: "When Beatrix pressed you on fewer opportunities, you dropped the motion you were there to argue for."
+          better_line: "I'll grant some charities may offer fewer places, but a place most students can't afford isn't open to them, so my claim stands."
+      key_line: "I just think unpaid internships are really unfair."
+      safety_flag: false
+
+  - end_reason: stop_condition
+    turns:
+      - { speaker: persona, text: "Unpaid internships open doors that would otherwise stay shut. Ban them, and the door just closes. Tell me why I'm wrong." }
+      - { speaker: user, text: "Unpaid internships should be banned, because 63% of our members who did one could only afford it with family support. That means the first step of a career goes to whoever's parents can pay the rent." }
+      - { speaker: persona, name: Beatrix, text: "That's the society survey, fine. Elena, I'll want yours next. First, how would a ban actually work?" }
+      - { speaker: user, text: "The same way as the minimum wage: if an intern does work the organisation relies on, it's a job and it's paid. Short supervised training, with no output the organisation depends on, stays allowed. And the careers service no longer advertises unpaid roles." }
+      - { speaker: persona, text: "So the 35 placements at small charities and arts groups just vanish. Fewer doors, not fairer ones." }
+      - { speaker: user, text: "You're saying small charities can't pay, so a ban means fewer places, and I agree those places matter. But a place most students can't afford isn't an opportunity for them. Those doors are only open to some of us already." }
+      - { speaker: persona, name: Rohan, text: "I'm with you. So who's shut out, in plain words, and what should a small charity do?" }
+      - { speaker: user, text: "The student who has to take a paid job over the summer is shut out, whatever their talent. A small charity can offer a two-week training placement, or pay for fewer, shorter roles." }
+      - { speaker: persona, text: "Fewer, shorter roles. So you admit there'd be fewer." }
+      - { speaker: user, text: "I'll grant some charities may offer fewer places, but a place most students can't afford isn't open to them, so my claim stands. Fewer places that anyone can take beat places only some of us can afford." }
+      - { speaker: persona, name: Beatrix, text: "Thank you both. We'll leave it there." }
+    grade:
+      dimensions:
+        claim_clarity:
+          score: 4
+          evidence_quotes: ["Unpaid internships should be banned, because 63% of our members who did one could only afford it with family support."]
+          rationale: "Your first sentence gave the claim, the reason and the survey figure behind it, and your next sentence said why that figure matters."
+          better_line: "Ban unpaid internships, because 63% of the members who did one needed family money to afford it."
+        rebuttal:
+          score: 3
+          evidence_quotes: ["But a place most students can't afford isn't an opportunity for them."]
+          rationale: "You met Elena's fewer-places point head on, but answered it with a principle. The 63% figure right there would have made it land."
+          better_line: "63% of the members who took an unpaid place needed family money, so those places were never open to everyone."
+        steelman:
+          score: 4
+          evidence_quotes: ["You're saying small charities can't pay, so a ban means fewer places, and I agree those places matter."]
+          rationale: "You put Elena's case in words she'd accept and said where you agree before you disagreed."
+          better_line: "Your point is that small charities can't pay, and you're right that those places matter."
+        held_position:
+          score: 4
+          evidence_quotes: ["I'll grant some charities may offer fewer places, but a place most students can't afford isn't open to them, so my claim stands."]
+          rationale: "When Elena pressed hardest, you gave up one specific point on purpose, said exactly what you were conceding, and kept the motion."
+          better_line: "Yes, some charities may offer fewer places, and the motion still stands."
+      key_line: "Unpaid internships should be banned, because 63% of our members who did one could only afford it with family support."
+      safety_flag: false

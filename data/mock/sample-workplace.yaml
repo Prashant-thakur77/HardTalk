@@ -1,0 +1,85 @@
+# Recorded conversations replayed in mock mode for the Workplace sample draft in
+# data/mock/drafts.yaml (the weekend on-call rota). Attempt 1 is a typical first try;
+# attempt 2 is the retry. Every evidence quote is a verbatim substring of a user turn.
+scenario_id: custom-sample-workplace
+attempts:
+  - end_reason: stop_condition
+    turns:
+      - { speaker: persona, text: "Thanks for setting this up. You said in chat you wanted to talk about the rota?" }
+      - { speaker: user, text: "Yeah, so, it's not a big deal, but I've been feeling like the weekends have been a bit much lately. I don't know, maybe it's just me." }
+      - { speaker: persona, text: "Honestly, you know settlement better than anyone. That's why you're on it." }
+      - { speaker: user, text: "I know, I get that. It's just been a lot, and I missed my sister's graduation last month because of that Saturday incident." }
+      - { speaker: persona, name: Talia, text: "I'll say it, the rota's been lopsided. If you wrote a runbook, when would the training happen?" }
+      - { speaker: user, text: "Maybe at some point, I could write something up when things are quieter. I haven't really planned it." }
+      - { speaker: persona, name: Owen, text: "I'm for fairness. But if the rota changes, who handles a settlement problem in November?" }
+      - { speaker: user, text: "I'm not sure. I guess I could still be around if something goes wrong." }
+      - { speaker: persona, text: "Could you carry on for one more month? Then we'll look at it again for December." }
+      - { speaker: user, text: "Okay, I suppose one more month is fine. Could we maybe sort it out properly at some point?" }
+      - { speaker: persona, text: "Sure, let's revisit it. Thanks for raising it." }
+    grade:
+      dimensions:
+        clarity:
+          score: 2
+          evidence_quotes: ["I've been feeling like the weekends have been a bit much lately."]
+          rationale: "You opened with \"not a big deal\" and \"a bit much\", and never gave the seven-of-twelve number, so Hugo could treat it as a mood rather than a lopsided rota."
+          better_line: "I've been on call seven of the last twelve weekends, when an even rota would be two, and I missed my sister's graduation."
+        empathy:
+          score: 2
+          evidence_quotes: ["I know, I get that."]
+          rationale: "You agreed with Hugo's praise and then moved on, without naming what he's actually worried about."
+          better_line: "You're worried that if settlement breaks with someone new on call, you're the one answering for it. Is that it?"
+        ask_made:
+          score: 2
+          evidence_quotes: ["Could we maybe sort it out properly at some point?"]
+          rationale: "Your only request had no change, no month and no owner in it, so Hugo could say yes without changing anything."
+          better_line: "I'm asking for one November weekend each, like everyone else, with the runbook done by the 30th of October."
+        boundary_held:
+          score: 1
+          evidence_quotes: ["Okay, I suppose one more month is fine."]
+          rationale: "The first time Hugo asked for one more month, you gave it to him, so November stays exactly as it was."
+          better_line: "I'd rather not do another month, but I'll write the runbook by the 30th so November can be split evenly."
+      key_line: "Could we maybe sort it out properly at some point?"
+      safety_flag: false
+
+  - end_reason: stop_condition
+    turns:
+      - { speaker: persona, text: "Thanks for setting this up. You said in chat you wanted to talk about the rota?" }
+      - { speaker: user, text: "Yes. I've been on call seven of the last twelve weekends, when an even rota would be two, and I missed my sister's graduation. I'd like November split evenly across the six of us." }
+      - { speaker: persona, text: "Nobody knows settlement like you do. Could you carry it one more month while we sort out cover?" }
+      - { speaker: user, text: "You're worried that if settlement breaks with someone new on call, you're the one answering for it. Is that it? That's fair, and it's why I'd rather fix the cover than do another month." }
+      - { speaker: persona, text: "Yeah, that's it, honestly. Go on." }
+      - { speaker: persona, name: Talia, text: "I'm glad you said it. When would the training be? I'd happily take a weekend." }
+      - { speaker: user, text: "I'll write the settlement runbook by Friday the 30th of October, and run both training sessions in the first week of November. You could take the 21st, once you've done both." }
+      - { speaker: persona, name: Owen, text: "And if settlement fails on the 21st while Talia's still new?" }
+      - { speaker: user, text: "For November only, I'll be the settlement backup by phone on the weekends I'm not on call. From December, the runbook covers it and I'm on the rota like anyone else." }
+      - { speaker: persona, text: "Fine. But who takes the other weekends?" }
+      - { speaker: user, text: "I'm asking for one November weekend each, like everyone else, with the runbook done by the 30th of October. I take the 7th, Talia takes the 21st, and you pick two of the others for the 14th and the 28th. So November is one weekend each, and I'm on the 7th?" }
+      - { speaker: persona, text: "Okay. One each, you on the 7th, Talia on the 21st. I'll ask the others about the 14th and 28th." }
+    grade:
+      dimensions:
+        clarity:
+          score: 4
+          evidence_quotes: ["I've been on call seven of the last twelve weekends, when an even rota would be two, and I missed my sister's graduation."]
+          rationale: "Your first sentence gave the rota, the number and what it cost you, with no hedging, so nobody had to guess what this was about."
+          better_line: "Seven of twelve weekends is more than three times my share, and I'd like November to be even."
+        empathy:
+          score: 4
+          evidence_quotes: ["You're worried that if settlement breaks with someone new on call, you're the one answering for it."]
+          rationale: "You named Hugo's real worry and checked it with him, then kept your ask in the same breath."
+          better_line: "You're worried a settlement incident with someone new lands on you. Is that it?"
+        ask_made:
+          score: 3
+          evidence_quotes:
+            - "I'm asking for one November weekend each, like everyone else, with the runbook done by the 30th of October."
+            - "So November is one weekend each, and I'm on the 7th?"
+          rationale: "Your ask had a change, a date and a confirmation, but the 14th and the 28th still have nobody's name on them."
+          better_line: "Before we finish, can we put a name on the 14th and the 28th, so every November weekend is covered?"
+        boundary_held:
+          score: 4
+          evidence_quotes:
+            - "That's fair, and it's why I'd rather fix the cover than do another month."
+            - "For November only, I'll be the settlement backup by phone on the weekends I'm not on call."
+          rationale: "When Hugo asked for one more month you said no calmly, and the only thing you gave was phone backup, limited to November, in answer to Owen's question."
+          better_line: "Phone backup for November only, and from December I'm on the rota like anyone else."
+      key_line: "I'm asking for one November weekend each, like everyone else, with the runbook done by the 30th of October."
+      safety_flag: false

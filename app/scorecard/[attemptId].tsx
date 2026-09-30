@@ -1,6 +1,6 @@
 import { router, Stack, useLocalSearchParams } from 'expo-router';
-import { useRef, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { useState } from 'react';
+import { Pressable, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 
 import { usePreferences } from '@/a11y/preferences';
 import { findAttempt, findPreviousAttempt, useAttempts } from '@/attempts/store';
@@ -45,8 +45,6 @@ export default function Scorecard() {
   const attempts = useAttempts();
   const { reduceMotion } = usePreferences();
   const { width } = useWindowDimensions();
-  const scroll = useRef<ScrollView>(null);
-  const cardY = useRef<Partial<Record<Dimension, number>>>({});
   const [showTranscript, setShowTranscript] = useState(false);
   const attempt = findAttempt(attempts, attemptId);
   const scenario = attempt && getScenario(attempt.scenarioId);
@@ -62,12 +60,13 @@ export default function Scorecard() {
   const retry = () => void startSession(scenario.id, attempt.difficulty, attempt.mode, 'replace');
   // After a strong try the next step is more pushback, so that becomes the main button.
   const up = score >= 12 ? nextLevel(attempt.difficulty) : null;
-  const jumpTo = (dimension: Dimension) =>
-    scroll.current?.scrollTo({ y: Math.max(0, (cardY.current[dimension] ?? 0) - space.md), animated: !reduceMotion });
+  // Only the weakest skill opens by default: that is where the next try should go.
+  const weakest = [...track.rubrics].sort(
+    (a, b) => (grade.dimensions[a]?.score ?? 0) - (grade.dimensions[b]?.score ?? 0),
+  )[0];
 
   return (
     <Screen
-      scrollRef={scroll}
       footer={
         up ? (
           <>
@@ -119,41 +118,6 @@ export default function Scorecard() {
         </View>
       </View>
 
-      <MockBanner
-        compact
-        message={
-          attempt.mode === 'text'
-            ? 'Mock mode: this is the recorded grade, checked against what you typed. It cannot grade new words, so any line you changed scores lower here. Live mode grades what you type.'
-            : 'Mock mode: this is the recorded example grade for this replay, checked against the transcript below. Live mode grades what you actually say.'
-        }
-      />
-
-      <View style={styles.card}>
-        <Text style={styles.nextLabel}>Your four skills</Text>
-        {track.rubrics.map((dimension) => {
-          const result = grade.dimensions[dimension];
-          if (!result) return null;
-          const before = previous?.grade.dimensions[dimension]?.score;
-          return (
-            <Pressable
-              key={dimension}
-              accessibilityRole="button"
-              accessibilityLabel={`${rubrics[dimension].name}: ${result.score} out of 4${before === undefined ? '' : `, was ${before}`}`}
-              accessibilityHint="Jumps to the evidence and a better line"
-              onPress={() => jumpTo(dimension)}
-              style={({ pressed }) => [styles.skillRow, pressed && styles.pressed]}>
-              <View style={styles.skillHead}>
-                <Text style={styles.skillName}>{rubrics[dimension].name}</Text>
-                <Text style={[styles.skillScore, { color: scoreColors[result.score] }]}>
-                  {before === undefined ? '' : `${before} → `}
-                  {result.score}/4 ›
-                </Text>
-              </View>
-              <SkillBar score={result.score} previous={before} />
-            </Pressable>
-          );
-        })}
-      </View>
 
       {previous ? <WhatChanged jump={biggestJump(previous.grade, grade)} /> : null}
 
@@ -166,18 +130,29 @@ export default function Scorecard() {
         levelSummary={(level) => scenario.difficulty_levels[level].summary}
       />
 
+      <Text style={type.heading} accessibilityRole="header">
+        Your four skills
+      </Text>
       {track.rubrics.map((dimension) => {
         const result = grade.dimensions[dimension];
         return result ? (
-          <View key={dimension} onLayout={(event) => (cardY.current[dimension] = event.nativeEvent.layout.y)}>
-            <DimensionCard
-              dimension={dimension}
-              result={result}
-              previousScore={previous?.grade.dimensions[dimension]?.score}
-            />
-          </View>
+          <DimensionCard
+            key={dimension}
+            dimension={dimension}
+            result={result}
+            previousScore={previous?.grade.dimensions[dimension]?.score}
+            startOpen={dimension === weakest}
+          />
         ) : null;
       })}
+      <MockBanner
+        compact
+        message={
+          attempt.mode === 'text'
+            ? 'Mock mode: this is the recorded grade, checked against what you typed. It cannot grade new words, so any line you changed scores lower here. Live mode grades what you type.'
+            : 'Mock mode: this is the recorded example grade for this replay, checked against the transcript below. Live mode grades what you actually say.'
+        }
+      />
 
       <Link
         label={showTranscript ? 'Hide the full transcript' : 'Show the full transcript'}
@@ -298,23 +273,29 @@ function WhatChanged({ jump }: { jump: Jump | null }) {
   );
 }
 
+/** One skill: score and bar always shown; the quote, the why and a better line on a tap. */
 function DimensionCard({
   dimension,
   result,
   previousScore,
+  startOpen,
 }: {
   dimension: Dimension;
   result: DimensionGrade;
   previousScore: number | undefined;
+  startOpen: boolean;
 }) {
+  const [open, setOpen] = useState(startOpen);
   const rubric = rubrics[dimension];
   const label = rubric.name;
   return (
     <View style={styles.card}>
-      <View
+      <Pressable
+        onPress={() => setOpen((current) => !current)}
         style={styles.cardHeader}
-        accessible
-        accessibilityRole="header"
+        accessibilityRole="button"
+        accessibilityState={{ expanded: open }}
+        accessibilityHint={open ? 'Hides the evidence' : 'Shows what you said, why, and a better line'}
         accessibilityLabel={
           previousScore === undefined
             ? `${label}: ${result.score} out of 4`
@@ -334,20 +315,25 @@ function DimensionCard({
           <Text style={[styles.score, { color: scoreColors[result.score] }]}>{result.score}</Text>
           <Text style={styles.scoreMax}>/4</Text>
           {previousScore !== undefined ? <Delta before={previousScore} after={result.score} /> : null}
+          <Text style={styles.chevron}>{open ? '⌃' : '⌄'}</Text>
         </View>
-      </View>
+      </Pressable>
       <SkillBar score={result.score} previous={previousScore} />
 
-      {result.evidence_quotes.map((quote) => (
-        <View key={quote} style={styles.quote} accessible accessibilityLabel={`You said: ${quote}`}>
-          <Text style={styles.quoteText}>“{quote}”</Text>
-        </View>
-      ))}
-      <Text style={type.body}>{result.rationale}</Text>
-      <View style={styles.better}>
-        <Text style={styles.betterLabel}>Try saying</Text>
-        <Text style={type.body}>{result.better_line}</Text>
-      </View>
+      {open ? (
+        <>
+          {result.evidence_quotes.map((quote) => (
+            <View key={quote} style={styles.quote} accessible accessibilityLabel={`You said: ${quote}`}>
+              <Text style={styles.quoteText}>“{quote}”</Text>
+            </View>
+          ))}
+          <Text style={type.body}>{result.rationale}</Text>
+          <View style={styles.better}>
+            <Text style={styles.betterLabel}>Try saying</Text>
+            <Text style={type.body}>{result.better_line}</Text>
+          </View>
+        </>
+      ) : null}
     </View>
   );
 }
@@ -378,11 +364,6 @@ const styles = StyleSheet.create({
   deltaRow: { flexDirection: 'row', alignItems: 'center', gap: space.sm, flexWrap: 'wrap' },
   fromTo: { fontSize: 26, fontWeight: '800', color: colors.text },
   stacked: { flexDirection: 'column', alignItems: 'flex-start' },
-  skillRow: { gap: 6, paddingVertical: space.xs, minHeight: MIN_TARGET, justifyContent: 'center' },
-  skillHead: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  skillName: { fontSize: 16, fontWeight: '600', color: colors.text },
-  skillScore: { fontSize: 16, fontWeight: '800' },
-  pressed: { opacity: 0.6 },
   footerRow: { flexDirection: 'row', justifyContent: 'space-around' },
   link: { minHeight: MIN_TARGET, justifyContent: 'center', paddingHorizontal: space.sm },
   linkText: { color: colors.primary, fontSize: 16, fontWeight: '700' },
@@ -413,6 +394,7 @@ const styles = StyleSheet.create({
   scoreRow: { flexDirection: 'row', alignItems: 'center', gap: space.xs },
   score: { fontSize: 26, fontWeight: '700' },
   scoreMax: { fontSize: 16, color: colors.textMuted },
+  chevron: { fontSize: 20, fontWeight: '700', color: colors.textMuted, marginLeft: space.xs },
   arrow: { fontSize: 18, color: colors.textMuted },
   quote: {
     backgroundColor: colors.quote,

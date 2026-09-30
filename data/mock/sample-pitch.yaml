@@ -1,0 +1,87 @@
+# Recorded conversations replayed in mock mode for the Pitch Q&A sample draft in
+# data/mock/drafts.yaml (Pantry Loop at the Northgate Launch Fund). Attempt 1 is a typical
+# first try; attempt 2 is the retry. Every evidence quote is a verbatim substring of a user turn.
+scenario_id: custom-sample-pitch
+attempts:
+  - end_reason: stop_condition
+    turns:
+      - { speaker: persona, text: "Thanks for the pitch. First question, who pays you, and how much of each meal do you keep?" }
+      - { speaker: user, text: "So, the idea came from seeing how much food gets thrown away in our dining hall. Students pay in the app, and we take a share, and I think it works out fairly well for everyone." }
+      - { speaker: persona, text: "What share, exactly?" }
+      - { speaker: user, text: "It's a percentage, around a third. It's a good deal for the halls, because otherwise the food goes in the bin." }
+      - { speaker: persona, name: Selma, text: "Thirty percent of three fifty is about a dollar. How does a hundred and fifty thousand turn into eight campuses at that?" }
+      - { speaker: user, text: "We haven't worked out the exact costs yet, but we think once more campuses join it will scale really fast." }
+      - { speaker: persona, name: Idris, text: "I like that it's live and people use it weekly. What happens after you both graduate in June?" }
+      - { speaker: user, text: "We'll probably keep going with it. We're really passionate about it, and we'll see how things look." }
+      - { speaker: persona, text: "My worry is the catering managers. What if one walks away at the next renewal?" }
+      - { speaker: user, text: "I don't think that's likely, they really like working with us. Students love it too." }
+      - { speaker: persona, text: "Alright. Thanks for coming in." }
+      - { speaker: user, text: "Thanks for having us, it would be great to hear back whenever you can." }
+    grade:
+      dimensions:
+        answer_directness:
+          score: 2
+          evidence_quotes: ["It's a percentage, around a third."]
+          rationale: "Marta asked who pays and what you keep, and you started with where the idea came from. The share only came when she asked a second time."
+          better_line: "Students pay three fifty a meal, the dining hall keeps 70 percent, and we keep 30, about a dollar."
+        evidence:
+          score: 2
+          evidence_quotes: ["they really like working with us"]
+          rationale: "You had real numbers, like 640 weekly users and 4,200 meals, and used none of them. \"Students love it\" is something nobody can check."
+          better_line: "640 students use it in a typical week, and we've sold 4,200 meals in nine months."
+        objection_handling:
+          score: 1
+          evidence_quotes: ["I don't think that's likely, they really like working with us."]
+          rationale: "Marta's worry about the catering managers was her biggest one, and you waved it away. Selma's cost question got a guess instead of a number."
+          better_line: "Fair worry: both caterers renewed in September, and at the first campus last-hour waste is down about a third."
+        ask_made:
+          score: 2
+          evidence_quotes: ["it would be great to hear back whenever you can"]
+          rationale: "You left the next step to the fund, with no meeting and no date, so \"we'll be in touch\" is all you can expect."
+          better_line: "Could we come back with the campus numbers for a second meeting with you and Selma in the week of the 12th of October?"
+      key_line: "it would be great to hear back whenever you can"
+      safety_flag: false
+
+  - end_reason: stop_condition
+    turns:
+      - { speaker: persona, text: "Thanks for the pitch. First question, who pays you, and how much of each meal do you keep?" }
+      - { speaker: user, text: "Students pay three fifty a meal, the dining hall keeps 70 percent, and we keep 30, about a dollar. 640 students use it in a typical week, and we've sold 4,200 meals in nine months." }
+      - { speaker: persona, name: Selma, text: "About a dollar a meal, then. How does a hundred and fifty thousand become eight campuses?" }
+      - { speaker: user, text: "Each new campus costs about 6,000 dollars to launch, mostly a part-time student lead for the first term. Six launches is 36,000, and the rest pays for the dashboard and a modest salary for both of us for a year. A campus covers its own running costs at about 150 meals a week, and our first campus passed that in September." }
+      - { speaker: persona, name: Idris, text: "Real weekly use on two campuses, I like that. But what do you two do after June?" }
+      - { speaker: user, text: "We both go full-time on Pantry Loop from the 1st of July, and neither of us has applied for graduate jobs. We'd rather tell you that now than have you guess." }
+      - { speaker: persona, text: "My concern is supply. A catering manager can walk away at any term renewal." }
+      - { speaker: user, text: "That's the real risk, and I'd worry about it too. Both caterers renewed in September, and at the first campus last-hour waste is down about a third. The dashboard is there to put that saving in front of them before every renewal. Does that answer the supply worry?" }
+      - { speaker: persona, text: "Mostly. I'd want to see the second campus's waste numbers too." }
+      - { speaker: user, text: "We'll bring them. Could we come back with the campus numbers for a second meeting with you and Selma in the week of the 12th of October?" }
+      - { speaker: persona, text: "Yes. Send us two times that week and we'll book it." }
+    grade:
+      dimensions:
+        answer_directness:
+          score: 4
+          evidence_quotes:
+            - "Students pay three fifty a meal, the dining hall keeps 70 percent, and we keep 30, about a dollar."
+            - "We both go full-time on Pantry Loop from the 1st of July"
+          rationale: "Your first sentence answered exactly what Marta asked, and your first words to Idris were the plan he was waiting for."
+          better_line: "Students pay, and we keep about a dollar of every meal."
+        evidence:
+          score: 4
+          evidence_quotes:
+            - "640 students use it in a typical week, and we've sold 4,200 meals in nine months."
+            - "Each new campus costs about 6,000 dollars to launch"
+          rationale: "Every claim came with a number Selma could check, from weekly users to the cost of a launch and the meals a campus needs."
+          better_line: "Six launches at 6,000 dollars each is 36,000, and a campus pays its way at 150 meals a week."
+        objection_handling:
+          score: 3
+          evidence_quotes:
+            - "Both caterers renewed in September, and at the first campus last-hour waste is down about a third."
+            - "Does that answer the supply worry?"
+          rationale: "You took the supply worry seriously, answered it with the renewals and the waste figure, and checked it landed. You didn't name what sits behind it, which is one lost caterer emptying a campus."
+          better_line: "If one caterer leaves, that campus goes quiet, so we'd sign the next campus before we need it."
+        ask_made:
+          score: 3
+          evidence_quotes: ["Could we come back with the campus numbers for a second meeting with you and Selma in the week of the 12th of October?"]
+          rationale: "You asked for a specific meeting with a week and the right people in it. When Marta said yes, you didn't confirm who sends the times, or by when."
+          better_line: "Great, I'll send you two times for that week by Friday."
+      key_line: "Could we come back with the campus numbers for a second meeting with you and Selma in the week of the 12th of October?"
+      safety_flag: false

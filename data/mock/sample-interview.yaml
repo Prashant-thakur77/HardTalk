@@ -1,0 +1,87 @@
+# Recorded conversations replayed in mock mode for the Interview sample draft in
+# data/mock/drafts.yaml (the graduate engineer role at Harbourline Health). Attempt 1 is a
+# typical first try; attempt 2 is the retry. Every evidence quote is a verbatim substring of a
+# user turn.
+scenario_id: custom-sample-interview
+attempts:
+  - end_reason: stop_condition
+    turns:
+      - { speaker: persona, text: "Hi, thanks for coming in. Tell us about a project you built, and how you worked with others on it." }
+      - { speaker: user, text: "Sure, so, in second year we had a group project module, and there were three of us. We made a room booking website for the library, and it went pretty well, people used it." }
+      - { speaker: persona, text: "Which part did you write yourself?" }
+      - { speaker: user, text: "We all kind of worked on everything together. There was a problem with double bookings at one point, but we sorted it out." }
+      - { speaker: persona, name: Jonas, text: "Tell me about something you learned quickly recently. And what would you want from a mentor?" }
+      - { speaker: user, text: "I pick things up pretty fast, I usually just watch tutorials. From a mentor I'd want someone who's around if I need them." }
+      - { speaker: persona, name: Lucia, text: "The posting asks for automated tests. What tests have you written, and what did one catch?" }
+      - { speaker: user, text: "We had some unit tests, I think the lecturer required them. I'd say I'm comfortable with testing in general." }
+      - { speaker: persona, name: Lucia, text: "How would you test a booking that crosses midnight?" }
+      - { speaker: user, text: "I'd probably test it with a few different times and make sure it works." }
+      - { speaker: persona, text: "Okay. Thanks for your time." }
+    grade:
+      dimensions:
+        answer_directness:
+          score: 2
+          evidence_quotes: ["We made a room booking website for the library, and it went pretty well, people used it."]
+          rationale: "You named the project only after a sentence about the module, and Lucia's midnight question got an answer that could fit any feature."
+          better_line: "I built the booking API for my university library's study rooms, and about 300 students booked through it last term."
+        star_structure:
+          score: 2
+          evidence_quotes: ["There was a problem with double bookings at one point, but we sorted it out."]
+          rationale: "There was a real story in the double bookings, but what went wrong, what you did and how it ended were squeezed into one vague sentence."
+          better_line: "Two groups turned up for the same room, so I traced it to my overlap check, fixed it and added a test."
+        evidence:
+          score: 2
+          evidence_quotes: ["it went pretty well, people used it"]
+          rationale: "\"People used it\" and \"comfortable with testing\" are claims Farah can't check. You never said how many people, or what a test caught."
+          better_line: "About 300 students booked rooms last term, and there were no double bookings after the fix."
+        ownership:
+          score: 1
+          evidence_quotes: ["We all kind of worked on everything together."]
+          rationale: "Farah asked what you wrote yourself and you answered with \"we\", so she still doesn't know which part was yours."
+          better_line: "My classmates built the pages; I wrote the booking API and the SQL, so the double-booking bug was mine."
+      key_line: "it went pretty well, people used it"
+      safety_flag: false
+
+  - end_reason: stop_condition
+    turns:
+      - { speaker: persona, text: "Hi, thanks for coming in. Tell us about a project you built, and how you worked with others on it." }
+      - { speaker: user, text: "I built the booking API for my university library's study rooms, and about 300 students booked through it last term. It was a second-year project with two classmates: they built the pages, and I wrote the API in Python and the SQL behind it, so the double-booking bug was mine." }
+      - { speaker: persona, text: "What bug? Tell me what happened." }
+      - { speaker: user, text: "In the first week of the library's trial, two groups turned up for the same room. I traced it to my overlap check, which only compared start times, so I rewrote the query to compare both ends and added a test for back-to-back and overlapping bookings. Since the fix, there hasn't been a single double booking. Now I write the overlap test before I touch the query." }
+      - { speaker: persona, name: Jonas, text: "Nice. What's something you learned quickly recently? And what would you want from a mentor?" }
+      - { speaker: user, text: "Last month I learned Playwright in a weekend to add browser tests to the booking pages. I was stuck on the login step for a day, so I asked a teaching assistant instead of sitting on it. From a mentor, I'd want a short weekly check-in where I bring whatever I'm stuck on." }
+      - { speaker: persona, name: Lucia, text: "Which of your tests actually caught something?" }
+      - { speaker: user, text: "My back-to-back test caught a change I made in week five, where a 10 to 11 booking blocked an 11 to 12 one. It failed before I merged, so no student ever saw it." }
+      - { speaker: persona, name: Lucia, text: "Good. Now a booking that crosses midnight. How would you test it?" }
+      - { speaker: user, text: "I'd store both times in UTC and test a booking from half past eleven at night to half past midnight. It should block the room on both dates and show on both days' lists. I'd add one for the night the clocks change, too." }
+      - { speaker: persona, text: "Thanks. That's a clear picture of your work." }
+    grade:
+      dimensions:
+        answer_directness:
+          score: 4
+          evidence_quotes:
+            - "I built the booking API for my university library's study rooms, and about 300 students booked through it last term."
+            - "I'd store both times in UTC"
+          rationale: "Your first sentence named the project and who used it, and your first words to Lucia were how you'd test the midnight case."
+          better_line: "I built the library's room-booking API, and my part was the booking logic and its SQL."
+        star_structure:
+          score: 3
+          evidence_quotes: ["I traced it to my overlap check, which only compared start times, so I rewrote the query to compare both ends"]
+          rationale: "What went wrong, what you did and how it turned out were all there, but the bug only came out when Farah asked, so the story arrived in two pieces."
+          better_line: "In the trial's first week two groups got the same room, so I fixed my overlap check, and there's been no double booking since."
+        evidence:
+          score: 4
+          evidence_quotes:
+            - "about 300 students booked through it last term"
+            - "a 10 to 11 booking blocked an 11 to 12 one"
+          rationale: "Every claim had something checkable behind it, from 300 students to the exact booking your test caught before it merged."
+          better_line: "About 300 students booked through it, and my test caught a 10 to 11 booking blocking an 11 to 12."
+        ownership:
+          score: 4
+          evidence_quotes:
+            - "so the double-booking bug was mine"
+            - "Now I write the overlap test before I touch the query."
+          rationale: "You said which part was yours, owned the bug without blaming anyone, and said what you now do differently. You also said you ask for help early, which is what Farah was listening for."
+          better_line: "The bug was in my query, and now the overlap test comes first."
+      key_line: "Since the fix, there hasn't been a single double booking."
+      safety_flag: false

@@ -53,10 +53,10 @@ export const draftSchema = z.object({
 export type Draft = z.infer<typeof draftSchema>;
 
 /** Turns a validated draft into a custom scenario, checked by the same schema as the built-ins. */
-export function scenarioFromDraft(draft: Draft, track: TrackId, now = Date.now()): Scenario {
+export function scenarioFromDraft(draft: Draft, track: TrackId, now = Date.now(), id = customScenarioId(draft.title, now)): Scenario {
   return scenarioSchema.parse({
     ...draft,
-    id: customScenarioId(draft.title, now),
+    id,
     track,
     max_user_turns: 6,
   });
