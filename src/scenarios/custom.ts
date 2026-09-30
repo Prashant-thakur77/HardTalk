@@ -4,6 +4,7 @@ import { z } from 'zod';
 
 import { getTrack } from '../tracks';
 import { trackIdSchema } from '../tracks/schema';
+import { customScenarioId, isCustomScenario } from './ids';
 import { scenarioFieldsSchema, scenarioSchema, type Scenario } from './schema';
 
 const defaultsSchema = scenarioFieldsSchema
@@ -22,9 +23,8 @@ export const customScenarioFormSchema = z.object({
 export type CustomScenarioForm = z.infer<typeof customScenarioFormSchema>;
 
 export function buildCustomScenario(form: CustomScenarioForm, now = Date.now()): Scenario {
-  const slug = form.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 40);
   return scenarioSchema.parse({
-    id: `custom-${slug || 'scenario'}-${now}`,
+    id: customScenarioId(form.title, now),
     track: form.track,
     title: form.title,
     summary: `${form.personaName} is likely to push back: ${form.pushback}`,
@@ -44,7 +44,7 @@ export function buildCustomScenario(form: CustomScenarioForm, now = Date.now()):
   });
 }
 
-export const isCustomScenario = (id: string) => id.startsWith('custom-');
+export { isCustomScenario };
 
 const STORAGE_KEY = 'hardtalk.custom-scenarios.v1';
 let customScenarios: Scenario[] = [];

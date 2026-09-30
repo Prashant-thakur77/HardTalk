@@ -14,3 +14,4 @@ key_line:
   none: No result the grader could quote from what you said.
   from: evidence
 custom_opening_line: Thanks for coming in. Shall we get started?
+paste_label: "Paste the job posting you're applying to."

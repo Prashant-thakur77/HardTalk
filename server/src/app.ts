@@ -5,8 +5,11 @@ import { gradeTranscript, GradingError, type GradeModel } from '../../src/gradin
 import { trackGradeSchema } from '../../src/grading/rubric.schema';
 import { turnSchema } from '../../src/grading/transcript';
 import { detectDistress } from '../../src/safety/rules';
+import { MAX_SOURCE_CHARS, MIN_SOURCE_CHARS } from '../../src/scenarios/draft';
 import { scenarioSchema, type Scenario } from '../../src/scenarios/schema';
+import { trackIdSchema, type Track } from '../../src/tracks/schema';
 import { getScenario, getTrack, graderConfig, safetyConfig } from './data';
+import { DraftError } from './drafter';
 import { rateLimit } from './limits';
 
 /** Each service is optional so the server runs with whichever keys are configured. */
@@ -15,6 +18,8 @@ export interface Services {
   mintVoiceToken?: () => Promise<string>;
   /** Model-based distress check for lines the shared rules pass. Live mode only. */
   checkDistress?: (line: string) => Promise<boolean>;
+  /** Drafts a scenario from pasted text (Pro). Throws DraftError when it cannot. */
+  draftScenario?: (track: Track, source: string) => Promise<Scenario>;
   /** Provider calls allowed per client address per window. */
   limit?: { max: number; windowMs: number };
 }
@@ -51,6 +56,7 @@ export function createApp(services: Services) {
   const limited = rateLimit(services.limit ?? DEFAULT_LIMIT);
   app.use('/grade', limited);
   app.use('/voice/token', limited);
+  app.use('/scenario/draft', limited);
   app.use('/safety/check', rateLimit({ max: 600, windowMs: DEFAULT_LIMIT.windowMs }));
 
   app.get('/health', (c) =>
@@ -59,6 +65,7 @@ export function createApp(services: Services) {
       grading: Boolean(services.gradeModelFor),
       voice: Boolean(services.mintVoiceToken),
       safetyModel: Boolean(services.checkDistress),
+      drafting: Boolean(services.draftScenario),
     }),
   );
 
@@ -87,6 +94,24 @@ export function createApp(services: Services) {
       return c.json({ grade: result.grade, downgraded: result.downgraded });
     } catch (error) {
       if (error instanceof GradingError) return c.json({ error: error.message }, 422);
+      throw error;
+    }
+  });
+
+  app.post('/scenario/draft', async (c) => {
+    if (!services.draftScenario) return c.json({ error: 'Drafting is not configured on this server.' }, 503);
+    const body = z
+      .strictObject({ track: trackIdSchema, source: z.string().trim().min(MIN_SOURCE_CHARS).max(MAX_SOURCE_CHARS) })
+      .safeParse(await c.req.json().catch(() => null));
+    if (!body.success) {
+      return c.json({ error: `Expected { track, source } with ${MIN_SOURCE_CHARS}–${MAX_SOURCE_CHARS} characters.` }, 400);
+    }
+    // Pasted text that sounds like distress is not turned into a roleplay.
+    if (detectDistress(body.data.source, safetyConfig)) return c.json({ error: 'This text was not drafted.', safety: true }, 422);
+    try {
+      return c.json({ scenario: await services.draftScenario(getTrack(body.data.track), body.data.source) });
+    } catch (error) {
+      if (error instanceof DraftError) return c.json({ error: error.message }, 422);
       throw error;
     }
   });

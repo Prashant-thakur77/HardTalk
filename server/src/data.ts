@@ -21,6 +21,10 @@ export const graderConfig = graderConfigSchema.parse(load('prompts/grader.yaml')
 
 export const safetyConfig = safetyConfigSchema.parse(load('safety.yaml'));
 
+export const drafterConfig = z
+  .strictObject({ instructions: z.string().includes('{{practising}}'), request: z.string().includes('{{source}}') })
+  .parse(load('prompts/drafter.yaml'));
+
 export const safetyClassifierConfig = z
   .strictObject({ instructions: z.string().min(1), request: z.string().includes('{{line}}') })
   .parse(load('prompts/safety-classifier.yaml'));

@@ -7,18 +7,18 @@ import type { SessionMode } from '@/attempts/store';
 import { config } from '@/config';
 import { getScenario } from '@/scenarios';
 import { isCustomScenario } from '@/scenarios/custom';
-import { peopleIn, STANCE_LABEL } from '@/scenarios/people';
+import { peopleIn } from '@/scenarios/people';
 import { difficultySchema, type Difficulty } from '@/scenarios/schema';
 import { startSession } from '@/session/start';
 import { getTrack } from '@/tracks';
 import { Button } from '@/ui/Button';
 import { ChoiceGroup } from '@/ui/ChoiceGroup';
-import { Face } from '@/ui/Face';
 import { MockBanner } from '@/ui/MockBanner';
 import { PurchaseNotice } from '@/ui/PurchaseNotice';
+import { RoomCard } from '@/ui/RoomCard';
 import { Segmented } from '@/ui/Segmented';
 import { Screen } from '@/ui/Screen';
-import { colors, shadow, space, type } from '@/ui/theme';
+import { colors, space, type } from '@/ui/theme';
 
 const MODES = [
   { value: 'voice', label: 'Talk', description: 'Speak out loud. Live captions for everyone.' },
@@ -79,33 +79,7 @@ export default function ScenarioBrief() {
       />
       <ChoiceGroup label="How do you want to practise?" choices={MODES} selected={mode} onSelect={setMode} horizontal />
 
-      <View style={styles.room}>
-        <Text style={styles.label} accessibilityRole="header">
-          Who’s in the room, and what they’ll ask
-        </Text>
-        {people.map((person) => (
-          <View key={person.name} style={styles.person}>
-            <Face face={person.face} mood={person.mood} size={52} reduceMotion={reduceMotion} />
-            <View style={styles.personText}>
-              <Text style={styles.personName}>{person.name}</Text>
-              <Text style={type.caption}>{person.role}</Text>
-              <Text style={[styles.stance, person.stance === 'agrees' && styles.agrees]}>{STANCE_LABEL[person.stance]}</Text>
-              {person.asksAbout.length > 0 ? (
-                <View
-                  style={styles.topics}
-                  accessible
-                  accessibilityLabel={`${person.name} will ask about: ${person.asksAbout.join(', ')}`}>
-                  {person.asksAbout.map((topic) => (
-                    <View key={topic} style={styles.topic}>
-                      <Text style={styles.topicText}>{topic}</Text>
-                    </View>
-                  ))}
-                </View>
-              ) : null}
-            </View>
-          </View>
-        ))}
-      </View>
+      <RoomCard people={people} reduceMotion={reduceMotion} />
       {track.tip ? (
         <View style={styles.goal}>
           <Text style={styles.label}>Tip</Text>
@@ -131,23 +105,6 @@ export default function ScenarioBrief() {
 
 const styles = StyleSheet.create({
   track: { fontSize: 13, fontWeight: '800', color: colors.primary, textTransform: 'uppercase', letterSpacing: 0.5 },
-  room: {
-    backgroundColor: colors.surface,
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: colors.border,
-    padding: space.md,
-    gap: space.sm,
-    ...shadow,
-  },
-  person: { flexDirection: 'row', alignItems: 'flex-start', gap: space.sm },
-  topics: { flexDirection: 'row', flexWrap: 'wrap', gap: space.xs, marginTop: space.xs },
-  topic: { backgroundColor: colors.track, borderRadius: 6, paddingHorizontal: 8, paddingVertical: 3 },
-  topicText: { fontSize: 13, fontWeight: '600', color: colors.text },
-  personText: { flex: 1, gap: 1 },
-  personName: { fontSize: 17, fontWeight: '700', color: colors.text },
-  stance: { fontSize: 13, fontWeight: '700', color: colors.warning },
-  agrees: { color: colors.success },
   goal: { gap: 2 },
   goalCard: { gap: 2, backgroundColor: colors.quote, borderRadius: 14, padding: space.md },
   goalText: { fontSize: 17, lineHeight: 24, fontWeight: '600', color: colors.text },

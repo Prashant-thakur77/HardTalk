@@ -159,13 +159,19 @@ export default function ScenarioList() {
       ) : null}
       {custom.filter((scenario) => scenario.track === trackId).map(card)}
 
-      <View style={styles.actions}>
+      <View style={styles.bring}>
+        <Text style={styles.continueLabel}>Bring the real one</Text>
+        <Text style={type.body}>
+          Paste the job posting you’re applying to, your pitch, or the motion. HardTalk builds the panel for it.
+        </Text>
         <Button
           label={pro ? 'Create your own scenario' : 'Create your own scenario (Pro)'}
-          variant="secondary"
           onPress={() => void openCustomScenario()}
-          hint="Write a conversation with your real names and stakes"
+          hint="Drafts a panel from a job posting, pitch or motion you paste"
         />
+      </View>
+
+      <View style={styles.actions}>
         {pro ? (
           <Button label="Your progress" variant="secondary" onPress={() => router.push('/history')} />
         ) : null}
@@ -235,6 +241,7 @@ const styles = StyleSheet.create({
     gap: space.sm,
     ...shadow,
   },
+  bring: { backgroundColor: colors.quote, borderRadius: 16, padding: space.md, gap: space.sm },
   continueLabel: { fontSize: 13, fontWeight: '800', color: colors.primary, textTransform: 'uppercase', letterSpacing: 0.5 },
   continueTitle: { fontSize: 17, fontWeight: '700', color: colors.text },
   summary: { color: colors.textMuted },

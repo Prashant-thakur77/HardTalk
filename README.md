@@ -2,13 +2,14 @@
 
 Practise the conversation before you have it.
 
-HardTalk is a practice room for the spoken moments you only get one shot at: your first job interview, the Q&A after your first pitch, a debate, or telling a teammate their PR is blocking the release. It is built for students and people early in their careers who are about to do one of these for the first time.
+HardTalk is the practice panel you don't have. It is for the spoken moments you only get one shot at: your first job interview, the Q&A after your first pitch, a debate, or telling a teammate their PR is blocking the release. It is built for students and people early in their careers, who rarely have a room of experienced people to rehearse with.
 
 You say it out loud to a room of AI personas who push back, each with their own face, voice and line of questioning. Then you get a scorecard that quotes your own words as the evidence for every score, and one better line to try. You try again and see the score move.
 
 - **Every score shows its evidence.** A score above 1 must quote something you actually said, and code (not the model) throws out any quote you didn't say.
 - **The rubrics are open.** Thirteen anchored rubrics in `data/rubrics/`, each citing a named framework (SBI, Nonviolent Communication, Crucial Conversations, STAR, the Pyramid Principle, Toulmin and more).
 - **A panel, not a chatbot.** An investor who likes you, one who doubts the model, an advisor who asks what stops a copycat. The brief tells you what each will ask about.
+- **Bring the real one (Pro).** Paste the job posting you are applying to, your pitch, or the motion, and HardTalk drafts a panel for that exact moment: who is in the room, what each will push on, and what you need to leave with.
 - **The whole loop works with a screen reader and no audio**, and saying "stop" ends it at once, unscored.
 
 ![HardTalk in mock mode: an interview panel of Priya, Tom and Grace; a first try scores 6/16, the retry scores 15/16](docs/demo.gif)
@@ -38,7 +39,7 @@ That is mock mode, and it needs no API keys, no microphone and no network. It re
 4. Read the scorecard. The track's four rubrics are each scored 1 to 4, every score above 1 quotes something you actually said, and each comes with one line to try next time. Your key line (your ask, your close, your result or your claim) is pulled out at the top.
 5. Retry. The scorecard shows each score before and after, side by side.
 
-Three graded sessions are free, in any track. Pro (the RevenueCat `pro` entitlement) adds unlimited grading, your own scenarios in any track (your real interview, your real pitch) and progress history. The paywall opens in exactly two places: starting a fourth graded session, and tapping "Create your own scenario". At the session limit its copy names the conversation you are starting and how your score has moved on it ("Keep practising 'Your teammate's PR is blocking the release'. Your score on it so far: 7 → 14 out of 16."); at "Create your own scenario" it says why you would write one. The words come from `data/paywall.yaml` and reach RevenueCat's paywall as custom variables. The free sessions are counted on the device, so deleting your history does not reset them; reinstalling does, because there are no accounts. Restore purchases is on the home screen.
+Three graded sessions are free, in any track. Pro (the RevenueCat `pro` entitlement) adds unlimited grading, progress history, and your own scenarios: paste the real job posting, pitch or motion and a panel is drafted for it (`POST /scenario/draft`, prompt in `data/prompts/drafter.yaml`), or describe it in five answers. The paywall opens in exactly two places: starting a fourth graded session, and tapping "Create your own scenario". At the session limit its copy names the conversation you are starting and how your score has moved on it ("Keep practising 'Your teammate's PR is blocking the release'. Your score on it so far: 7 → 14 out of 16."); at "Create your own scenario" it says why you would write one. The words come from `data/paywall.yaml` and reach RevenueCat's paywall as custom variables. The free sessions are counted on the device, so deleting your history does not reset them; reinstalling does, because there are no accounts. Restore purchases is on the home screen.
 
 ## How it works
 
@@ -48,6 +49,7 @@ flowchart LR
   Server -- "short-lived token" --> App
   App <-- "WebRTC audio" --> Persona["ElevenLabs agent<br/>persona and panel on Gemini,<br/>one voice per person"]
   App -- "POST /grade (transcript)" --> Server
+  App -- "POST /scenario/draft (pasted text, Pro)" --> Server
   Server -- "structured JSON" --> Grader["Claude grader"]
   Server -- "evidence-checked grade" --> App
 ```

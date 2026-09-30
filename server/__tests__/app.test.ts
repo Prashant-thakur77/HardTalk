@@ -3,6 +3,7 @@ import { describe, expect, it, vi } from 'vitest';
 import type { GradeModel } from '../../src/grading/grade';
 import type { Grade } from '../../src/grading/rubric.schema';
 import { createApp } from '../src/app';
+import { DraftError } from '../src/drafter';
 
 const turns = [
   { speaker: 'persona', text: "Hey, what's up?" },
@@ -158,7 +159,7 @@ describe('POST /voice/token', () => {
 describe('GET /health', () => {
   it('reports which services are configured', async () => {
     const response = await createApp({ mintVoiceToken: async () => 't' }).request('/health');
-    expect(await response.json()).toEqual({ ok: true, grading: false, voice: true, safetyModel: false });
+    expect(await response.json()).toEqual({ ok: true, grading: false, voice: true, safetyModel: false, drafting: false });
   });
 });
 
@@ -212,5 +213,46 @@ describe('limits', () => {
     });
     expect(status).toBe(400);
     expect(callModel).not.toHaveBeenCalled();
+  });
+});
+
+describe('POST /scenario/draft', () => {
+  const source = 'Junior Software Engineer (Graduate). You will build and test features for our booking platform. '.repeat(2);
+
+  it('says so when drafting is not configured', async () => {
+    const { status } = await post(createApp({}), { track: 'interview', source }, '/scenario/draft');
+    expect(status).toBe(503);
+  });
+
+  it('drafts from pasted text with the chosen track', async () => {
+    const draftScenario = vi.fn().mockResolvedValue({ id: 'custom-x-1' });
+    const { status, json } = await post(createApp({ draftScenario }), { track: 'interview', source }, '/scenario/draft');
+    expect(status).toBe(200);
+    expect(json.scenario).toEqual({ id: 'custom-x-1' });
+    expect(draftScenario).toHaveBeenCalledWith(expect.objectContaining({ id: 'interview' }), source.trim());
+  });
+
+  it('refuses text too short to draft from, and an unknown track', async () => {
+    const draftScenario = vi.fn();
+    const app = createApp({ draftScenario });
+    expect((await post(app, { track: 'interview', source: 'Too short.' }, '/scenario/draft')).status).toBe(400);
+    expect((await post(app, { track: 'karaoke', source }, '/scenario/draft')).status).toBe(400);
+    expect(draftScenario).not.toHaveBeenCalled();
+  });
+
+  it('does not turn text that sounds like distress into a roleplay', async () => {
+    const draftScenario = vi.fn();
+    const distressed = `${source} Honestly I don't want to be alive anymore.`;
+    const { status, json } = await post(createApp({ draftScenario }), { track: 'workplace', source: distressed }, '/scenario/draft');
+    expect(status).toBe(422);
+    expect(json.safety).toBe(true);
+    expect(draftScenario).not.toHaveBeenCalled();
+  });
+
+  it('passes on why a draft failed', async () => {
+    const draftScenario = vi.fn().mockRejectedValue(new DraftError('The panel could not be drafted.'));
+    const { status, json } = await post(createApp({ draftScenario }), { track: 'pitch', source }, '/scenario/draft');
+    expect(status).toBe(422);
+    expect(json.error).toBe('The panel could not be drafted.');
   });
 });

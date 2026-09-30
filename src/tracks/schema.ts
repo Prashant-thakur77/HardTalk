@@ -29,6 +29,8 @@ export const trackSchema = z
       from: dimensionSchema,
     }),
     custom_opening_line: z.string().min(1),
+    /** What to paste to have a panel drafted for it: the prompt above the text box. */
+    paste_label: z.string().min(1),
     /** One practical tip shown on the brief, for habits of this kind of conversation. */
     tip: z.string().min(1).optional(),
   })

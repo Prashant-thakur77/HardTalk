@@ -15,3 +15,4 @@ key_line:
   none: No next step the grader could quote from what you said.
   from: ask_made
 custom_opening_line: Thanks for that. I have a few questions before we go any further.
+paste_label: "Paste your pitch summary: what you do, your traction, and what you're asking for."

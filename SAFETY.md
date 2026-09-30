@@ -36,6 +36,7 @@ When a line is flagged, the call ends and a calm support screen (`app/support.ts
 - Saved transcripts and scores are stored only on the device (AsyncStorage). There are no accounts and no cloud sync. "Delete my practice history" on the home screen removes all of them after a second tap.
 - In live mode the conversation itself leaves the device to be run and graded: audio and text go to ElevenLabs, and the text transcript goes to Anthropic through `/server`.
 - The app never records or saves audio. In live mode, audio streams to the ElevenLabs agent for the conversation. ElevenLabs keeps call audio and transcripts by default; `docs/DEVICE.md` says how to turn off audio saving and shorten retention on the agent. Grading sends the text transcript to Anthropic's API.
+- "Bring the real one" (Pro) sends the text the user pastes, such as a job posting, to Anthropic through `/server` to draft the panel. The draft is only saved if the user saves it, and then only on the device. Pasted text that trips the distress rules is not drafted. The drafter is told to invent names instead of using real people's (`data/prompts/drafter.yaml`) and to keep every level professional; the draft then passes the same scenario schema and persona guardrails as the built-ins.
 - `/server` holds every provider key. The app only receives short-lived voice tokens. The RevenueCat key in the app is RevenueCat's public SDK key, which is designed to ship in apps.
 
 ## What this does not do

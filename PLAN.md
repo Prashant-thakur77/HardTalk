@@ -9,36 +9,26 @@ errors, old saved attempts load. Its fixable findings (D-087, D-090 to D-092) ar
 fixed by pushing. The score is capped by C1 and C3, which only the owner-side phone session in Next
 can move.
 
-## Now (round 12): practice tracks, panels and faces
+## Now (round 13): bring the real one
 
-Owner decision, 2026-09-29: widen HardTalk from three workplace conversations to four
-**practice tracks**, each graded on its own framework-cited rubrics. Built data-first, so a
-judge can read every track, rubric and persona without reading code.
+Evidence from past winners (Shipaton 2025: Payout, Heartbeat Hero; Gemini API Competition:
+Vite Vere) is that entries win by helping one person with their own real problem. HardTalk made
+you practise our scenarios; this round makes it practise yours.
 
-1. **Tracks** [C4] — `data/tracks/*.yaml`: Workplace (the original three), Pitch Q&A,
-   Interview and Debate. A track names the setting the persona is in, what the grader is
-   grading, its four rubrics and its "key line" (your ask, your close, your result, your claim).
-   Every track has four rubrics, so every score is still out of 16 and the retry delta and the
-   paywall copy stay comparable.
-2. **Nine new rubrics** [C4] — anchored 1–4, each citing a named framework: Pyramid Principle
-   (answer first), Made to Stick (evidence), LAER (objections), STAR (structured stories),
-   Kolb (ownership), Toulmin (claim, rebuttal, held position) and Rapoport's rules (steelman).
-3. **Panels** [C1] [C4] — a scenario can seat up to two more people with their own stance: one
-   who agrees with you, one who keeps questioning. Captions say who spoke. Live mode voices
-   them through ElevenLabs multi-voice tags; mock mode replays them.
-4. **Faces** [C1] — every persona gets a drawn face (data in the scenario YAML, SVG in code, no
-   image assets or network). It blinks, talks while speaking, and its expression follows the
-   difficulty level and your final score. Reduce Motion stills it. Decorative to screen readers.
-5. **Three new scenarios with mock replays** [C1] — a seed-round Q&A with two investors, a
-   first-job interview panel, and a debate with a moderator. Mock mode stays complete for all six.
-6. **Custom scenarios pick a track** [C3] — Pro users can write a pitch, interview or debate of
-   their own, graded on that track's rubrics.
-7. **Generic grading** [C2] — the grade is keyed by the track's rubrics; the model's output schema
-   is built per track, so a missing or extra dimension is a schema error and gets the one retry.
-   Saved attempts from before the change still load.
+1. **Draft a panel from the real thing** [C4] [C3] — Pro: paste the job posting, your pitch
+   summary, the debate motion or the work situation, pick a track, and the server drafts a
+   scenario for it with Claude: a lead and up to two panelists, each asking a different kind of
+   question grounded in the pasted text, a goal, levels and an opening line. The draft is
+   validated by the same scenario schema as the built-ins, previewed, then saved as a custom
+   scenario. Prompt and output rules in `data/prompts/drafter.yaml`.
+2. **Mock mode shows it too** [C1] [C2] — one sample text and its recorded draft per track, so a
+   judge sees the feature with zero keys; labelled as a sample.
+3. **Positioning** [C4] — "The practice panel you don't have": README, home and paywall copy.
+4. **UX pass to 9** [C1] — a fresh audit after the feature, then fix what it finds.
 
-Acceptance: `pnpm test`, `pnpm lint`, `pnpm typecheck` clean; browser e2e runs a scenario in every
-track with zero page errors; a hostile review finds no P0.
+Acceptance: `pnpm test`, `pnpm lint`, `pnpm typecheck` clean; the draft endpoint is unit-tested
+with a fake model; the browser flow paste → preview → save → brief works in mock mode with zero
+page errors; an independent UX re-score.
 
 ## Next
 

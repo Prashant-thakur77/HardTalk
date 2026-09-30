@@ -14,3 +14,4 @@ key_line:
   none: No request the grader could quote from what you said.
   from: ask_made
 custom_opening_line: Hey, you wanted to talk?
+paste_label: "Describe the situation in your own words: who, what happened, and what you need."

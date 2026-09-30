@@ -14,6 +14,7 @@ key_line:
   none: No claim the grader could quote from what you said.
   from: claim_clarity
 custom_opening_line: Go ahead, make your case. I'm not convinced yet.
+paste_label: "Paste the motion, your side, and any context you've been given."
 tip: >-
   To cut in, say "hang on" or "let me answer that". "Stop" on its own, as in "Stop, you're
   twisting it", ends the practice unscored, because stop always works.
