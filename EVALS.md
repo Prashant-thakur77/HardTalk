@@ -9,6 +9,7 @@ The scorecard is only worth showing if its scores mean something. This file is h
 | Gold set: 30 hand-labelled conversations | Done for the Workplace track (`evals/gold/`). Pitch Q&A, Interview and Debate have no gold set yet, so their grades are uncalibrated (D-084). |
 | Metrics: quadratic-weighted kappa, agreement, run-to-run stability | Done, unit-tested against scikit-learn (`evals/__tests__/metrics.test.ts`) |
 | Baseline ("always score 2") | Run, numbers below |
+| Free local grader (qwen2.5 7B on Ollama), 1 run | Run on 30 September 2026, numbers below. It beats the baseline on every dimension, and is weakest on clarity and empathy. |
 | Claude grader against the gold set, 3 runs | **Not run yet.** It needs an Anthropic API key, and none was available where this was built. `pnpm eval` produces the table below with the real numbers. |
 
 That last row is the honest state of things. No grader numbers are shown here until they have been produced by `pnpm eval`.
@@ -58,6 +59,21 @@ A rater that ignores the conversation and gives 2 everywhere. Any grader worth s
 | empathy | 0.00 | 20% | 87% |
 | ask_made | 0.00 | 10% | 77% |
 | boundary_held | 0.00 | 20% | 70% |
+
+### Free local grader: qwen2.5 7B on Ollama
+
+The grader HardTalk uses when there is no paid key (`MODEL_BASE_URL=http://localhost:11434/v1`, `GRADER_MODEL=qwen2.5:7b`), on an RTX 3050 laptop GPU. One run, so there is no stability figure. Raw scores: `evals/results/qwen2.5-7b-2026-09-30T16-37-42-494Z.json`.
+
+| Dimension | Kappa | Exact | Within 1 |
+| --- | --- | --- | --- |
+| clarity | 0.33 | 40% | 73% |
+| empathy | 0.30 | 30% | 83% |
+| ask_made | 0.81 | 63% | 93% |
+| boundary_held | 0.67 | 47% | 87% |
+
+Evidence gate: 15 of 30 gradings needed the one retry, and 6 dimension scores were lowered to 1 for quotes the user never said. Median time per grading: 81 s with four gradings queued at once; a single grading in the app takes about 15 s.
+
+What it means: the small model is close to the labels on the two concrete skills (did you make a clear ask, did you hold your boundary) and weak on the two that need judgement about tone (clarity by SBI, empathy by NVC). The evidence gate earns its place here: half the gradings quoted something that was not said, and code caught it.
 
 ### Claude grader
 
