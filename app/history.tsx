@@ -6,6 +6,7 @@ import { MAX_TOTAL, scoredDimensions, totalScore as total } from '@/grading/rubr
 import { rubrics } from '@/grading/rubrics';
 import { usePro } from '@/purchases';
 import { getScenario } from '@/scenarios';
+import { Button } from '@/ui/Button';
 import { Screen } from '@/ui/Screen';
 import { SkillBar } from '@/ui/SkillBar';
 import { colors, MIN_TARGET, radius, space, type } from '@/ui/theme';
@@ -23,7 +24,12 @@ export default function History() {
 
   return (
     <Screen>
-      {byScenario.length === 0 ? <Text style={type.body}>No graded conversations yet.</Text> : null}
+      {byScenario.length === 0 ? (
+        <View style={styles.card}>
+          <Text style={type.body}>No graded conversations yet. Your first scorecard will show up here.</Text>
+          <Button label="Pick a conversation" onPress={() => router.dismissTo('/')} />
+        </View>
+      ) : null}
       {byScenario.map((scenarioId) => {
         const list = attempts.filter((attempt) => attempt.scenarioId === scenarioId);
         const firstGrade = list[0]!.grade;
@@ -35,9 +41,14 @@ export default function History() {
             <Text style={type.heading} accessibilityRole="header">
               {getScenario(scenarioId)?.title ?? 'Deleted scenario'}
             </Text>
-            <Text style={type.caption}>
-              {list.length} {list.length === 1 ? 'attempt' : 'attempts'} · first {first}/{MAX_TOTAL} · latest {latest}/{MAX_TOTAL}
-            </Text>
+            <View style={styles.progress}>
+              <Text style={styles.fromTo}>
+                {first} → {latest}
+              </Text>
+              <Text style={type.caption}>
+                out of {MAX_TOTAL}, over {list.length} {list.length === 1 ? 'attempt' : 'attempts'}
+              </Text>
+            </View>
             {list.length > 1
               ? scoredDimensions(latestGrade).map(([dimension, result]) => {
                   const before = firstGrade.dimensions[dimension]?.score;
@@ -64,12 +75,15 @@ export default function History() {
                 accessibilityRole="button"
                 accessibilityLabel={`Attempt ${attempt.number}, ${attempt.difficulty}, ${total(attempt.grade)} out of ${MAX_TOTAL}. Opens the scorecard.`}
                 onPress={() => router.push({ pathname: '/scorecard/[attemptId]', params: { attemptId: attempt.id } })}
-                style={styles.row}>
-                <Text style={type.body}>
-                  Attempt {attempt.number} · {attempt.difficulty}
-                </Text>
+                style={({ pressed }) => [styles.row, pressed && styles.pressed]}>
+                <View>
+                  <Text style={type.body}>
+                    Attempt {attempt.number} · {attempt.difficulty}
+                  </Text>
+                  <Text style={type.caption}>{new Date(attempt.createdAt).toLocaleDateString()}</Text>
+                </View>
                 <Text style={styles.score}>
-                  {total(attempt.grade)}/{MAX_TOTAL}
+                  {total(attempt.grade)}/{MAX_TOTAL} ›
                 </Text>
               </Pressable>
             ))}
@@ -98,6 +112,9 @@ const styles = StyleSheet.create({
     borderTopColor: colors.border,
   },
   score: { fontSize: 17, fontWeight: '700', color: colors.primary },
+  progress: { flexDirection: 'row', alignItems: 'baseline', gap: space.sm, flexWrap: 'wrap' },
+  pressed: { opacity: 0.6 },
+  fromTo: { fontSize: 24, fontWeight: '800', color: colors.text },
   skill: { gap: 4 },
   skillHead: { flexDirection: 'row', justifyContent: 'space-between' },
   skillName: { fontSize: 15, fontWeight: '600', color: colors.text },

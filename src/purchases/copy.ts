@@ -9,6 +9,7 @@ export const paywallCopySchema = z.strictObject({
   session_limit: reasonCopy,
   session_limit_new: reasonCopy,
   custom_scenario: reasonCopy,
+  unlocked: z.string().min(1),
   features: z.array(z.string()).min(1),
   plans: z.array(z.strictObject({ id: z.string(), label: z.string(), price: z.string(), note: z.string().optional() })),
 });
@@ -20,6 +21,8 @@ function fill(text: string, context: PaywallContext): string {
     .replace('{{scenario_title}}', context.scenarioTitle ?? 'this conversation')
     .replace('{{score_line}}', context.scoreLine ?? '');
 }
+
+export const unlockedMessage = copy.unlocked;
 
 /** The paywall's words for this moment. The same result feeds the mock and RevenueCat. */
 export function paywallCopy(context: PaywallContext) {

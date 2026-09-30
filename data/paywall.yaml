@@ -14,6 +14,8 @@ custom_scenario:
   headline: Rehearse the conversation you're actually dreading
   body: Write your own scenario with the real names and stakes, and get the same pushback and scorecard.
   score: "Your latest score, on \"{{scenario_title}}\": {{score_line}}."
+# Shown the moment the purchase (or a restore from the paywall) lands.
+unlocked: "Pro is on: unlimited grading, your own scenarios and your progress history."
 features:
   - Unlimited graded sessions and retries
   - Your own scenarios, with your real names and stakes

@@ -1,4 +1,4 @@
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { Linking, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { safety } from '@/safety';
@@ -6,16 +6,22 @@ import { Button } from '@/ui/Button';
 import { Screen } from '@/ui/Screen';
 import { colors, MIN_TARGET, radius, space, type } from '@/ui/theme';
 
-/** Shown instead of a scorecard when a conversation sounds like more than practice. */
+/**
+ * Shown instead of a scorecard when a conversation sounds like more than practice, and when the
+ * user asks for it after stopping. Only the first says why the practice ended.
+ */
 export default function Support() {
+  const { reason } = useLocalSearchParams<{ reason?: string }>();
+  const chosen = reason === 'chosen';
   return (
     <Screen footer={<Button label="Back to home" variant="secondary" onPress={() => router.dismissTo('/')} />}>
       <Text style={type.title} accessibilityRole="header">
-        Let’s stop here.
+        {chosen ? 'Take a moment.' : 'Let’s stop here.'}
       </Text>
       <Text style={type.body}>
-        It sounded like this might be about more than practice. The roleplay has ended, and nothing from it was
-        scored or saved.
+        {chosen
+          ? 'You ended the practice, and nothing from it was scored or saved.'
+          : 'It sounded like this might be about more than practice. The roleplay has ended, and nothing from it was scored or saved.'}
       </Text>
       <Text style={type.body}>
         If things feel heavy right now, talking to someone can help. These services are free and confidential.

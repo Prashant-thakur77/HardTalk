@@ -2,6 +2,7 @@ import { useSyncExternalStore } from 'react';
 
 import { config } from '@/config';
 
+import { unlockedMessage } from './copy';
 import { setPro } from './entitlement';
 import { mockPurchases } from './mock';
 import type { PaywallContext, PaywallOutcome, PurchasesProvider } from './types';
@@ -29,16 +30,25 @@ function purchases(): PurchasesProvider | null {
   return provider;
 }
 
-// A purchase problem is shown where the user is, never swallowed.
-let notice: string | null = null;
-const noticeListeners = new Set<() => void>();
-
-function setNotice(message: string | null) {
-  notice = message;
-  noticeListeners.forEach((listener) => listener());
+/** A purchase problem is shown where the user is, never swallowed; a purchase that lands says so. */
+export interface PurchaseNoticeMessage {
+  tone: 'error' | 'success';
+  text: string;
 }
 
-export function usePurchaseNotice(): string | null {
+const SUCCESS_MS = 6000;
+let notice: PurchaseNoticeMessage | null = null;
+let clearSuccess: ReturnType<typeof setTimeout> | undefined;
+const noticeListeners = new Set<() => void>();
+
+function setNotice(message: string | null, tone: PurchaseNoticeMessage['tone'] = 'error') {
+  clearTimeout(clearSuccess);
+  notice = message ? { tone, text: message } : null;
+  noticeListeners.forEach((listener) => listener());
+  if (message && tone === 'success') clearSuccess = setTimeout(() => setNotice(null), SUCCESS_MS);
+}
+
+export function usePurchaseNotice(): PurchaseNoticeMessage | null {
   return useSyncExternalStore(
     (listener) => {
       noticeListeners.add(listener);
@@ -74,7 +84,10 @@ export async function presentPaywall(context: PaywallContext): Promise<PaywallOu
   setNotice(null);
   try {
     const outcome = await active.presentPaywall(context);
-    if (outcome === 'purchased' || outcome === 'restored') setPro(await active.refresh());
+    if (outcome === 'purchased' || outcome === 'restored') {
+      setPro(await active.refresh());
+      setNotice(unlockedMessage, 'success');
+    }
     if (outcome === 'error') setNotice('The purchase did not go through. Nothing was charged.');
     return outcome;
   } catch (error) {
