@@ -10,36 +10,70 @@ A mobile app where a panel of AI personas pushes back on your interview answers,
 or a hard talk at work, out loud. Then it scores you with quotes of your own words, and shows the score
 move when you try again.
 
+<a href="https://youtu.be/3SPjLVNXbgo"><img src="docs/media/demo-thumbnail.jpg" alt="Watch the HardTalk demo on YouTube: a real session on an Android phone" width="720" /></a>
+
 **[▶ Watch the demo](https://youtu.be/3SPjLVNXbgo)** · [Download the video and images](https://github.com/Prashant-thakur77/HardTalk/releases/tag/shipaton-2026)
 
 [![RevenueCat Shipaton 2026: Next Gen Award entry](https://img.shields.io/badge/RevenueCat_Shipaton_2026-Next_Gen_Award_entry-F25A5A)](#built-for-revenuecat-shipaton-2026)
 [![Licence: MIT](https://img.shields.io/badge/licence-MIT-2563EB)](LICENSE)
 [![Mock mode: zero keys](https://img.shields.io/badge/mock_mode-zero_keys,_zero_network-16A34A)](#see-it-in-60-seconds)
+[![Recorded live on Android](https://img.shields.io/badge/recorded_live-Android_phone-3DDC84?logo=android&logoColor=white)](https://youtu.be/3SPjLVNXbgo)
 
+**App** &nbsp;
 [![Expo SDK 57](https://img.shields.io/badge/Expo_SDK-57-000020?logo=expo&logoColor=white)](https://docs.expo.dev/)
 [![React Native 0.86](https://img.shields.io/badge/React_Native-0.86-087EA4?logo=react&logoColor=white)](https://reactnative.dev/)
 [![TypeScript strict](https://img.shields.io/badge/TypeScript-strict-3178C6?logo=typescript&logoColor=white)](tsconfig.json)
-[![RevenueCat](https://img.shields.io/badge/RevenueCat-react--native--purchases_10-F25A5A)](docs/REVENUECAT.md)
+[![Expo Router](https://img.shields.io/badge/Expo_Router-file_routes-000020?logo=expo&logoColor=white)](app/)
+[![expo-audio](https://img.shields.io/badge/expo--audio-mic_and_playback-000020?logo=expo&logoColor=white)](src/voice/)
+[![EAS Build](https://img.shields.io/badge/EAS_Build-development_build-4630EB?logo=expo&logoColor=white)](eas.json)
+
+**Voice and AI** &nbsp;
 [![ElevenLabs](https://img.shields.io/badge/ElevenLabs-voice_agents-111111)](docs/DEVICE.md)
+[![LiveKit WebRTC](https://img.shields.io/badge/LiveKit-WebRTC-FF6352?logo=webrtc&logoColor=white)](src/voice/elevenlabs.ts)
 [![Claude](https://img.shields.io/badge/Claude-grader_and_drafter-D97757?logo=anthropic&logoColor=white)](data/prompts/grader.yaml)
+[![Ollama](https://img.shields.io/badge/Ollama-free_local_grader-000000?logo=ollama&logoColor=white)](server/src/models.ts)
+[![Gemini](https://img.shields.io/badge/Gemini-OpenAI--compatible-8E75B2?logo=googlegemini&logoColor=white)](server/.env.example)
+
+**Payments** &nbsp;
+[![RevenueCat](https://img.shields.io/badge/RevenueCat-purchases_and_paywalls-F25A5A)](docs/REVENUECAT.md)
+[![Test Store](https://img.shields.io/badge/RevenueCat-Test_Store-F25A5A)](docs/REVENUECAT.md)
+
+**Server and quality** &nbsp;
+[![Node.js](https://img.shields.io/badge/Node.js-20-5FA04E?logo=nodedotjs&logoColor=white)](server/)
 [![Hono](https://img.shields.io/badge/Hono-server-E36002?logo=hono&logoColor=white)](server/)
 [![zod](https://img.shields.io/badge/zod-4-3E67B1?logo=zod&logoColor=white)](src/grading/rubric.schema.ts)
-[![Vitest](https://img.shields.io/badge/tested_with-Vitest-6E9F18?logo=vitest&logoColor=white)](#checks)
+[![YAML](https://img.shields.io/badge/data-YAML-CB171E?logo=yaml&logoColor=white)](data/)
+[![Vitest](https://img.shields.io/badge/tests-1,391_passing-6E9F18?logo=vitest&logoColor=white)](#checks)
+[![ESLint](https://img.shields.io/badge/ESLint-zero_warnings-4B32C3?logo=eslint&logoColor=white)](#checks)
+[![pnpm](https://img.shields.io/badge/pnpm-10-F69220?logo=pnpm&logoColor=white)](package.json)
 
 </div>
 
+### A real session, on a real phone
+
+Recorded on an Android development build: live interviewer voices, a vague first try, a retry, and a RevenueCat Test Store purchase.
+
 <table>
   <tr>
-    <td align="center" width="33%"><img src="docs/screens/1-home.jpg" alt="Home: pick a track (Workplace, Pitch Q&amp;A, Interview, Debate) and a conversation" width="240" /><br /><sub><b>1. Pick a track</b></sub></td>
-    <td align="center" width="33%"><img src="docs/screens/2-brief.jpg" alt="Brief: your goal, and who is in the room with what each will ask about" width="240" /><br /><sub><b>2. Meet the room</b></sub></td>
-    <td align="center" width="33%"><img src="docs/screens/3-session.jpg" alt="Session: live captions from a three-person investor panel" width="240" /><br /><sub><b>3. Say it out loud</b></sub></td>
+    <td align="center" width="25%"><img src="docs/screens/live/1-brief.jpg" alt="The brief: Priya, Tom and Grace, what each will ask about, level L2" width="190" /><br /><sub><b>1. Meet the room</b></sub></td>
+    <td align="center" width="25%"><img src="docs/screens/live/2-live-session.jpg" alt="The live session with captions under each interviewer" width="190" /><br /><sub><b>2. Say it out loud</b></sub></td>
+    <td align="center" width="25%"><img src="docs/screens/live/3-first-try-9.jpg" alt="First try scorecard: 9 out of 16, nobody won over" width="190" /><br /><sub><b>3. First try: 9 / 16</b></sub></td>
+    <td align="center" width="25%"><img src="docs/screens/live/4-retry-16.jpg" alt="Retry scorecard: 16 out of 16, 9 to 16, all three won over" width="190" /><br /><sub><b>4. Retry: 9 → 16</b></sub></td>
   </tr>
   <tr>
-    <td align="center"><img src="docs/screens/4-scorecard.jpg" alt="Scorecard: 6 to 14 out of 16 on the retry, and all three investors won over" width="240" /><br /><sub><b>4. See the score move</b></sub></td>
-    <td align="center"><img src="docs/screens/5-paywall.jpg" alt="The mock paywall: the copy RevenueCat's paywall receives, a sample drafted panel and the plans" width="240" /><br /><sub><b>5. The Pro paywall (mock)</b></sub></td>
-    <td align="center"><img src="docs/screens/6-bring.jpg" alt="Mock mode's recorded sample of a panel drafted from a pasted text" width="240" /><br /><sub><b>6. Bring the real one (sample)</b></sub></td>
+    <td align="center"><img src="docs/screens/live/5-revenuecat-paywall.jpg" alt="RevenueCat paywall with Annual and Monthly plans" width="190" /><br /><sub><b>5. RevenueCat paywall</b></sub></td>
+    <td align="center"><img src="docs/screens/live/6-test-store-purchase.jpg" alt="RevenueCat Test Store purchase sheet" width="190" /><br /><sub><b>6. Test Store purchase</b></sub></td>
+    <td align="center"><img src="docs/screens/live/7-panel-from-posting.jpg" alt="A panel built from a pasted job posting: Sunny, Milo and Lila" width="190" /><br /><sub><b>7. A panel from a real posting</b></sub></td>
+    <td align="center"><sub>Full-size images, the cover and the video are in the <a href="https://github.com/Prashant-thakur77/HardTalk/releases/tag/shipaton-2026">release</a>.</sub></td>
   </tr>
 </table>
+
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/charts/retry-dark.svg" />
+    <img src="docs/charts/retry-light.svg" alt="One real session, skill by skill: answered first 2 to 4, structured story 3 to 4, evidence 2 to 4, ownership and learning 2 to 4; total 9 to 16, and the panel went from won over 0 of 3 to 3 of 3" width="760" />
+  </picture>
+</p>
 
 ## What it is
 
@@ -54,6 +88,8 @@ You say it out loud to a room of AI personas who push back, each with their own 
 - **Bring the real one (Pro).** Paste the job posting you are applying to, your pitch, or the motion, and HardTalk drafts a panel for that exact moment: who is in the room, what each will push on, and what you need to leave with.
 - **The whole loop works with a screen reader and no audio**, and saying "stop" ends it at once, unscored.
 
+Mock mode, with no keys, replays the same loop in a browser:
+
 ![HardTalk in mock mode: the brief for a three-investor pitch panel, the replayed conversation, a retry from 6 to 14 that wins over all three, the Pro paywall, and a panel drafted from the sample pitch](docs/demo.gif)
 
 ## At a glance
@@ -65,7 +101,7 @@ You say it out loud to a room of AI personas who push back, each with their own 
 | **Product** | A voiced AI panel that pushes back, a scorecard grounded in quotes of your own words, and a retry that shows the score move. |
 | **Why it is different** | A panel with different stances, not one chatbot; fourteen open rubrics that each cite a named framework; code, not the model, rejects any quote you didn't say. |
 | **Revenue** | Freemium through RevenueCat, entitlement `pro`: Weekly $2.99, Monthly $4.99, Annual $29.99. The paywall opens at two real boundaries only. |
-| **Status** | The whole loop runs in mock mode with no keys. The live loop is built and unit-tested, but not yet run on a phone ([DEFECTS.md](DEFECTS.md) D-001 to D-004). |
+| **Status** | Run live on an Android development build on 1 October 2026: real voices, real grading with quoted evidence, a 9 → 16 retry and a RevenueCat Test Store purchase ([video](https://youtu.be/3SPjLVNXbgo)). Not on a store yet; no users or revenue yet. Mock mode runs the whole loop with no keys. |
 
 ## Business value
 
@@ -74,6 +110,13 @@ You say it out loud to a room of AI personas who push back, each with their own 
 **The pain.** Hiring now takes about 20 interviews per hire, up from 14 in 2021 ([Gem, 2025](https://www.gem.com/blog/10-takeaways-from-the-2025-recruiting-benchmarks-report)). Interview anxiety goes with lower interview performance (r = −.19 across studies; [Powell, Stanley & Brown, 2018](https://psycnet.apa.org/fulltext/2018-44232-001.pdf)), and a third of Americans fear public speaking ([Chapman, 2025](https://www.chapman.edu/wilkinson/research-centers/babbie-center/_files/2025/Key-Findings-Survey-of-America-Fears-2025.pdf)).
 
 **What people use today.** A career coach (about $207 an hour, [Career Sidekick](https://careersidekick.com/career-coach-cost/)), paid mock interviews, a friend, or nothing. Google's free Interview Warmup was retired in 2026 ([reported by Four Leaf](https://four-leaf.ai/blog/google-interview-warmup)), and Poised is shutting down on 8 October 2026 ([notice on its site](https://www.poised.com/)).
+
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/charts/price-dark.svg" />
+    <img src="docs/charts/price-light.svg" alt="Monthly price in US dollars: HardTalk Pro 4.99, Yoodli 8 to 20, Final Round AI from 25, Big Interview 39, VirtualSpeech 45; a career coach is about 207 dollars an hour" width="760" />
+  </picture>
+</p>
 
 | | Focus | Price (Sept 2026) | Where HardTalk differs |
 | --- | --- | --- | --- |
@@ -87,7 +130,7 @@ You say it out loud to a room of AI personas who push back, each with their own 
 
 **Closing the loop.** After you practise one of your own scenarios, the app asks how the real conversation went (it went well, mixed, not this time), and your progress shows it beside your scores. It stays on the device.
 
-**What is not proven yet.** There are no users, no revenue and no measured cost per live session: nothing has run live on a phone (see [DEFECTS.md](DEFECTS.md)). Simulated interview practice has raised job-offer odds in studies of adjacent populations ([pooled analysis, 2024](https://pmc.ncbi.nlm.nih.gov/articles/PMC11232528/)); HardTalk has not been measured, so it claims only practice, not offers.
+**What is not proven yet.** The live loop has run end to end on the developer's own phone, once, on camera. There are no users, no revenue and no measured cost per live session yet, and Restore Purchases has not been filmed (see [DEFECTS.md](DEFECTS.md)). Simulated interview practice has raised job-offer odds in studies of adjacent populations ([pooled analysis, 2024](https://pmc.ncbi.nlm.nih.gov/articles/PMC11232528/)); HardTalk has not been measured, so it claims only practice, not offers.
 
 ## See it in 60 seconds
 
@@ -189,6 +232,13 @@ pnpm lint        # zero warnings
 pnpm typecheck   # TypeScript strict
 pnpm eval        # grader vs hand labels: kappa, agreement, run-to-run stability (needs a key; --baseline does not)
 ```
+
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/charts/calibration-dark.svg" />
+    <img src="docs/charts/calibration-light.svg" alt="Grader agreement with human labels, quadratic weighted kappa: clarity 0.33, empathy 0.30, ask made 0.81, boundary held 0.67; the always-2 baseline is 0 on every skill" width="760" />
+  </picture>
+</p>
 
 [EVALS.md](EVALS.md) explains the gold set and the metrics, and is explicit about what has not been run yet.
 
