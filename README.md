@@ -10,6 +10,8 @@ A mobile app where a panel of AI personas pushes back on your interview answers,
 or a hard talk at work, out loud. Then it scores you with quotes of your own words, and shows the score
 move when you try again.
 
+**[▶ Watch the demo](https://youtu.be/U9owgZuBUGQ)** · [Download the video and images](https://github.com/Prashant-thakur77/HardTalk/releases/tag/shipaton-2026)
+
 [![RevenueCat Shipaton 2026: Next Gen Award entry](https://img.shields.io/badge/RevenueCat_Shipaton_2026-Next_Gen_Award_entry-F25A5A)](#built-for-revenuecat-shipaton-2026)
 [![Licence: MIT](https://img.shields.io/badge/licence-MIT-2563EB)](LICENSE)
 [![Mock mode: zero keys](https://img.shields.io/badge/mock_mode-zero_keys,_zero_network-16A34A)](#see-it-in-60-seconds)
